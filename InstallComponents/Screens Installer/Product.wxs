@@ -11,25 +11,33 @@
            Version="$(var.Version)" 
            Manufacturer="Open Source Automation" 
            UpgradeCode="28e14f5d-5c07-4f3e-9973-163143009269">
-		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine"  />
+
+    <Package Id='*' InstallerVersion="200" Compressed="yes" InstallScope="perMachine"  />
+    
+    <!--<Upgrade Id="28e14f5d-5c07-4f3e-9973-163143009269">
+      <UpgradeVersion OnlyDetect='no' Property='PREVIOUSFOUND' Minimum='0.1.0' IncludeMinimum='yes' Maximum='$(var.Version)' IncludeMaximum='no' />
+    </Upgrade>-->
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high"  />
     <Binary Id="CustomActionsBinary" SourceFile="$(var.SolutionDir)CustomActions\bin\x86\Combined\OSAInstallCustomActions.CA.dll" />
     
-		<Feature Id="ProductFeature" Title="Screens_Installer" Level="1">
+		<Feature Id="ProductFeature" Title="Screens Installer" Level="1">
       <ComponentGroupRef Id="ProductComponents" />
       <ComponentRef Id="ProgramMenuDir" />
     </Feature>
 
-    <CustomAction Id="RegKeysCustomAction"
+   
+    
+    <CustomAction Id="DBUpdateCustomAction"
 					  BinaryKey="CustomActionsBinary"
-					  DllEntry="CheckServerIp"
+					  DllEntry="DatabaseUpdate"
 					  Execute="deferred"
 					  Return="check" />
 
     <InstallExecuteSequence>
-      <Custom Action="RegKeysCustomAction" Before="InstallFinalize">
+      <!--<RemoveExistingProducts Before="InstallInitialize" />-->
+      <Custom Action="DBUpdateCustomAction" Before="InstallFinalize">
         NOT Installed
       </Custom>
     </InstallExecuteSequence>
