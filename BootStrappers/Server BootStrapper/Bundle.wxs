@@ -18,7 +18,9 @@
     <WixVariable Id="WixStdbaLogo" Value="$(var.SolutionDir)Resources\logoSmall.bmp" />
     <Variable Name="InstallFolder" Type="string" Value="[ProgramFiles6432Folder]OSA" >
     </Variable>
-
+    
+    <Variable Name="OSAInstallType" Type="string" Value="Server" />
+      
     <Chain>
       <PackageGroupRef Id='Netfx4Full'/>
       <RollbackBoundary Id="Net4FullInstalled" />
@@ -29,7 +31,7 @@
                   InstallCondition="NOT VersionNT64"
                   Visible="no">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
-
+        <MsiProperty Name="OSAInstallType" Value="HIDE" />
       </MsiPackage>
       <MsiPackage SourceFile="$(var.SolutionDir)InstallComponents\Screens Installer x64\bin\x64\Combined\Screens Installer x64.msi"
                   Id="ScreensPackageIdx64"
@@ -38,6 +40,7 @@
                   InstallCondition="VersionNT64"
                   Visible="no">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
+        <MsiProperty Name="OSAInstallType" Value="HIDE" />
       </MsiPackage>
 
       <MsiPackage SourceFile="$(var.SolutionDir)InstallComponents\Server Installer\bin\x86\Combined\Server Installer.msi"
