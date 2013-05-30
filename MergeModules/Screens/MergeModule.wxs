@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Module Id="Screens" Language="1033" Version="1.0.0.0">
+		<Package Id="b32b823d-f0dc-4225-8318-747ea2417ec0" Manufacturer="Open Source Automation" InstallerVersion="200" />
+
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="MergeRedirectFolder">
+        <Component Id="OSAE.GUI.exe" Guid="A7B96657-0DA3-454E-9ED2-58A4F121DD85" >
+          <File Id='OSAE.GUI.exe' Name='OSAE.GUI.exe' DiskId='1' Source='$(var.SolutionDir)output\OSAE.GUI.exe' KeyPath='yes'  >
+            <!--<Shortcut Id="startmenuManual" Directory="ProgramMenuDir" Name="Screens" Advertise="yes" >
+              <Icon Id="OSAE.GUI.exe" SourceFile="$(var.SolutionDir)Resources\icon.ico" />
+            </Shortcut>
+            <Shortcut Id="desktopIcon" Directory="DesktopFolder" Name="Screens" WorkingDirectory="INSTALLFOLDER" Icon="OSAE.GUI.exe" Advertise="yes" >
+            </Shortcut>-->
+          </File>
+        </Component>
+        <Component Id="OSA.png" Guid="A7B96657-0DA3-454E-9ED2-58A4F121DD83">
+          <File Id='OSA.png' Name='OSA.png' DiskId='1' Source='$(var.SolutionDir)output\OSA.png' KeyPath='no' />
+        </Component>
+        <Component Id="uiDll" Guid="9DD2C57B-DC42-418A-B29E-F161A69D9C56" >
+          <File Id='OSAE.UI.Controls.dll' Name='OSAE.UI.Controls.dll' DiskId='1' Source='$(var.SolutionDir)output\OSAE.UI.Controls.dll' KeyPath='yes' />
+        </Component>
+        <!--Mpeg Processor-->
+        <Component Id="MjpegProcessor.dll" Guid="{7924C68C-4724-40B7-AC06-DC600AF7BAE1}">
+          <File Id='MjpegProcessor.dll' Name='MjpegProcessor.dll' DiskId='1' Source='$(var.SolutionDir)output\MjpegProcessor.dll' KeyPath='yes' />
+        </Component>    
+			</Directory>
+		</Directory>
+	</Module>
+</Wix>

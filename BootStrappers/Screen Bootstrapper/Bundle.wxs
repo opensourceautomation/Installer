@@ -31,7 +31,6 @@
                   InstallCondition="NOT VersionNT64"
                   Visible="no">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
-        <MsiProperty Name="OSAInstallType" Value="[OSAInstallType]" />
         
       </MsiPackage>
       <MsiPackage SourceFile="$(var.SolutionDir)InstallComponents\Screens Installer x64\bin\x64\Combined\Screens Installer x64.msi"
@@ -41,7 +40,6 @@
                   InstallCondition="VersionNT64"
                   Visible="no">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
-        <MsiProperty Name="OSAInstallType" Value="[OSAInstallType]" />
       </MsiPackage>     
     </Chain>
 	</Bundle>
