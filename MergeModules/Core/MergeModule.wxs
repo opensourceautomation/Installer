@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Module Id="Core" Language="1033" Version="1.0.0.0">
+		<Package Id="e1198a75-50a0-4064-b3a6-e50136c3b88f" Manufacturer="Open Source Automation" InstallerVersion="200" />
+
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="MergeRedirectFolder">
+        <Component Id="apiDll" Guid="0F6BDFFE-5FA3-452B-8640-3661857F567F" >
+          <File Id='OSAE.API.dll' Name='OSAE.API.dll' DiskId='1' Source='$(var.SolutionDir)output\OSAE.API.dll' KeyPath='yes' />
+        </Component>
+        <!--MySQL.data.dll-->
+        <Component Id="MySQL.data.dll" Guid="{0E178727-5ADF-4F81-9D32-835A422095B9}">
+          <File Id='MySQL.data.dll' Name='MySQL.data.dll' DiskId='1' Source='$(var.SolutionDir)output\MySQL.data.dll' KeyPath='yes' />
+        </Component>
+        <Component Id="OSARegKeys" >
+          <RegistryKey Root="HKLM"
+                       Key="Software\OSAE\DBSETTINGS"
+                Action="createAndRemoveOnUninstall" >
+            <RegistryValue Type="string" Value="Default Value"/>
+            <RegistryValue Type="string" Name="DBCONNECTION" Value="default" KeyPath="yes"/>
+            <RegistryValue Type="string" Name="DBNAME"  Value="osae"/>
+            <RegistryValue Type="string" Name="DBPASSWORD"  Value="osaePass"/>
+            <RegistryValue Type="string" Name="DBPORT" Value="3306"/>
+            <RegistryValue Type="string" Name="DBUSERNAME" Value="osae"/>
+            <RegistryValue Type="string" Name="INSTALLDIR" Value="[INSTALLFOLDER]"/>
+          </RegistryKey>
+        </Component>
+			</Directory>
+		</Directory>
+	</Module>
+</Wix>
