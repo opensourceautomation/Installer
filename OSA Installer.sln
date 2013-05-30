@@ -75,8 +75,6 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "Screens", "MergeModules\Scr
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "Core", "MergeModules\Core\Core.wixproj", "{26E3CCC6-DF80-408A-8026-02C52E8C8F21}"
 EndProject
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "SetupLibrary1", "SetupLibrary1\SetupLibrary1.wixproj", "{3AA9D21F-1078-49FC-92A1-CB086AF1128D}"
-EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = burn.vsmdi
@@ -731,50 +729,6 @@ Global
 		{26E3CCC6-DF80-408A-8026-02C52E8C8F21}.Template|x64.ActiveCfg = Release|x86
 		{26E3CCC6-DF80-408A-8026-02C52E8C8F21}.Template|x86.ActiveCfg = Release|x86
 		{26E3CCC6-DF80-408A-8026-02C52E8C8F21}.Template|x86.Build.0 = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Combined|Any CPU.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Combined|arm.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Combined|ia64.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Combined|Itanium.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Combined|Mixed Platforms.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Combined|Mixed Platforms.Build.0 = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Combined|Win32.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Combined|Win32.Build.0 = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Combined|x64.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Combined|x86.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Combined|x86.Build.0 = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Debug|arm.ActiveCfg = Debug|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Debug|ia64.ActiveCfg = Debug|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Debug|Itanium.ActiveCfg = Debug|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Debug|Win32.ActiveCfg = Debug|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Debug|Win32.Build.0 = Debug|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Debug|x64.ActiveCfg = Debug|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Debug|x86.ActiveCfg = Debug|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Debug|x86.Build.0 = Debug|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Release|Any CPU.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Release|arm.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Release|ia64.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Release|Itanium.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Release|Mixed Platforms.Build.0 = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Release|Win32.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Release|Win32.Build.0 = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Release|x64.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Release|x86.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Release|x86.Build.0 = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Template|Any CPU.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Template|arm.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Template|ia64.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Template|Itanium.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Template|Mixed Platforms.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Template|Mixed Platforms.Build.0 = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Template|Win32.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Template|Win32.Build.0 = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Template|x64.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Template|x86.ActiveCfg = Release|x86
-		{3AA9D21F-1078-49FC-92A1-CB086AF1128D}.Template|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
