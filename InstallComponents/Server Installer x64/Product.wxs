@@ -5,7 +5,7 @@
 <?endif ?>
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*" 
+  <Product Id="{DA805477-316E-4344-96EF-180BD76854F0}" 
            Name="Open Source Automation - Server x64" 
            Language="1033" Version="$(var.Version)" 
            Manufacturer="Open Source Automation" 
@@ -24,13 +24,15 @@
     <Feature Id="ProductFeature" Title="OSA Server" Level="1">
       <ComponentGroupRef Id="ProductComponents" />
       <ComponentGroupRef Id="group_WebServer" />
+      <MergeRef Id='Core' />
+      <MergeRef Id='Screens' />
       <MergeRef Id='Plugins' />
       <MergeRef Id='ServerMergeModule' />
     </Feature>   
     
     <CustomAction Id="DBUpdateCustomAction"                 
                   BinaryKey="CustomActionsBinary"
-                  DllEntry="DatabaseUpdate"
+                  DllEntry="Server"
                   Execute="deferred"
                   Return="check" />
     
@@ -46,6 +48,8 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="INSTALLFOLDER" Name="INSTALLLOCATION" >
         <Merge Id='ServerMergeModule' Language='1033' src='$(var.SolutionDir)MergeModules\Server\bin\Release\server.msm' DiskId='1' />
+        <Merge Id='Screens' Language='1033' src='$(var.SolutionDir)MergeModules\Screens\bin\Release\Screens.msm' DiskId='1' />
+        <Merge Id='Core' Language='1033' src='$(var.SolutionDir)MergeModules\Core\bin\Release\Core.msm' DiskId='1' />
         <Directory Id="PluginsFolder" Name="Plugins" >
           <Merge Id='Plugins' Language='1033' src='$(var.SolutionDir)MergeModules\Plugins\bin\Release\Plugins.msm' DiskId='1' />         
         </Directory>
