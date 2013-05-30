@@ -10,7 +10,12 @@
            Language="1033" Version="$(var.Version)"
            Manufacturer="Open Source Automation"
            UpgradeCode="1c604626-1e6c-4bf9-83a3-1010f65a7c83">
-		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+    <!--<Upgrade Id="1c604626-1e6c-4bf9-83a3-1010f65a7c83">
+      <UpgradeVersion OnlyDetect='no' Property='PREVIOUSFOUND' Minimum='0.1.0' IncludeMinimum='yes' Maximum='$(var.Version)' IncludeMaximum='no' />
+    </Upgrade>-->
+    
+		<Package Id='*' InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high"  />
@@ -30,6 +35,7 @@
            Return="check" />
 
     <InstallExecuteSequence>
+      <!--<RemoveExistingProducts Before="InstallInitialize" />-->
       <Custom Action="DBUpdateCustomAction" Before="InstallFinalize">
         <!--NOT Installed-->
       </Custom>

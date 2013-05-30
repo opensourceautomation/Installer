@@ -5,12 +5,17 @@
 <?endif ?>
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="{07939A2A-61BA-4249-B953-0E9803C7E688}" 
+  <Product Id="*" 
            Name="Open Source Automation - Server x64" 
            Language="1033" Version="$(var.Version)" 
            Manufacturer="Open Source Automation" 
            UpgradeCode="1c604626-1e6c-4bf9-83a3-1010f65a7c83">
-    <Package InstallerVersion="200" Compressed="yes" Platform="x64" InstallScope="perMachine" />
+    
+    <Package Id='*' InstallerVersion="200" Comments='Version $(var.Version) of Open Source Automation Server' Compressed="yes" Platform="x64" InstallScope="perMachine" />
+    
+    <!--<Upgrade Id="1c604626-1e6c-4bf9-83a3-1010f65a7c83">
+      <UpgradeVersion OnlyDetect='no' Property='PREVIOUSFOUND' Minimum='0.1.0' IncludeMinimum='yes' Maximum='$(var.Version)' IncludeMaximum='no' />
+    </Upgrade>-->  
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high"  />
@@ -21,17 +26,18 @@
       <ComponentGroupRef Id="group_WebServer" />
       <MergeRef Id='Plugins' />
       <MergeRef Id='ServerMergeModule' />
-    </Feature>
-
-    <CustomAction Id="DBUpdateCustomAction"
-           BinaryKey="CustomActionsBinary"
-           DllEntry="DatabaseUpdate"
-           Execute="deferred"
-           Return="check" />
+    </Feature>   
+    
+    <CustomAction Id="DBUpdateCustomAction"                 
+                  BinaryKey="CustomActionsBinary"
+                  DllEntry="DatabaseUpdate"
+                  Execute="deferred"
+                  Return="check" />
     
     <InstallExecuteSequence>
+      <!--<RemoveExistingProducts After='InstallFinalize'/>-->
       <Custom Action="DBUpdateCustomAction" Before="InstallFinalize">
-        <!--NOT Installed-->
+        NOT Installed
       </Custom>
     </InstallExecuteSequence>
   </Product>
@@ -52,3 +58,4 @@
     </ComponentGroup>
   </Fragment>
 </Wix>
+

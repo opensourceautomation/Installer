@@ -16,11 +16,11 @@
     
     <WixVariable Id="WixStdbaLicenseRtf" Value="$(var.SolutionDir)Resources\License.rtf" />
     <WixVariable Id="WixStdbaLogo" Value="$(var.SolutionDir)Resources\logoSmall.bmp" />
-    <!--<RegistryValue Root="HKLM" Key="Software\company\InstallLocation" Value="[INSTALLLOCATION]" Type="string" Action="write" />-->
     <Variable Name="InstallFolder" Type="string" Value="[ProgramFiles6432Folder]OSA" >
-      <!--<RegistrySearch Id='MyRegistry' Type='raw' Root='HKCU' Key='Software\MyApp\Foo' Name='InstallDir' />-->
     </Variable>
 
+    <Variable Name="OSAInstallType" Type="string" Value="Client" />
+    
     <Chain>
       <PackageGroupRef Id='Netfx4Full'/>
       <RollbackBoundary Id="Net4FullInstalled" />
@@ -31,6 +31,7 @@
                   InstallCondition="NOT VersionNT64"
                   Visible="no">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
+        <MsiProperty Name="OSAInstallType" Value="[OSAInstallType]" />
         
       </MsiPackage>
       <MsiPackage SourceFile="$(var.SolutionDir)InstallComponents\Screens Installer x64\bin\x64\Combined\Screens Installer x64.msi"
@@ -40,6 +41,7 @@
                   InstallCondition="VersionNT64"
                   Visible="no">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
+        <MsiProperty Name="OSAInstallType" Value="[OSAInstallType]" />
       </MsiPackage>     
     </Chain>
 	</Bundle>
