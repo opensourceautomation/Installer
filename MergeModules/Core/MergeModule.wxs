@@ -19,8 +19,7 @@
         </Component>
         <Component Id="OSARegKeys" Guid="{784EA4F7-DCCC-4C4F-9321-A99297181B8B}">
           <RegistryKey Root="HKLM"
-                       Key="Software\OSAE\DBSETTINGS"
-                Action="createAndRemoveOnUninstall" >
+                       Key="Software\OSAE\DBSETTINGS">
             <RegistryValue Type="string" Value="Default Value"/>
             <RegistryValue Type="string" Name="DBCONNECTION" Value="default" KeyPath="yes"/>
             <RegistryValue Type="string" Name="DBNAME"  Value="osae"/>

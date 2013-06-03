@@ -23,6 +23,7 @@
 
     <Feature Id="ProductFeature" Title="OSA Server" Level="1">
       <ComponentGroupRef Id="ProductComponents" />
+      <ComponentGroupRef Id="group_DBFiles" />
       <ComponentGroupRef Id="group_WebServer" />
       <MergeRef Id='Core' />
       <MergeRef Id='Screens' />
@@ -33,13 +34,13 @@
     <CustomAction Id="DBUpdateCustomAction"
            BinaryKey="CustomActionsBinary"
            DllEntry="DatabaseUpdate"
-           Execute="deferred"
+           Execute="immediate"
            Return="check" />
 
     <InstallExecuteSequence>
       <!--<RemoveExistingProducts Before="InstallInitialize" />-->
       <Custom Action="DBUpdateCustomAction" Before="InstallFinalize">
-        (NOT Installed) 
+        NOT REMOVE="ALL"
       </Custom>
     </InstallExecuteSequence>
   </Product>

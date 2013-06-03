@@ -17,8 +17,11 @@
             try
             {
                 session.Log("Begin Server CustomAction");
+                string installFolder = session["INSTALLFOLDER"];
+                session.Log("Custom Action Using install folder: " + installFolder);
 
-                DatabaseInstall databaseInstall = new DatabaseInstall(session, "", "Server");                
+
+                DatabaseInstall databaseInstall = new DatabaseInstall(session, installFolder, "Server");                
 
                 if (databaseInstall.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
