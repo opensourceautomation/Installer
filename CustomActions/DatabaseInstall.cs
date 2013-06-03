@@ -1,5 +1,6 @@
 ﻿namespace OSAInstallCustomActions
 {
+    using Microsoft.Deployment.WindowsInstaller;
     using MySql.Data.MySqlClient;
     using System;
     using System.Collections.Generic;
@@ -10,16 +11,24 @@
 
     public partial class DatabaseInstall : Form
     {
-        MySqlConnection connection; 
-        string current = "0.1.0";
-        string newVersion = "0.4.3";
-        string ConnectionStringRoot;
-        string ConnectionStringOSAE;
-        string directory;
-        string machine = "";
+        private MySqlConnection connection;
+        private string current = "0.1.0";
+        private string newVersion = "0.4.3";
+        private string ConnectionStringRoot;
+        private string ConnectionStringOSAE;
+        private string directory;
+        private string machine = string.Empty;
+        private Session session;
 
-        public DatabaseInstall(string dir, string mach)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ses">Installer session information</param>
+        /// <param name="dir"></param>
+        /// <param name="mach">Whether the installer is running on a client or server</param>
+        public DatabaseInstall(Session ses, string dir, string mach)
         {
+            session = ses;
             directory = dir;
             machine = mach;
             InitializeComponent();
@@ -51,8 +60,8 @@
                 ProgressBar1.Visible = false;
                 txbUsername.Visible = false;
                 txbPassword.Visible = false;
-                lbl1.Visible = false;
-                lbl2.Visible = false;
+                usernameLabel.Visible = false;
+                passwordLabel.Visible = false;
                 label1.Text = "Please enter the server address and MySql port of your Open Source Automation server.";
             }
             else
@@ -132,7 +141,7 @@
                     if (count == 1)
                     {
                         // DB found.  Need to upgrade.  First find out current version.
-                        addToLog("Found OSA database.  Checking to see if we need to upgrade.");
+                        session.Log("Found OSA database.  Checking to see if we need to upgrade.");
                         dataset = new DataSet();
                         ConnectionStringOSAE = string.Format("Uid={0};Pwd={1};Server={2};Port={3};Database={4};allow user variables=true", "osae", "osaePass", txbServer.Text, txbPort.Text, "osae");
                         connection = new MySqlConnection(ConnectionStringOSAE);
@@ -173,7 +182,7 @@
                 }
                 catch (Exception ex)
                 {
-
+                    session.Log("Exception in Connect click details: " + ex.Message);
                 }
             }
         }
@@ -185,7 +194,7 @@
                 try
                 {
                     // DB not found.  Need to install.
-                    addToLog("No OSA database found.  We need to install it.");
+                    session.Log("No OSA database found.  We need to install it.");
 
                     MySqlCommand command;
                     MySqlDataAdapter adapter;
@@ -227,6 +236,8 @@
                 }
                 catch (Exception ex)
                 {
+                    session.Log("Error installing database!: " + ex);
+
                     lblError.ForeColor = System.Drawing.Color.Red;
                     lblError.Text = "Error installing database!";
                     ProgressBar1.Style = ProgressBarStyle.Blocks;
@@ -240,14 +251,7 @@
             {
                 this.Close();
             }
-        }
-        
-        private void addToLog(string log)
-        {
-            StreamWriter sw = File.AppendText("install_log.log");
-            sw.WriteLine(System.DateTime.Now.ToString() + " - " + log);
-            sw.Close();
-        }
+        }      
 
         private void txbServer_KeyDown(object sender, KeyEventArgs e)
         {
@@ -275,7 +279,7 @@
 
         private void upgrade()
         {
-            addToLog("Upgrading...");
+            session.Log("Upgrading...");
             string[] version = current.Split('.');
             int major = Int32.Parse(version[0]);
             int minor = Int32.Parse(version[1]);
@@ -298,7 +302,7 @@
                             if (Int32.Parse(nums[2]) >= bug)
                             {
                                 scripts.Add(s.Substring(directory.Length + 1));
-                                addToLog("Found upgrade script: " + s.Substring(directory.Length + 1));
+                                session.Log("Found upgrade script: " + s.Substring(directory.Length + 1));
                             }
                         }
                     }
@@ -320,7 +324,7 @@
                 }
                 catch (Exception ex)
                 {
-                    addToLog("Upgrade script failed: " + ex.Message);
+                    session.Log("Upgrade script failed: " + ex.Message);
                 }
             }
             connection.Close();
