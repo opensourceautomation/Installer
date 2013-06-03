@@ -39,8 +39,8 @@
             this.lblConnectResult = new System.Windows.Forms.Label();
             this.btnConnect = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.lbl2 = new System.Windows.Forms.Label();
-            this.lbl1 = new System.Windows.Forms.Label();
+            this.passwordLabel = new System.Windows.Forms.Label();
+            this.usernameLabel = new System.Windows.Forms.Label();
             this.txbPassword = new System.Windows.Forms.TextBox();
             this.txbUsername = new System.Windows.Forms.TextBox();
             this.lb_Progress = new System.Windows.Forms.Label();
@@ -122,7 +122,7 @@
             // 
             this.lblConnectResult.AutoSize = true;
             this.lblConnectResult.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblConnectResult.Location = new System.Drawing.Point(77, 224);
+            this.lblConnectResult.Location = new System.Drawing.Point(16, 224);
             this.lblConnectResult.Name = "lblConnectResult";
             this.lblConnectResult.Size = new System.Drawing.Size(0, 17);
             this.lblConnectResult.TabIndex = 34;
@@ -136,6 +136,7 @@
             this.btnConnect.TabIndex = 29;
             this.btnConnect.Text = "Connect";
             this.btnConnect.UseVisualStyleBackColor = true;
+            this.btnConnect.Click += new System.EventHandler(this.btnConnect_Click);
             // 
             // label1
             // 
@@ -144,28 +145,29 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(201, 78);
             this.label1.TabIndex = 33;
-            this.label1.Text = "Please enter your root username and passwrd for the MySql instance you would like" +
-    " Open Source Automation to use.";
+            this.label1.Text = "Please enter your root username and password for the MySql instance you would lik" +
+    "e Open Source Automation to use.";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // lbl2
+            // passwordLabel
             // 
-            this.lbl2.AutoSize = true;
-            this.lbl2.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl2.Location = new System.Drawing.Point(85, 189);
-            this.lbl2.Name = "lbl2";
-            this.lbl2.Size = new System.Drawing.Size(67, 17);
-            this.lbl2.TabIndex = 32;
-            this.lbl2.Text = "Password:";
+            this.passwordLabel.AutoSize = true;
+            this.passwordLabel.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.passwordLabel.Location = new System.Drawing.Point(85, 189);
+            this.passwordLabel.Name = "passwordLabel";
+            this.passwordLabel.Size = new System.Drawing.Size(67, 17);
+            this.passwordLabel.TabIndex = 32;
+            this.passwordLabel.Text = "Password:";
             // 
-            // lbl1
+            // usernameLabel
             // 
-            this.lbl1.AutoSize = true;
-            this.lbl1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl1.Location = new System.Drawing.Point(82, 158);
-            this.lbl1.Name = "lbl1";
-            this.lbl1.Size = new System.Drawing.Size(70, 17);
-            this.lbl1.TabIndex = 31;
-            this.lbl1.Text = "Username:";
+            this.usernameLabel.AutoSize = true;
+            this.usernameLabel.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.usernameLabel.Location = new System.Drawing.Point(82, 158);
+            this.usernameLabel.Name = "usernameLabel";
+            this.usernameLabel.Size = new System.Drawing.Size(70, 17);
+            this.usernameLabel.TabIndex = 31;
+            this.usernameLabel.Text = "Username:";
             // 
             // txbPassword
             // 
@@ -210,6 +212,7 @@
             // pictureBox1
             // 
             this.pictureBox1.ErrorImage = global::OSAInstallCustomActions.Properties.Resources.logomysql;
+            this.pictureBox1.Image = global::OSAInstallCustomActions.Properties.Resources.logomysql;
             this.pictureBox1.Location = new System.Drawing.Point(219, 9);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(110, 66);
@@ -232,8 +235,8 @@
             this.Controls.Add(this.lblConnectResult);
             this.Controls.Add(this.btnConnect);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.lbl2);
-            this.Controls.Add(this.lbl1);
+            this.Controls.Add(this.passwordLabel);
+            this.Controls.Add(this.usernameLabel);
             this.Controls.Add(this.txbPassword);
             this.Controls.Add(this.txbUsername);
             this.Controls.Add(this.lb_Progress);
@@ -262,8 +265,8 @@
         private System.Windows.Forms.Label lblConnectResult;
         private System.Windows.Forms.Button btnConnect;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label lbl2;
-        private System.Windows.Forms.Label lbl1;
+        private System.Windows.Forms.Label passwordLabel;
+        private System.Windows.Forms.Label usernameLabel;
         private System.Windows.Forms.TextBox txbPassword;
         private System.Windows.Forms.TextBox txbUsername;
         private System.Windows.Forms.Label lb_Progress;

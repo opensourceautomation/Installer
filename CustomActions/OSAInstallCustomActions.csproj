@@ -69,12 +69,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="ServerDetails.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ServerDetails.Designer.cs">
-      <DependentUpon>ServerDetails.cs</DependentUpon>
-    </Compile>
     <Content Include="CustomAction.config" />
     <None Include="Resources\logomysql.png" />
   </ItemGroup>
@@ -85,9 +79,6 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ServerDetails.resx">
-      <DependentUpon>ServerDetails.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
