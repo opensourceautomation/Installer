@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?ifndef Version?>
+<?define Version = "0.4.3" ?>
+<?endif ?>
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   
-	<Module Id="ServerMergeModule" Language="1033" Version="1.0.0.0">
-		<Package Id="63b6c1a3-d20c-4e48-abeb-8b3851ef60c7" Manufacturer="Open Source Automation" InstallerVersion="200" />
+	<Module Id="ServerMergeModule" Language="1033" Version="$(var.Version)">
+		<Package Id="63b6c1a3-d20c-4e48-abeb-8b3851ef60c7" Manufacturer="Open Source Automation" InstallerVersion="200" InstallScope="perMachine" />
     <Icon Id="Icon.exe" SourceFile="$(var.SolutionDir)Resources\icon.ico" />
     <!--<Directory Id="DesktopFolder" Name="Desktop" />-->
 		<Directory Id="TARGETDIR" Name="SourceDir">
