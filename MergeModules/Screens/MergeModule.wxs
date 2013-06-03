@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?ifndef Version?>
+<?define Version = "0.4.3" ?>
+<?endif ?>
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Module Id="Screens" Language="1033" Version="1.0.0.0">
-		<Package Id="b32b823d-f0dc-4225-8318-747ea2417ec0" Manufacturer="Open Source Automation" InstallerVersion="200" />
+	<Module Id="Screens" Language="1033" Version="$(var.Version)">
+		<Package Id="b32b823d-f0dc-4225-8318-747ea2417ec0" Manufacturer="Open Source Automation" InstallerVersion="200" InstallScope="perMachine" />
 
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="MergeRedirectFolder">

@@ -47,11 +47,11 @@
   <Fragment>
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="INSTALLFOLDER" Name="INSTALLLOCATION" >
-        <Merge Id='ServerMergeModule' Language='1033' src='$(var.SolutionDir)MergeModules\Server\bin\Release\server.msm' DiskId='1' />
+        <Merge Id='ServerMergeModule' Language='1033' src='$(var.SolutionDir)MergeModules\Server\bin\x86\Combined\server.msm' DiskId='1' />
         <Merge Id='Screens' Language='1033' src='$(var.SolutionDir)MergeModules\Screens\bin\Release\Screens.msm' DiskId='1' />
         <Merge Id='Core' Language='1033' src='$(var.SolutionDir)MergeModules\Core\bin\Release\Core.msm' DiskId='1' />
         <Directory Id="PluginsFolder" Name="Plugins" >
-          <Merge Id='Plugins' Language='1033' src='$(var.SolutionDir)MergeModules\Plugins\bin\Release\Plugins.msm' DiskId='1' />         
+          <Merge Id='Plugins' Language='1033' src='$(var.SolutionDir)MergeModules\Plugins\bin\x86\Combined\Plugins.msm' DiskId='1' />         
         </Directory>
       </Directory>
     </Directory>
