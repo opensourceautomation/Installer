@@ -117,6 +117,7 @@
             this.btnInstall.Text = "Install";
             this.btnInstall.UseVisualStyleBackColor = true;
             this.btnInstall.Visible = false;
+            this.btnInstall.Click += new System.EventHandler(this.btnInstall_Click);
             // 
             // lblConnectResult
             // 

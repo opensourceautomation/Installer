@@ -32,13 +32,13 @@
     <CustomAction Id="DBUpdateCustomAction"
 					  BinaryKey="CustomActionsBinary"
 					  DllEntry="DatabaseUpdate"
-					  Execute="deferred"
+					  Execute="immediate"
 					  Return="check" />
 
     <InstallExecuteSequence>
       <!--<RemoveExistingProducts Before="InstallInitialize" />-->
       <Custom Action="DBUpdateCustomAction" Before="InstallFinalize">
-        NOT Installed
+        NOT REMOVE="ALL"
       </Custom>
     </InstallExecuteSequence>
 	</Product>

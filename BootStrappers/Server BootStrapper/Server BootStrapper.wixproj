@@ -50,7 +50,10 @@
   <PropertyGroup>
     <PreBuildEvent>CD /D $(SolutionDir)
 $(SolutionDir)Paraffin.exe -dir "$(SolutionDir)output\Plugins\Web Server" -custom WebServer "$(SolutionDir)InstallComponents\Server Installer x64\WebServer.wxs" -guids -dirref PluginsFolder -alias "..\..\output\Plugins\Web Server" -update
-$(SolutionDir)Paraffin.exe -dir "$(SolutionDir)output\Plugins\Web Server" -custom WebServer "$(SolutionDir)InstallComponents\Server Installer\WebServer.wxs" -guids -dirref PluginsFolder -alias "..\..\output\Plugins\Web Server" -update</PreBuildEvent>
+$(SolutionDir)Paraffin.exe -dir "$(SolutionDir)output\Plugins\Web Server" -custom WebServer "$(SolutionDir)InstallComponents\Server Installer\WebServer.wxs" -guids -dirref PluginsFolder -alias "..\..\output\Plugins\Web Server" -update
+
+$(SolutionDir)Paraffin.exe -dir "$(SolutionDir)DB" -custom DBFiles "$(SolutionDir)InstallComponents\Server Installer x64\DBFiles.wxs" -guids -dirref INSTALLFOLDER -alias "..\..\DB" -update
+$(SolutionDir)Paraffin.exe -dir "$(SolutionDir)DB" -custom DBFiles "$(SolutionDir)InstallComponents\Server Installer\DBFiles.wxs" -guids -dirref INSTALLFOLDER -alias "..\..\DB" -update</PreBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
