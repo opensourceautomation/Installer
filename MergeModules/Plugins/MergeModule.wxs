@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?ifndef Version?>
+<?define Version = "0.4.3" ?>
+<?endif ?>
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Module Id="Plugins" Language="1033" Version="0.4.3">
-		<Package Id="72fb6b18-e404-488b-a73f-dae5b5ba5d44" Manufacturer="Open Source Automation" InstallerVersion="200" />
+	<Module Id="Plugins" Language="1033" Version="$(var.Version)">
+		<Package Id="72fb6b18-e404-488b-a73f-dae5b5ba5d44" 
+             Manufacturer="Open Source Automation" 
+             InstallerVersion="200" 
+             InstallScope="perMachine" />
 
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="MergeRedirectFolder">
@@ -91,6 +99,18 @@
         <Directory Id="WebServer" Name="Web Server">       
         </Directory>
         <Directory Id="WUnderground" Name="WUnderground">
+          <!--<Component Id='WUndergroundICSharpCode.SharpZipLib.dll' Guid="{CE5BF6C7-BF7C-4C67-8E60-BAD9EF4B5717}">
+            <File Id='WUndergroundICSharpCode.SharpZipLib.dll' Name='ICSharpCode.SharpZipLib.dll' DiskId='1' Source='$(var.SolutionDir)output\Plugins\WUnderground\ICSharpCode.SharpZipLib.dll' KeyPath='yes' />
+          </Component>-->
+          <Component Id='WUndergroundScreenshot.jpg' Guid="{6F560E63-4021-46FE-9309-56764D011E7E}">
+            <File Id='WUndergroundScreenshot.jpg' Name='Screenshot.jpg' DiskId='1' Source='$(var.SolutionDir)output\Plugins\WUnderground\Screenshot.jpg' KeyPath='yes' />
+          </Component>
+          <Component Id='WUnderground.dll' Guid="{5B97A004-10DF-4A31-9489-DECF27ADD220}">
+            <File Id='WUnderground.dll' Name='WUnderground.dll' DiskId='1' Source='$(var.SolutionDir)output\Plugins\WUnderground\WUnderground.dll' KeyPath='yes' />
+          </Component>
+          <Component Id='Wunderground.osapd' Guid="{67252260-95FA-413F-A733-5C673B5D9898}">
+            <File Id='Wunderground.osapd' Name='Wunderground.osapd' DiskId='1' Source='$(var.SolutionDir)output\Plugins\WUnderground\Wunderground.osapd' KeyPath='yes' />
+          </Component>
         </Directory>
 			</Directory>
 		</Directory>

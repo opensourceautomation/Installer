@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?ifndef Version?>
+<?define Version = "0.4.3" ?>
+<?endif ?>
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Module Id="Core" Language="1033" Version="1.0.0.0">
-		<Package Id="e1198a75-50a0-4064-b3a6-e50136c3b88f" Manufacturer="Open Source Automation" InstallerVersion="200" />
+	<Module Id="Core" Language="1033" Version="$(var.Version)">
+		<Package Id="e1198a75-50a0-4064-b3a6-e50136c3b88f" Manufacturer="Open Source Automation" InstallerVersion="200" InstallScope="perMachine"/>
 
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="MergeRedirectFolder">
@@ -12,7 +17,7 @@
         <Component Id="MySQL.data.dll" Guid="{0E178727-5ADF-4F81-9D32-835A422095B9}">
           <File Id='MySQL.data.dll' Name='MySQL.data.dll' DiskId='1' Source='$(var.SolutionDir)output\MySQL.data.dll' KeyPath='yes' />
         </Component>
-        <Component Id="OSARegKeys" >
+        <Component Id="OSARegKeys" Guid="{784EA4F7-DCCC-4C4F-9321-A99297181B8B}">
           <RegistryKey Root="HKLM"
                        Key="Software\OSAE\DBSETTINGS"
                 Action="createAndRemoveOnUninstall" >
