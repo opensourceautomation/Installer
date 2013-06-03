@@ -122,6 +122,7 @@
                 }
                 catch (Exception ex)
                 {
+                    session.Log("Connection failed: " + ex.Message);
                     lblConnectResult.ForeColor = System.Drawing.Color.Red;
                     lblConnectResult.Text = "Connection failed. \nPlease check the settings \nand make sure MySql is running.";
                     return;

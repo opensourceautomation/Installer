@@ -33,6 +33,7 @@
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DBFiles.wxs" />
     <Compile Include="Product.wxs" />
     <Compile Include="WebServer.wxs" />
   </ItemGroup>
