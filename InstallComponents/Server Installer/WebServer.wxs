@@ -20,7 +20,6 @@
   <Fragment>
     <ComponentGroup Id="group_WebServer">
       <ComponentRef Id="comp_WebServer_0" />
-      <ComponentRef Id="comp_WebServer_1" />
       <ComponentRef Id="comp_WebServer_2" />
       <ComponentRef Id="comp_WebServer_3" />
       <ComponentRef Id="comp_WebServer_4" />
@@ -57,13 +56,10 @@
       <ComponentRef Id="comp_WebServer_35" />
       <ComponentRef Id="comp_WebServer_36" />
       <ComponentRef Id="comp_WebServer_37" />
-      <ComponentRef Id="comp_WebServer_38" />
       <ComponentRef Id="comp_WebServer_39" />
       <ComponentRef Id="comp_WebServer_40" />
-      <ComponentRef Id="comp_WebServer_41" />
       <ComponentRef Id="comp_WebServer_42" />
       <ComponentRef Id="comp_WebServer_43" />
-      <ComponentRef Id="comp_WebServer_44" />
       <ComponentRef Id="comp_WebServer_45" />
       <ComponentRef Id="comp_WebServer_46" />
       <ComponentRef Id="comp_WebServer_47" />
@@ -122,9 +118,6 @@
       <Directory Id="dir_Web_Server_0" Name="Web Server">
         <Component Id="comp_WebServer_0" DiskId="1" KeyPath="yes" Guid="CCD3E773-72E4-41EE-AD04-F7D966CB0B31">
           <File Id="file_WebServer_0" Checksum="yes" Source="..\..\output\Plugins\Web Server\OSAE.WebServer.dll" />
-        </Component>
-        <Component Id="comp_WebServer_1" DiskId="1" KeyPath="yes" Guid="E93F69EA-86E7-460C-9956-DBAC5CBF78B6">
-          <File Id="file_WebServer_1" Source="..\..\output\Plugins\Web Server\OSAE.WebServer.pdb" />
         </Component>
         <Component Id="comp_WebServer_2" DiskId="1" KeyPath="yes" Guid="FA8B0E29-A966-4EC3-97DB-F7A0CB9BEB89">
           <File Id="file_WebServer_2" Source="..\..\output\Plugins\Web Server\Screenshot.jpg" />
@@ -235,10 +228,7 @@
           <Component Id="comp_WebServer_37" DiskId="1" KeyPath="yes" Guid="F4D672E4-4F47-4C19-99CD-A6262B209965">
             <File Id="file_WebServer_37" Source="..\..\output\Plugins\Web Server\wwwroot\Web.config" />
           </Component>
-          <Directory Id="dir_Web_Server_wwwroot_App_Code_2" Name="App_Code">
-            <Component Id="comp_WebServer_38" DiskId="1" KeyPath="yes" Guid="0514BFD0-7CD4-4DD2-B713-A3CF4E5AC503">
-              <File Id="file_WebServer_38" Source="..\..\output\Plugins\Web Server\wwwroot\App_Code\PluginInstaller.cs.exclude" />
-            </Component>
+          <Directory Id="dir_Web_Server_wwwroot_App_Code_2" Name="App_Code">         
           </Directory>
           <Directory Id="dir_Web_Server_wwwroot_Bin_3" Name="Bin">
             <Component Id="comp_WebServer_39" DiskId="1" KeyPath="yes" Guid="E57845D2-F4C4-4397-9CB1-E05FD86028A6">
@@ -246,18 +236,12 @@
             </Component>
             <Component Id="comp_WebServer_40" DiskId="1" KeyPath="yes" Guid="35D661DD-8E3A-4DE3-9A01-A23183DF94EA">
               <File Id="file_WebServer_40" Checksum="yes" Source="..\..\output\Plugins\Web Server\wwwroot\Bin\ICSharpCode.SharpZipLib.dll" />
-            </Component>
-            <Component Id="comp_WebServer_41" DiskId="1" KeyPath="yes" Guid="31BDEDBC-1177-4E96-841F-A2BA33858AAF">
-              <File Id="file_WebServer_41" Source="..\..\output\Plugins\Web Server\wwwroot\Bin\MySql.Data.dll.exclude" />
-            </Component>
+            </Component>          
             <Component Id="comp_WebServer_42" DiskId="1" KeyPath="yes" Guid="BFA7AACE-5850-4D26-A0E5-E0BF9D1E1885">
               <File Id="file_WebServer_42" Checksum="yes" Source="..\..\output\Plugins\Web Server\wwwroot\Bin\Newtonsoft.Json.dll" />
             </Component>
             <Component Id="comp_WebServer_43" DiskId="1" KeyPath="yes" Guid="BE67F922-1A95-4A65-BDC9-77A341DAF537">
               <File Id="file_WebServer_43" Checksum="yes" Source="..\..\output\Plugins\Web Server\wwwroot\Bin\OSAE.API.dll" />
-            </Component>
-            <Component Id="comp_WebServer_44" DiskId="1" KeyPath="yes" Guid="F15735E1-0A2E-4A77-BFE4-2A23DE7F2AEE">
-              <File Id="file_WebServer_44" Source="..\..\output\Plugins\Web Server\wwwroot\Bin\OSAE.API.pdb" />
             </Component>
             <Component Id="comp_WebServer_45" DiskId="1" KeyPath="yes" Guid="14A1D8EE-CA79-4982-BC7C-79AF931F7285">
               <File Id="file_WebServer_45" Checksum="yes" Source="..\..\output\Plugins\Web Server\wwwroot\Bin\Visualization.dll" />
