@@ -34,6 +34,12 @@
 					  DllEntry="Server"
 					  Execute="immediate"
 					  Return="check" />
+
+    <CustomAction Id="DefferredCustomAction"
+					  BinaryKey="CustomActionsBinary"
+					  DllEntry="Server"
+					  Execute="immediate"
+					  Return="check" />
     
     <InstallExecuteSequence>
       <!--<RemoveExistingProducts Before="InstallInitialize" />-->

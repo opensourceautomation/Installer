@@ -37,6 +37,12 @@
            Execute="immediate"
            Return="check" />
 
+    <CustomAction Id="DeferredServerAction"
+                 BinaryKey="CustomActionsBinary"
+                 DllEntry="DeferredServerAction"
+                 Execute="deferred"
+                 Return="check" />
+
     <InstallExecuteSequence>
       <!--<RemoveExistingProducts Before="InstallInitialize" />-->
       <Custom Action="DBUpdateCustomAction" Before="InstallFinalize">

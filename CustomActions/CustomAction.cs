@@ -6,6 +6,8 @@
 
     public class CustomActions
     {
+        private const string INSTALLFOLDER = "INSTALLFOLDER"; 
+
         /// <summary>
         /// Performing an install or upgrade as part of a server installer
         /// </summary>
@@ -16,22 +18,10 @@
         {
             try
             {
-                session.Log("Begin Server CustomAction");
-                string installFolder = session["INSTALLFOLDER"];
-                session.Log("Custom Action Using install folder: " + installFolder);
-
-
-                DatabaseInstall databaseInstall = new DatabaseInstall(session, installFolder, "Server");                
-
-                if (databaseInstall.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    return ActionResult.Success;
-                }
-                else
-                {
-                    session.Log("OSAInstallCustomActions CustomAction - User exited");
-                    return ActionResult.UserExit;
-                }
+                var customActionData = new CustomActionData();
+                customActionData.Add(INSTALLFOLDER, session[INSTALLFOLDER]);
+                session.DoAction("DeferredServerAction", customActionData);
+                return ActionResult.Success; 
             }
             catch (Exception ex)
             {
@@ -54,6 +44,64 @@
 
                 DatabaseInstall databaseInstall = new DatabaseInstall(session, "", "Client");
                 //session.Log("Session Property Value: " + session["OSAInstallType"].ToString());
+
+                if (databaseInstall.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    return ActionResult.Success;
+                }
+                else
+                {
+                    session.Log("OSAInstallCustomActions CustomAction - User exited");
+                    return ActionResult.UserExit;
+                }
+            }
+            catch (Exception ex)
+            {
+                session.Log("Exception Occured during custom action details:" + ex.Message);
+                return ActionResult.Failure;
+            }
+        }
+
+        [CustomAction]
+        public static ActionResult DeferredServerAction(Session session)
+        {
+            try
+            {
+                session.Log("Begin Server CustomAction");
+                var installDir = session.CustomActionData[INSTALLFOLDER];
+                session.Log("Custom Action Using install folder: " + installDir);
+
+
+                DatabaseInstall databaseInstall = new DatabaseInstall(session, installDir, "Server");
+
+                if (databaseInstall.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    return ActionResult.Success;
+                }
+                else
+                {
+                    session.Log("OSAInstallCustomActions CustomAction - User exited");
+                    return ActionResult.UserExit;
+                }
+            }
+            catch (Exception ex)
+            {
+                session.Log("Exception Occured during custom action details:" + ex.Message);
+                return ActionResult.Failure;
+            }
+        }
+
+        [CustomAction]
+        public static ActionResult DeferredClientAction(Session session)
+        {
+            try
+            {
+                session.Log("Begin Server CustomAction");
+                string installFolder = session["INSTALLFOLDER"];
+                session.Log("Custom Action Using install folder: " + installFolder);
+
+
+                DatabaseInstall databaseInstall = new DatabaseInstall(session, installFolder, "Server");
 
                 if (databaseInstall.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {

@@ -93,6 +93,7 @@
                 }
                 catch (Exception ex)
                 {
+                    session.Log("Exception trying to connect to DB: " + ex.Message);
                     lblConnectResult.ForeColor = System.Drawing.Color.Red;
                     lblConnectResult.Text = "Connection failed. \nPlease make sure the OSA server running.";
                     return;
@@ -335,6 +336,7 @@
 
         private void btnClose_Click(object sender, EventArgs e)
         {
+            this.DialogResult = DialogResult.OK;
             this.Close();
         }
     }
