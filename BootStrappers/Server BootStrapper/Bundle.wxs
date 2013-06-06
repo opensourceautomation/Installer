@@ -11,15 +11,14 @@
           UpgradeCode="7c272b37-1d4c-4027-872a-59469f9265dd"
           IconSourceFile="$(var.SolutionDir)Resources\icon.ico"
           HelpUrl="http://www.opensourceautomation.com/"
-          SplashScreenSourceFile="$(var.SolutionDir)Resources\OSASplashScreen.bmp">
+          SplashScreenSourceFile="$(var.SolutionDir)Resources\OSASplashScreen.bmp"
+          Condition="((VersionNT >= v5.1) AND (ServicePackLevel >= 3)) OR ((VersionNT >= v5.2) AND (ServicePackLevel >= 2)) OR ((VersionNT >= v6.0) AND (ServicePackLevel >= 2) OR (VersionNT >= v6.0))">
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" />
 
     <WixVariable Id="WixStdbaLicenseRtf" Value="$(var.SolutionDir)Resources\License.rtf" />
     <WixVariable Id="WixStdbaLogo" Value="$(var.SolutionDir)Resources\logoSmall.bmp" />
     <Variable Name="InstallFolder" Type="string" Value="[ProgramFiles6432Folder]OSA" >
     </Variable>
-    
-    <Variable Name="OSAInstallType" Type="string" Value="Server" />
       
     <Chain>
       <PackageGroupRef Id='Netfx4Full'/>
@@ -40,7 +39,7 @@
                   InstallCondition="VersionNT64"
                   Visible="no">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
-      </MsiPackage>
+      </MsiPackage>    
       <ExePackage Id="UWS"
                  Cache="yes"
                  Compressed="yes"
