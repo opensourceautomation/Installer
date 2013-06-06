@@ -18,6 +18,10 @@
         private string ConnectionStringOSAE;
         private string directory;
         private string machine = string.Empty;
+
+        /// <summary>
+        /// Session from the installer used to access the installer log and variables
+        /// </summary>
         private Session session;
 
         /// <summary>
@@ -29,7 +33,7 @@
         public DatabaseInstall(Session ses, string dir, string mach)
         {
             session = ses;
-            directory = dir;
+            directory = dir + @"\DB\";
             machine = mach;
             InitializeComponent();
         }
@@ -37,7 +41,7 @@
         private void Form1_Load(object sender, EventArgs e)
         {
             OSAE.ModifyRegistry myRegistry = new OSAE.ModifyRegistry();
-            myRegistry.SubKey = "SOFTWARE\\OSAE\\DBSETTINGS";
+            myRegistry.SubKey = @"SOFTWARE\OSAE\DBSETTINGS";
             
             string pass = myRegistry.Read("DBPASSWORD");
             string user = myRegistry.Read("DBUSERNAME");
@@ -57,7 +61,7 @@
             if (machine == "Client")
             {
                 lb_Progress.Visible = false;
-                ProgressBar1.Visible = false;
+                installationProgressBar.Visible = false;
                 txbUsername.Visible = false;
                 txbPassword.Visible = false;
                 usernameLabel.Visible = false;
@@ -67,7 +71,7 @@
             else
             {
                 lb_Progress.Visible = true;
-                ProgressBar1.Visible = true;
+                installationProgressBar.Visible = true;
             }
         }
 
@@ -84,12 +88,11 @@
             if (machine == "Client")
             {
                 ConnectionStringRoot = string.Format("Uid=osae;Password=osaePass;Server={0};Port={1};", txbServer.Text, txbPort.Text);
-
                 connection = new MySqlConnection(ConnectionStringRoot);
+
                 try
                 {
                     connection.Open();
-
                 }
                 catch (Exception ex)
                 {
@@ -98,34 +101,28 @@
                     lblConnectResult.Text = "Connection failed. \nPlease make sure the OSA server running.";
                     return;
                 }
+
                 lblConnectResult.ForeColor = System.Drawing.Color.Green;
                 lblConnectResult.Text = "Connection Successful.";
                 btnInstall.Text = "Close";
                 btnInstall.Visible = true;
                 btnConnect.Enabled = false;
-                OSAE.ModifyRegistry myRegistry = new OSAE.ModifyRegistry();
-                myRegistry.SubKey = "SOFTWARE\\OSAE\\DBSETTINGS";
-                myRegistry.Write("DBUSERNAME", "osae");
-                myRegistry.Write("DBPASSWORD", "osaePass");
-                myRegistry.Write("DBCONNECTION", txbServer.Text);
-                myRegistry.Write("DBPORT", txbPort.Text);
+                SetRegistryKeys();
 
             }
             else
             {
                 ConnectionStringRoot = string.Format("Uid={0};Password={1};Server={2};Port={3};", txbUsername.Text, txbPassword.Text, txbServer.Text, txbPort.Text);
-
                 connection = new MySqlConnection(ConnectionStringRoot);
+
                 try
                 {
                     connection.Open();
-
                 }
                 catch (Exception ex)
                 {
                     session.Log("Connection failed: " + ex.Message);
-                    lblConnectResult.ForeColor = System.Drawing.Color.Red;
-                    lblConnectResult.Text = "Connection failed. \nPlease check the settings \nand make sure MySql is running.";
+                    ShowConnectionError();
                     return;
                 }
 
@@ -151,7 +148,7 @@
                         command = new MySqlCommand("select property_value from osae_object_property p inner join osae_object_type_property tp on p.object_type_property_id = tp.property_id inner join osae_object o on o.object_id = p.object_id where object_name = 'SYSTEM' and property_name = 'DB Version'", connection);
                         adapter = new MySqlDataAdapter(command);
                         adapter.Fill(dataset);
-                        if (dataset.Tables[0].Rows[0][0].ToString() == "")
+                        if (dataset.Tables[0].Rows[0][0].ToString() == string.Empty)
                             current = "0.1.0";
                         else
                             current = dataset.Tables[0].Rows[0][0].ToString();
@@ -189,60 +186,36 @@
             }
         }
 
+        private void ShowConnectionError()
+        {
+            DialogResult result = MessageBox.Show("Please check the settings and make sure MySql is running.\n\n" +
+                "If you are installing the database on a remote server ensure the account is configured to allow remote connections\n\n" +
+                "Do you want to view the help page for more information?",
+                "Connection failed",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Error);
+
+            if (result == System.Windows.Forms.DialogResult.Yes)
+            {
+                System.Diagnostics.Process.Start("http://www.opensourceautomation.com/wiki/index.php?title=Installation_Guide");
+            }
+        }
+
         private void btnInstall_Click(object sender, EventArgs e)
         {
             if (btnInstall.Text == "Install")
             {
                 try
                 {
-                    // DB not found.  Need to install.
-                    session.Log("No OSA database found.  We need to install it.");
-
-                    MySqlCommand command;
-                    MySqlDataAdapter adapter;
-                    DataSet dataset = new DataSet();
-                    MySqlScript script;
-                    command = new MySqlCommand("select User from mysql.user where User = 'osae'", connection);
-                    adapter = new MySqlDataAdapter(command);
-                    adapter.Fill(dataset);
-                    connection.Close();
-                    int count = dataset.Tables[0].Rows.Count;
-                    ProgressBar1.Value = 25;
-
-                    if (count == 0)
-                    {
-                        script = new MySqlScript(connection, "CREATE USER `osae`@`%` IDENTIFIED BY 'osaePass';");
-                        script.Execute();
-                    }
-                    ProgressBar1.Value = 50;
-                    script = new MySqlScript(connection, "GRANT ALL ON osae.* TO `osae`@`%`;GRANT ALL ON osae.* TO `osae`@`%`;");
-                    script.Execute();
-                    ProgressBar1.Value = 75;
-                    script = new MySqlScript(connection, File.ReadAllText(directory + "\\osae.sql"));
-                    script.Execute();
-                    connection.Close();
-
-                    ProgressBar1.Style = ProgressBarStyle.Blocks;
-                    ProgressBar1.Value = 100;
-
-                    lblError.ForeColor = System.Drawing.Color.Green;
-                    lblError.Text = "Success!";
-                    btnClose.Visible = true;
-
-                    OSAE.ModifyRegistry myRegistry = new OSAE.ModifyRegistry();
-                    myRegistry.SubKey = "SOFTWARE\\OSAE\\DBSETTINGS";
-                    myRegistry.Write("DBUSERNAME", txbUsername.Text);
-                    myRegistry.Write("DBPASSWORD", txbPassword.Text);
-                    myRegistry.Write("DBCONNECTION", txbServer.Text);
-                    myRegistry.Write("DBPORT", txbPort.Text);
+                    Install();
                 }
                 catch (Exception ex)
                 {
-                    session.Log("Error installing database!: " + ex);
+                    session.Log("Error installing database!: " + ex.Message);
 
                     lblError.ForeColor = System.Drawing.Color.Red;
                     lblError.Text = "Error installing database!";
-                    ProgressBar1.Style = ProgressBarStyle.Blocks;
+                    installationProgressBar.Style = ProgressBarStyle.Blocks;
                 }
             }
             else if (btnInstall.Text == "Upgrade")
@@ -253,6 +226,58 @@
             {
                 this.Close();
             }
+        }
+
+        private void Install()
+        {
+            // DB not found.  Need to install.
+            session.Log("No OSA database found.  We need to install it.");
+
+            lb_Progress.Visible = true;
+            installationProgressBar.Visible = true;
+
+            MySqlCommand command;
+            MySqlDataAdapter adapter;
+            DataSet dataset = new DataSet();
+            MySqlScript script;
+            command = new MySqlCommand("select User from mysql.user where User = 'osae'", connection);
+            adapter = new MySqlDataAdapter(command);
+            adapter.Fill(dataset);
+            connection.Close();
+            int count = dataset.Tables[0].Rows.Count;
+            installationProgressBar.Value = 25;
+
+            if (count == 0)
+            {
+                script = new MySqlScript(connection, "CREATE USER `osae`@`%` IDENTIFIED BY 'osaePass';");
+                script.Execute();
+            }
+            installationProgressBar.Value = 50;
+            script = new MySqlScript(connection, "GRANT ALL ON osae.* TO `osae`@`%`;GRANT ALL ON osae.* TO `osae`@`%`;");
+            script.Execute();
+            installationProgressBar.Value = 75;
+            script = new MySqlScript(connection, File.ReadAllText(directory + @"\osae.sql"));
+            script.Execute();
+            connection.Close();
+
+            installationProgressBar.Style = ProgressBarStyle.Blocks;
+            installationProgressBar.Value = 100;
+
+            lblError.ForeColor = System.Drawing.Color.Green;
+            lblError.Text = "Success!";
+            btnClose.Visible = true;
+
+            SetRegistryKeys();
+        }
+
+        private void SetRegistryKeys()
+        {
+            OSAE.ModifyRegistry myRegistry = new OSAE.ModifyRegistry();
+            myRegistry.SubKey = @"SOFTWARE\OSAE\DBSETTINGS";
+            myRegistry.Write("DBUSERNAME", txbUsername.Text);
+            myRegistry.Write("DBPASSWORD", txbPassword.Text);
+            myRegistry.Write("DBCONNECTION", txbServer.Text);
+            myRegistry.Write("DBPORT", txbPort.Text);
         }      
 
         private void txbServer_KeyDown(object sender, KeyEventArgs e)
@@ -321,7 +346,7 @@
                     //script.Delimiter = "$$";
                     script.Execute();
                     decimal percent = count / max;
-                    ProgressBar1.Value = (int)Math.Round(percent, 0);
+                    installationProgressBar.Value = (int)Math.Round(percent, 0);
                     count++;
                 }
                 catch (Exception ex)

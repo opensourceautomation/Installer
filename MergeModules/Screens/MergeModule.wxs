@@ -6,10 +6,9 @@
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 	<Module Id="Screens" Language="1033" Version="$(var.Version)">
-		<Package Id="b32b823d-f0dc-4225-8318-747ea2417ec0" Manufacturer="Open Source Automation" InstallerVersion="200" InstallScope="perMachine" />
-
+		<Package Id="b32b823d-f0dc-4225-8318-747ea2417ec0" Manufacturer="Open Source Automation" InstallerVersion="200" InstallScope="perMachine" />    
 		<Directory Id="TARGETDIR" Name="SourceDir">
-			<Directory Id="MergeRedirectFolder">
+			<Directory Id="MergeRedirectFolder">        
         <Component Id="OSAE.GUI.exe" Guid="A7B96657-0DA3-454E-9ED2-58A4F121DD85" >
           <File Id='OSAE.GUI.exe' Name='OSAE.GUI.exe' DiskId='1' Source='$(var.SolutionDir)output\OSAE.GUI.exe' KeyPath='yes'  >
             <!--<Shortcut Id="startmenuManual" Directory="ProgramMenuDir" Name="Screens" Advertise="yes" >

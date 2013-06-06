@@ -31,6 +31,13 @@
         <Component Id="OSAE.VR.exe" Guid='{064B8EEB-B886-4B76-886F-5A6D3AFCDB97}'>
           <File Id='OSAE.VR.exe' Name='OSAE.VR.exe' DiskId='1' Source='$(var.SolutionDir)output\OSAE.VR.exe' KeyPath='yes' />
         </Component>
+        <Component Id='OSAEService.exe.config' Guid='{DB89F149-CE3C-4F0D-99DD-385B010ACAA0}'> 
+          <File Id='OSAEService.exe.config' Name='OSAEService.exe.config' DiskId='1' Source='$(var.SolutionDir)output\OSAEService.exe.config' KeyPath='yes' />
+        </Component>
+        <!--Plugin Description Editor-->
+        <Component Id="PluginDescriptionEditor.exe" Guid='{AB596B70-CDFC-43C0-B936-32A04ABFFC9D}'>
+          <File Id='PluginDescriptionEditor.exe' Name='PluginDescriptionEditor.exe' DiskId='1' Source='$(var.SolutionDir)output\PluginDescriptionEditor.exe' KeyPath='yes' />
+        </Component>
         <!--Main Service-->
         <Component Id='OSAEService.exe' Guid='{368E2E0C-1E35-4900-B71C-E10D4849BEAA}'>
           <File Id='OSAEService.exe' Name='OSAEService.exe' DiskId='1' Source='$(var.SolutionDir)output\OSAEService.exe' KeyPath='yes' />
@@ -41,20 +48,12 @@
                 Name="OSAE"
                 DisplayName="OSAE Service"
                 Description="Open Source Automation - Server. The server is the central hub of the home automation system"
-                Start="auto"                
+                Start="auto"
                 ErrorControl="ignore"
                 Interactive="no">
           </ServiceInstall>
           <ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="OSAE" Wait="yes" />
         </Component>
-        <Component Id='OSAEService.exe.config' Guid='{DB89F149-CE3C-4F0D-99DD-385B010ACAA0}'> 
-          <File Id='OSAEService.exe.config' Name='OSAEService.exe.config' DiskId='1' Source='$(var.SolutionDir)output\OSAEService.exe.config' KeyPath='yes' />
-        </Component>
-        <!--Plugin Description Editor-->
-        <Component Id="PluginDescriptionEditor.exe" Guid='{AB596B70-CDFC-43C0-B936-32A04ABFFC9D}'>
-          <File Id='PluginDescriptionEditor.exe' Name='PluginDescriptionEditor.exe' DiskId='1' Source='$(var.SolutionDir)output\PluginDescriptionEditor.exe' KeyPath='yes' />
-        </Component>
-
 			</Directory>
 		</Directory>
 	</Module>
