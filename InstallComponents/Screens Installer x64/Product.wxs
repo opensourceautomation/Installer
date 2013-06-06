@@ -25,6 +25,7 @@
     <Feature Id="ProductFeature" Title="Screens Installer" Level="1">
       <ComponentGroupRef Id="ProductComponents" />
       <ComponentRef Id="ProgramMenuDir" />
+      <!--<ComponentRef Id="ScreensShortcut" />-->
       <MergeRef Id='Core' />
       <MergeRef Id='Screens' />
     </Feature>
@@ -69,8 +70,17 @@
   </Fragment>
 
   <Fragment>
-    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER"   >
-    
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">      
     </ComponentGroup>
+    <DirectoryRef Id="ProgramMenuDir">
+      <!--<Component Id="ScreensShortcut" Guid="{0CFFF240-9A31-48B9-975A-DBC1B4E802F5}">
+        <Shortcut Id="ScreensShortcutMenu"
+                  Name="Screens"
+                  Description="Open Source Automation - Screens"
+                  Target="[APPLICATIONROOTDIRECTORY]OSAE.GUI.exe"
+                  WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
+        
+      </Component>-->
+    </DirectoryRef>
   </Fragment>
 </Wix>

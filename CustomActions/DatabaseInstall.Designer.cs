@@ -44,7 +44,7 @@
             this.txbPassword = new System.Windows.Forms.TextBox();
             this.txbUsername = new System.Windows.Forms.TextBox();
             this.lb_Progress = new System.Windows.Forms.Label();
-            this.ProgressBar1 = new System.Windows.Forms.ProgressBar();
+            this.installationProgressBar = new System.Windows.Forms.ProgressBar();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -200,16 +200,16 @@
             this.lb_Progress.Text = "Progress:";
             this.lb_Progress.Visible = false;
             // 
-            // ProgressBar1
+            // installationProgressBar
             // 
-            this.ProgressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.installationProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.ProgressBar1.Location = new System.Drawing.Point(12, 302);
-            this.ProgressBar1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.ProgressBar1.Name = "ProgressBar1";
-            this.ProgressBar1.Size = new System.Drawing.Size(315, 27);
-            this.ProgressBar1.TabIndex = 28;
-            this.ProgressBar1.Visible = false;
+            this.installationProgressBar.Location = new System.Drawing.Point(12, 302);
+            this.installationProgressBar.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.installationProgressBar.Name = "installationProgressBar";
+            this.installationProgressBar.Size = new System.Drawing.Size(315, 27);
+            this.installationProgressBar.TabIndex = 28;
+            this.installationProgressBar.Visible = false;
             // 
             // pictureBox1
             // 
@@ -242,7 +242,7 @@
             this.Controls.Add(this.txbPassword);
             this.Controls.Add(this.txbUsername);
             this.Controls.Add(this.lb_Progress);
-            this.Controls.Add(this.ProgressBar1);
+            this.Controls.Add(this.installationProgressBar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "DatabaseInstall";
@@ -272,7 +272,7 @@
         private System.Windows.Forms.TextBox txbPassword;
         private System.Windows.Forms.TextBox txbUsername;
         private System.Windows.Forms.Label lb_Progress;
-        private System.Windows.Forms.ProgressBar ProgressBar1;
+        private System.Windows.Forms.ProgressBar installationProgressBar;
         private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
