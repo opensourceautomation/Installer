@@ -41,8 +41,9 @@
             try
             {
                 session.Log("Begin Client CustomAction");
-
-                DatabaseInstall databaseInstall = new DatabaseInstall(session, "", "Client");
+                var installDir = session.CustomActionData[INSTALLFOLDER];
+                session.Log("Custom Action Using install folder: " + installDir);
+                DatabaseInstall databaseInstall = new DatabaseInstall(session, installDir, "Client");
                 //session.Log("Session Property Value: " + session["OSAInstallType"].ToString());
 
                 if (databaseInstall.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -101,7 +102,7 @@
                 session.Log("Custom Action Using install folder: " + installFolder);
 
 
-                DatabaseInstall databaseInstall = new DatabaseInstall(session, installFolder, "Server");
+                DatabaseInstall databaseInstall = new DatabaseInstall(session, installFolder, "Client");
 
                 if (databaseInstall.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
