@@ -37,6 +37,11 @@
         <!--Plugin Description Editor-->
         <Component Id="PluginDescriptionEditor.exe" Guid='{AB596B70-CDFC-43C0-B936-32A04ABFFC9D}'>
           <File Id='PluginDescriptionEditor.exe' Name='PluginDescriptionEditor.exe' DiskId='1' Source='$(var.SolutionDir)output\PluginDescriptionEditor.exe' KeyPath='yes' />
+          <ProgId Id='PluginDescriptionEditor.exe' Description='Plugin Description File' Advertise='yes' Icon='Icon.exe'>
+            <Extension Id='osapd' ContentType='application/text'>
+              <Verb Id='open' Sequence='10' Command='Open' Argument='"%1"' />
+            </Extension>
+          </ProgId>
         </Component>
         <!--Main Service-->
         <Component Id='OSAEService.exe' Guid='{368E2E0C-1E35-4900-B71C-E10D4849BEAA}'>

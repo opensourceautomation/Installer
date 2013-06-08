@@ -193,7 +193,7 @@
             // 
             this.lb_Progress.AutoSize = true;
             this.lb_Progress.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lb_Progress.Location = new System.Drawing.Point(12, 285);
+            this.lb_Progress.Location = new System.Drawing.Point(12, 281);
             this.lb_Progress.Name = "lb_Progress";
             this.lb_Progress.Size = new System.Drawing.Size(63, 17);
             this.lb_Progress.TabIndex = 30;

@@ -25,7 +25,6 @@
     <Feature Id="ProductFeature" Title="OSA Server" Level="1">      
       <ComponentGroupRef Id="group_DBFiles" />
       <ComponentGroupRef Id="group_WebServer" />
-      <ComponentRef Id="ProgramMenuDir" />
       <MergeRef Id='Core' />
       <MergeRef Id='Screens' />
       <MergeRef Id='Plugins' />
@@ -56,12 +55,7 @@
   <Fragment>
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramMenuFolder" Name="Programs">
-        <Directory Id="ProgramMenuDir" Name="OSA">
-          <Component Id="ProgramMenuDir" Guid="{5E965BEC-2EF3-4B2A-96EB-7C38FDB5E984}">
-            <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
-            <RegistryValue Root="HKMU" Key="Software\OSA\Screens" Type="string" Value="" KeyPath="yes" />
-          </Component>
-        </Directory>
+        <Directory Id="ProgramMenuDir" Name="OSA" />
       </Directory>
       <Directory Id="DesktopFolder" Name="Desktop" />
       <Directory Id="INSTALLFOLDER" Name="INSTALLLOCATION" >
@@ -77,20 +71,26 @@
 
   <Fragment>
     <ComponentGroup Id="StartMenuComponents" Directory="ProgramMenuDir">
-      <!--<Component Id="ScreensShortcut" Guid="{0CFFF240-9A31-48B9-975A-DBC1B4E802F5}">
+      <Component Id="ScreensShortcut" Guid="{0CFFF240-9A31-48B9-975A-DBC1B4E802F5}">
         <Shortcut Id="ScreensShortcutMenu"
                   Name="Screens"
                   Description="Open Source Automation - Screens"
-                  Target="[APPLICATIONROOTDIRECTORY]OSAE.GUI.exe"
-                  WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
+                  Target="[INSTALLFOLDER]OSAE.GUI.exe"
+                  WorkingDirectory="INSTALLFOLDER"/>
+        <RegistryValue Root="HKCU" Key="Software\OSA\Screens" Name="desktopShortcut" Type="integer" Value="1" KeyPath="yes"/>
       </Component>
       <Component Id="ManagerShortcut" Guid="{05DE0D7A-B21C-48E2-B105-25F932DC91F5}">
         <Shortcut Id="ManagerShortcutMenu"
                   Name="Manager"
                   Description="Open Source Automation - Manager"
-                  Target="[APPLICATIONROOTDIRECTORY]OSAE.Manager.exe"
-                  WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
-      </Component>-->        
-    </ComponentGroup>    
+                  Target="[INSTALLFOLDER]OSAE.Manager.exe"
+                  WorkingDirectory="INSTALLFOLDER"/>
+        <RegistryValue Root="HKCU" Key="Software\OSA\Manager" Name="desktopShortcut" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+      <Component Id="ProgramMenuDir" Guid="{5E965BEC-2EF3-4B2A-96EB-7C38FDB5E984}">
+        <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
+        <RegistryValue Root="HKMU" Key="Software\OSA\Screens" Type="string" Value="" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
   </Fragment>
 </Wix>
