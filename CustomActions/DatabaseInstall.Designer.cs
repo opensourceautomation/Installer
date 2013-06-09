@@ -193,7 +193,7 @@
             // 
             this.lb_Progress.AutoSize = true;
             this.lb_Progress.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lb_Progress.Location = new System.Drawing.Point(12, 285);
+            this.lb_Progress.Location = new System.Drawing.Point(12, 282);
             this.lb_Progress.Name = "lb_Progress";
             this.lb_Progress.Size = new System.Drawing.Size(63, 17);
             this.lb_Progress.TabIndex = 30;
@@ -217,7 +217,7 @@
             this.pictureBox1.Image = global::OSAInstallCustomActions.Properties.Resources.logomysql;
             this.pictureBox1.Location = new System.Drawing.Point(219, 9);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(110, 66);
+            this.pictureBox1.Size = new System.Drawing.Size(110, 60);
             this.pictureBox1.TabIndex = 41;
             this.pictureBox1.TabStop = false;
             // 
@@ -249,6 +249,8 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Database - Install/Update";
             this.TopMost = true;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_FormClosing);
+            this.Load += new System.EventHandler(this.Form_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

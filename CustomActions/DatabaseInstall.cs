@@ -38,7 +38,7 @@
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void Form_Load(object sender, EventArgs e)
         {
             OSAE.ModifyRegistry myRegistry = new OSAE.ModifyRegistry();
             myRegistry.SubKey = @"SOFTWARE\OSAE\DBSETTINGS";
@@ -91,7 +91,7 @@
             }
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        private void Form_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (!btnClose.Visible && btnInstall.Text != "Close")
             {
@@ -316,6 +316,8 @@
             lblError.Text = "Success!";
             btnClose.Visible = true;
 
+            txbUsername.Text = "osae";
+            txbPassword.Text = "osaePass";
             SetRegistryKeys();
         }
 
@@ -327,6 +329,8 @@
             myRegistry.Write("DBPASSWORD", txbPassword.Text);
             myRegistry.Write("DBCONNECTION", txbServer.Text);
             myRegistry.Write("DBPORT", txbPort.Text);
+            myRegistry.Write("DBNAME", "osae");
+            myRegistry.Write("INSTALLDIR", directory);
         }      
 
         private void txbServer_KeyDown(object sender, KeyEventArgs e)
@@ -473,7 +477,6 @@
             catch (Exception ex)
             {
                 session.Log("Connection failed: " + ex.Message);
-                ShowConnectionError();
                 return installStatus.ERROR;
             }
         }

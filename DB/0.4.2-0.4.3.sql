@@ -15,9 +15,7 @@ END
 $$
 
 ALTER TABLE osae_schedule_recurring
-  ADD COLUMN active TINYINT(4) DEFAULT 1 AFTER schedule_name;
-
-DELIMITER $$
+  ADD COLUMN active TINYINT(4) DEFAULT 1 AFTER schedule_name$$
 
 DROP PROCEDURE osae_sp_pattern_scripts_get$$
 CREATE PROCEDURE osae_sp_pattern_scripts_get(IN ppattern VARCHAR(255))
@@ -172,6 +170,7 @@ DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done = 1;
 END
 $$
 
+DROP PROCEDURE IF EXISTS osae_sp_schedule_recurring_activate$$
 CREATE PROCEDURE osae_sp_schedule_recurring_activate(
   IN pschedulename VARCHAR(255), IN pactive bit
 )
