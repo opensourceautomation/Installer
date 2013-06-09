@@ -25,7 +25,6 @@
     <Feature Id="ProductFeature" Title="Screens Installer" Level="1">
       <ComponentGroupRef Id="ProductComponents" />
       <ComponentRef Id="ProgramMenuDir" />
-      <!--<ComponentRef Id="ScreensShortcut" />-->
       <MergeRef Id='Core' />
       <MergeRef Id='Screens' />
     </Feature>
@@ -57,14 +56,14 @@
         <Directory Id="ProgramMenuDir" Name="OSA">
           <Component Id="ProgramMenuDir" Guid="{5E965BEC-2EF3-4B2A-96EB-7C38FDB5E984}">
             <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
-            <RegistryValue Root="HKMU" Key="Software\OSA\Screens" Type="string" Value="" KeyPath="yes" />
+            <RegistryValue Root="HKMU" Key="Software\OSAE\Screens" Type="string" Value="1" KeyPath="yes" />
           </Component>
         </Directory>
       </Directory>
       <Directory Id="DesktopFolder" Name="Desktop" />     
         <Directory Id="INSTALLFOLDER" Name="INSTALLLOCATION" >
-          <Merge Id='Screens' Language='1033' src='$(var.SolutionDir)MergeModules\Screens\bin\Release\Screens.msm' DiskId='1' />
-          <Merge Id='Core' Language='1033' src='$(var.SolutionDir)MergeModules\Core\bin\Release\Core.msm' DiskId='1' />
+          <Merge Id='Screens' Language='1033' src='$(var.SolutionDir)MergeModules\Screens\bin\x86\Combined\Screens.msm' DiskId='1' />
+          <Merge Id='Core' Language='1033' src='$(var.SolutionDir)MergeModules\Core\bin\x86\Combined\Core.msm' DiskId='1' />
         </Directory>
       </Directory>   
   </Fragment>
@@ -72,15 +71,7 @@
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">      
     </ComponentGroup>
-    <DirectoryRef Id="ProgramMenuDir">
-      <!--<Component Id="ScreensShortcut" Guid="{0CFFF240-9A31-48B9-975A-DBC1B4E802F5}">
-        <Shortcut Id="ScreensShortcutMenu"
-                  Name="Screens"
-                  Description="Open Source Automation - Screens"
-                  Target="[APPLICATIONROOTDIRECTORY]OSAE.GUI.exe"
-                  WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
-        
-      </Component>-->
+    <DirectoryRef Id="ProgramMenuDir">   
     </DirectoryRef>
   </Fragment>
 </Wix>

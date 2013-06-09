@@ -16,7 +16,16 @@
         private string newVersion = "0.4.3";
         private string ConnectionStringRoot;
         private string ConnectionStringOSAE;
+
+        /// <summary>
+        /// The path to the DB files
+        /// </summary>
         private string directory;
+
+        /// <summary>
+        /// The install directory being used by the installer
+        /// </summary>
+        private string installDirectory;
         private string machine = string.Empty;
 
         /// <summary>
@@ -33,6 +42,7 @@
         public DatabaseInstall(Session ses, string dir, string mach)
         {
             session = ses;
+            installDirectory = dir;
             directory = dir + @"DB\";
             machine = mach;
             InitializeComponent();
@@ -48,16 +58,39 @@
             string port = myRegistry.Read("DBPORT");
             string server = myRegistry.Read("DBCONNECTION");
 
-            if(pass != "")
+            if (pass != string.Empty)
+            {
                 txbPassword.Text = pass;
-            if (user != "")
-                txbUsername.Text = user;
-            if (port != "") 
-                txbPort.Text = port;
-            if (server != "") 
-                txbServer.Text = server;
+            }
 
-            if (pass != "" && user != "" && port != "" && server != "")
+            if (user != string.Empty)
+            {
+                txbUsername.Text = user;
+            }
+            else
+            {
+                txbUsername.Text = "root";
+            }
+
+            if (port != string.Empty)
+            {
+                txbPort.Text = port;
+            }
+            else
+            {
+                txbPort.Text = "3306";
+            }
+
+            if (server != string.Empty)
+            {
+                txbServer.Text = server;
+            }
+            else
+            {
+                txbServer.Text = "localhost";
+            }
+
+            if (pass != string.Empty && user != string.Empty && port != string.Empty && server != string.Empty)
             {
                 //Try to connect to MySql instance and check if osae database exists and if it needs to be upgraded
                 installStatus status = attemptConnection();
@@ -160,77 +193,7 @@
                     btnConnect.Enabled = false;
                 }
 
-                //ConnectionStringRoot = string.Format("Uid={0};Password={1};Server={2};Port={3};", txbUsername.Text, txbPassword.Text, txbServer.Text, txbPort.Text);
-                //connection = new MySqlConnection(ConnectionStringRoot);
-
-                //try
-                //{
-                //    connection.Open();
-                //}
-                //catch (Exception ex)
-                //{
-                //    session.Log("Connection failed: " + ex.Message);
-                //    ShowConnectionError();
-                //    return;
-                //}
-
-                //try
-                //{
-                //    MySqlCommand command;
-                //    MySqlDataAdapter adapter;
-                //    DataSet dataset = new DataSet();
-                //    command = new MySqlCommand("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'osae'", connection);
-                //    adapter = new MySqlDataAdapter(command);
-                //    adapter.Fill(dataset);
-                //    connection.Close();
-                //    int count = dataset.Tables[0].Rows.Count;
-
-                //    if (count == 1)
-                //    {
-                //        // DB found.  Need to upgrade.  First find out current version.
-                //        session.Log("Found OSA database.  Checking to see if we need to upgrade.");
-                //        dataset = new DataSet();
-                //        ConnectionStringOSAE = string.Format("Uid={0};Pwd={1};Server={2};Port={3};Database={4};allow user variables=true", "osae", "osaePass", txbServer.Text, txbPort.Text, "osae");
-                //        connection = new MySqlConnection(ConnectionStringOSAE);
-                //        connection.Open();
-                //        command = new MySqlCommand("select property_value from osae_object_property p inner join osae_object_type_property tp on p.object_type_property_id = tp.property_id inner join osae_object o on o.object_id = p.object_id where object_name = 'SYSTEM' and property_name = 'DB Version'", connection);
-                //        adapter = new MySqlDataAdapter(command);
-                //        adapter.Fill(dataset);
-                //        if (dataset.Tables[0].Rows[0][0].ToString() == string.Empty)
-                //            current = "0.1.0";
-                //        else
-                //            current = dataset.Tables[0].Rows[0][0].ToString();
-                //        if (current == newVersion)
-                //        {
-                //            lblConnectResult.ForeColor = System.Drawing.Color.Green;
-                //            lblConnectResult.Text = "Connection Successful. \nDatabase is up to date.";
-                //            btnInstall.Text = "Close";
-                //            btnInstall.Visible = true;
-                //            btnConnect.Enabled = false;
-                //        }
-                //        else
-                //        {
-                //            lblConnectResult.ForeColor = System.Drawing.Color.Green;
-                //            lblConnectResult.Text = "Connection Successful. \nClick to upgrade.";
-                //            btnInstall.Text = "Upgrade";
-                //            btnInstall.Visible = true;
-                //            btnConnect.Enabled = false;
-                //        }
-
-                //    }
-                //    else
-                //    {
-                //        lblConnectResult.ForeColor = System.Drawing.Color.Green;
-                //        lblConnectResult.Text = "Connection Successful. \nClick to install.";
-                //        btnInstall.Text = "Install";
-                //        btnInstall.Visible = true;
-                //        btnConnect.Enabled = false;
-                //    }
-                //}
-                //catch (Exception ex)
-                //{
-                //    session.Log("Exception in Connect click details: " + ex.Message);
-                //}
+                SetRegistryKeys();                
             }
         }
 
@@ -330,7 +293,7 @@
             myRegistry.Write("DBCONNECTION", txbServer.Text);
             myRegistry.Write("DBPORT", txbPort.Text);
             myRegistry.Write("DBNAME", "osae");
-            myRegistry.Write("INSTALLDIR", directory);
+            myRegistry.Write("INSTALLDIR", installDirectory);
         }      
 
         private void txbServer_KeyDown(object sender, KeyEventArgs e)
@@ -417,8 +380,6 @@
                 MessageBox.Show("Upgrade script failed: " + ex.Message);
                 session.Log("Upgrade script failed: " + ex.Message);
             }
-            
-            
         }
 
         private void btnClose_Click(object sender, EventArgs e)
