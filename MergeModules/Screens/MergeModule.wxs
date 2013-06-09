@@ -10,13 +10,7 @@
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="MergeRedirectFolder">        
         <Component Id="OSAE.GUI.exe" Guid="A7B96657-0DA3-454E-9ED2-58A4F121DD85" >
-          <File Id='OSAE.GUI.exe' Name='OSAE.GUI.exe' DiskId='1' Source='$(var.SolutionDir)output\OSAE.GUI.exe' KeyPath='yes'  >
-            <!--<Shortcut Id="startmenuManual" Directory="ProgramMenuDir" Name="Screens" Advertise="yes" >
-              <Icon Id="OSAE.GUI.exe" SourceFile="$(var.SolutionDir)Resources\icon.ico" />
-            </Shortcut>
-            <Shortcut Id="desktopIcon" Directory="DesktopFolder" Name="Screens" WorkingDirectory="INSTALLFOLDER" Icon="OSAE.GUI.exe" Advertise="yes" >
-            </Shortcut>-->
-          </File>
+          <File Id='OSAE.GUI.exe' Name='OSAE.GUI.exe' DiskId='1' Source='$(var.SolutionDir)output\OSAE.GUI.exe' KeyPath='yes'  />
         </Component>
         <Component Id="OSA.png" Guid="A7B96657-0DA3-454E-9ED2-58A4F121DD83">
           <File Id='OSA.png' Name='OSA.png' DiskId='1' Source='$(var.SolutionDir)output\OSA.png' KeyPath='no' />
