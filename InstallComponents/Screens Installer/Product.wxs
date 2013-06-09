@@ -49,14 +49,14 @@
         <Directory Id="ProgramMenuDir" Name="OSA">
           <Component Id="ProgramMenuDir" Guid="{5E965BEC-2EF3-4B2A-96EB-7C38FDB5E984}">
             <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
-            <RegistryValue Root="HKMU" Key="Software\OSA\Screens" Type="string" Value="" KeyPath="yes" />
+            <RegistryValue Root="HKMU" Key="Software\OSAE\Screens" Type="string" Value="" KeyPath="yes" />
           </Component>
         </Directory>
       </Directory>
       <Directory Id="DesktopFolder" Name="Desktop" />
 				<Directory Id="INSTALLFOLDER" Name="INSTALLLOCATION" >
-          <Merge Id='Screens' Language='1033' src='$(var.SolutionDir)MergeModules\Screens\bin\Release\Screens.msm' DiskId='1' />
-          <Merge Id='Core' Language='1033' src='$(var.SolutionDir)MergeModules\Core\bin\Release\Core.msm' DiskId='1' />
+          <Merge Id='Screens' Language='1033' src='$(var.SolutionDir)MergeModules\Screens\bin\x86\Combined\Screens.msm' DiskId='1' />
+          <Merge Id='Core' Language='1033' src='$(var.SolutionDir)MergeModules\Core\bin\x86\Combined\Core.msm' DiskId='1' />
         </Directory>
 		</Directory>
 	</Fragment>
