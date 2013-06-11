@@ -44,19 +44,27 @@
                   Execute="deferred"
                   Return="check" />
 
-    <Property Id="Register_UWS_Site" Value="&quot;[ProgramFiles6432Folder]UltiDev\Web Server\UWS.RegApp.exe&quot; /r /AppId={58fe03ca-9975-4df2-863e-a228614258c4} /path:&quot;[INSTALLFOLDER]\Plugins\Web Server\wwwroot&quot; &quot;/EndPoints:http://*:8081/&quot; /ddoc:default.aspx /appname:&quot;Open Source Automation&quot; /apphost=SharedLocalSystem /clr:4 /vpath:&quot;/&quot;"/>
-    <CustomAction Id="Register_UWS_Site" BinaryKey="WixCA" DllEntry="CAQuietExec"
-                  Execute="deferred" Return="check" Impersonate="yes"/>
-    
+    <CustomAction Id="UninstallAction"
+                  BinaryKey="CustomActionsBinary"
+                  DllEntry="Uninstall"
+                  Execute="deferred"
+                  Return="check" />
+
+    <CustomAction Id="Register_UWS_Site" Directory="INSTALLFOLDER"
+              Execute="deferred" Impersonate="no" Return="ignore"
+              ExeCommand="&quot;[ProgramFilesFolder]UltiDev\Web Server\UWS.RegApp.exe&quot; /r /AppId={58fe03ca-9975-4df2-863e-a228614258c4} /path:&quot;[INSTALLFOLDER]\Plugins\Web Server\wwwroot&quot; &quot;/EndPoints:http://*:8081/&quot; /ddoc:default.aspx /appname:&quot;Open Source Automation&quot; /apphost=SharedLocalSystem /clr:4 /vpath:&quot;/&quot;" />
     
     <InstallExecuteSequence>
       <!--<RemoveExistingProducts After='InstallFinalize'/>-->
       <Custom Action="DBUpdateCustomAction" Before="StartServices">
         NOT REMOVE="ALL"
       </Custom>
-      <!--<Custom Action="Register_UWS_Site" Before="InstallFinalize">
+      <Custom Action="Register_UWS_Site" Before="InstallFinalize">
         NOT REMOVE="ALL"
-      </Custom>-->
+      </Custom>
+      <Custom Action="UninstallAction" Before="InstallFinalize">
+        REMOVE="ALL"
+      </Custom>
     </InstallExecuteSequence>
   </Product>
   
