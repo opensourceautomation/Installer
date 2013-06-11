@@ -8,7 +8,6 @@
     using System.IO;
     using System.Windows.Forms;
 
-
     public partial class DatabaseInstall : Form
     {
         private MySqlConnection connection;
@@ -16,6 +15,7 @@
         private string newVersion = "0.4.3";
         private string ConnectionStringRoot;
         private string ConnectionStringOSAE;
+        RegistrySettings regSettings;
 
         /// <summary>
         /// The path to the DB files
@@ -48,79 +48,114 @@
             InitializeComponent();
         }
 
+        ~DatabaseInstall()
+        {
+            try
+            {
+                if (connection != null)
+                {
+                    connection.Close();
+                }
+            }
+            catch (Exception)
+            {
+                // its not overly important if we fail to close so do nothing
+            }
+        }
+
         private void Form_Load(object sender, EventArgs e)
         {
-            OSAE.ModifyRegistry myRegistry = new OSAE.ModifyRegistry();
-            myRegistry.SubKey = @"SOFTWARE\OSAE\DBSETTINGS";
-            
-            string pass = myRegistry.Read("DBPASSWORD");
-            string user = myRegistry.Read("DBUSERNAME");
-            string port = myRegistry.Read("DBPORT");
-            string server = myRegistry.Read("DBCONNECTION");
-
-            if (pass != string.Empty)
+            try
             {
-                txbPassword.Text = pass;
+                regSettings = new RegistrySettings();
+                regSettings.LoadCurrentValues();
+                
+                session.Log("Existing settings: DBPASSWORD " + regSettings.DbPassword + " DBUSERNAME " + regSettings.DbUsername + " DBPORT " + regSettings.DbPort + " DBCONNECTION " + regSettings.DbConnection);
+                
+                SetFormFields();
+
+                if (regSettings.RequiredPresent())
+                {
+                    if (machine != "Client")
+                    {
+                        //Try to connect to MySql instance and check if osae database exists and if it needs to be upgraded
+                        InstallStatus status = AttemptConnection();
+                        if (status == InstallStatus.NEEDSUPGRADE)
+                        {
+                            upgrade();
+                            this.DialogResult = System.Windows.Forms.DialogResult.OK;
+                            this.Close();
+                        }
+                        else if (status == InstallStatus.UPTODATE)
+                        {
+                            this.DialogResult = System.Windows.Forms.DialogResult.OK;
+                            btnClose.Visible = true;
+                            this.Close();
+                        }
+                    }
+                    else
+                    {
+                        // the keys are present and we are doing a client install so nothing to do
+                        this.DialogResult = System.Windows.Forms.DialogResult.OK;
+                        btnClose.Visible = true;
+                        this.Close();
+                    }
+                }              
+
+                if (machine == "Client")
+                {
+                    lb_Progress.Visible = false;
+                    installationProgressBar.Visible = false;
+                    txbUsername.Visible = false;
+                    txbPassword.Visible = false;
+                    usernameLabel.Visible = false;
+                    passwordLabel.Visible = false;
+                    label1.Text = "Please enter the server address and MySql port of your Open Source Automation server.";
+                }
+                else
+                {
+                    lb_Progress.Visible = true;
+                    installationProgressBar.Visible = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                session.Log("Error occured in Form_Load details:" + ex.Message);
+            }
+        }
+
+        private void SetFormFields()
+        {
+            if (!string.IsNullOrEmpty(regSettings.DbPassword))
+            {
+                txbPassword.Text = regSettings.DbPassword;
             }
 
-            if (user != string.Empty)
+            if (!string.IsNullOrEmpty(regSettings.DbUsername))
             {
-                txbUsername.Text = user;
+                txbUsername.Text = regSettings.DbUsername;
             }
             else
             {
                 txbUsername.Text = "root";
             }
 
-            if (port != string.Empty)
+            if (!string.IsNullOrEmpty(regSettings.DbPort))
             {
-                txbPort.Text = port;
+                txbPort.Text = regSettings.DbPort;
             }
             else
             {
                 txbPort.Text = "3306";
             }
 
-            if (server != string.Empty)
+            if (!string.IsNullOrEmpty(regSettings.DbConnection))
             {
-                txbServer.Text = server;
+                txbServer.Text = regSettings.DbConnection;
             }
             else
             {
                 txbServer.Text = "localhost";
-            }
-
-            if (pass != string.Empty && user != string.Empty && port != string.Empty && server != string.Empty)
-            {
-                //Try to connect to MySql instance and check if osae database exists and if it needs to be upgraded
-                installStatus status = attemptConnection();
-                if (status == installStatus.NEEDSUPGRADE)
-                {
-                    upgrade();
-                    this.DialogResult = System.Windows.Forms.DialogResult.OK;
-                    this.Close();
-                }
-                else if (status == installStatus.UPTODATE)
-                {
-                    this.DialogResult = System.Windows.Forms.DialogResult.OK;
-                    this.Close();
-                }
-            }
-
-            if (machine == "Client")
-            {
-                lb_Progress.Visible = false;
-                installationProgressBar.Visible = false;
-                txbUsername.Visible = false;
-                txbPassword.Visible = false;
-                usernameLabel.Visible = false;
-                passwordLabel.Visible = false;
-                label1.Text = "Please enter the server address and MySql port of your Open Source Automation server.";
-            }
-            else
-            {
-                lb_Progress.Visible = true;
-                installationProgressBar.Visible = true;
             }
         }
 
@@ -130,6 +165,15 @@
             {
                 MessageBox.Show("Database did not install successfully.  Please make sure your MySql instance is running and re-run the Open Source Automation installer again.");
                 this.DialogResult = DialogResult.Cancel;
+            }
+            else
+            {
+                if(string.IsNullOrEmpty(regSettings.WcfServer))
+                {
+                    OSAE.ModifyRegistry myRegistry = new OSAE.ModifyRegistry();
+                    myRegistry.SubKey = @"SOFTWARE\OSAE";
+                    myRegistry.Write("WcfServer", "localhost");
+                }
             }
         }
 
@@ -161,14 +205,15 @@
             }
             else
             {
-                installStatus status = attemptConnection();
-                if (status == installStatus.ERROR)
+                InstallStatus status = AttemptConnection();
+                               
+                if (status == InstallStatus.ERROR)
                 {
                     session.Log("Connection failed");
                     ShowConnectionError();
                     return;
                 }
-                else if (status == installStatus.NOTINSTALLED)
+                else if (status == InstallStatus.NOTINSTALLED)
                 {
                     lblConnectResult.ForeColor = System.Drawing.Color.Green;
                     lblConnectResult.Text = "Connection Successful. \nClick to install.";
@@ -176,7 +221,7 @@
                     btnInstall.Visible = true;
                     btnConnect.Enabled = false;
                 }
-                else if (status == installStatus.NEEDSUPGRADE)
+                else if (status == InstallStatus.NEEDSUPGRADE)
                 {
                     lblConnectResult.ForeColor = System.Drawing.Color.Green;
                     lblConnectResult.Text = "Connection Successful. \nClick to upgrade.";
@@ -184,7 +229,7 @@
                     btnInstall.Visible = true;
                     btnConnect.Enabled = false;
                 }
-                else if (status == installStatus.UPTODATE)
+                else if (status == InstallStatus.UPTODATE)
                 {
                     lblConnectResult.ForeColor = System.Drawing.Color.Green;
                     lblConnectResult.Text = "Connection Successful. \nDatabase is up to date.";
@@ -193,7 +238,7 @@
                     btnConnect.Enabled = false;
                 }
 
-                SetRegistryKeys();                
+                SetRegistryKeys();
             }
         }
 
@@ -288,37 +333,13 @@
         {
             OSAE.ModifyRegistry myRegistry = new OSAE.ModifyRegistry();
             myRegistry.SubKey = @"SOFTWARE\OSAE\DBSETTINGS";
-            myRegistry.Write("DBUSERNAME", txbUsername.Text);
-            myRegistry.Write("DBPASSWORD", txbPassword.Text);
+            myRegistry.Write("DBUSERNAME", "osae");
+            myRegistry.Write("DBPASSWORD", "osaePass");
             myRegistry.Write("DBCONNECTION", txbServer.Text);
             myRegistry.Write("DBPORT", txbPort.Text);
             myRegistry.Write("DBNAME", "osae");
             myRegistry.Write("INSTALLDIR", installDirectory);
         }      
-
-        private void txbServer_KeyDown(object sender, KeyEventArgs e)
-        {
-            btnInstall.Visible = false;
-            btnConnect.Enabled = true;
-        }
-
-        private void txbPort_KeyDown(object sender, KeyEventArgs e)
-        {
-            btnInstall.Visible = false;
-            btnConnect.Enabled = true;
-        }
-
-        private void txbUsername_KeyDown(object sender, KeyEventArgs e)
-        {
-            btnInstall.Visible = false;
-            btnConnect.Enabled = true;
-        }
-
-        private void txbPassword_KeyDown(object sender, KeyEventArgs e)
-        {
-            btnInstall.Visible = false;
-            btnConnect.Enabled = true;
-        }
 
         private void upgrade()
         {
@@ -388,7 +409,7 @@
             this.Close();
         }
 
-        private installStatus attemptConnection()
+        private InstallStatus AttemptConnection()
         {
             ConnectionStringRoot = string.Format("Uid={0};Password={1};Server={2};Port={3};", txbUsername.Text, txbPassword.Text, txbServer.Text, txbPort.Text);
             connection = new MySqlConnection(ConnectionStringRoot);
@@ -423,31 +444,25 @@
                         current = dataset.Tables[0].Rows[0][0].ToString();
                     if (current == newVersion)
                     {
-                        return installStatus.UPTODATE;
+                        return InstallStatus.UPTODATE;
                     }
                     else
                     {
-                        return installStatus.NEEDSUPGRADE;
+                        return InstallStatus.NEEDSUPGRADE;
                     }
                 }
                 else
                 {
-                    return installStatus.NOTINSTALLED;
+                    return InstallStatus.NOTINSTALLED;
                 }
             }
             catch (Exception ex)
             {
                 session.Log("Connection failed: " + ex.Message);
-                return installStatus.ERROR;
+                return InstallStatus.ERROR;
             }
         }
 
-        enum installStatus
-        {
-            NOTINSTALLED,
-            NEEDSUPGRADE,
-            UPTODATE,
-            ERROR
-        }
+        
     }
 }
