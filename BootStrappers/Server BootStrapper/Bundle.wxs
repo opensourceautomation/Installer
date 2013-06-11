@@ -22,16 +22,15 @@
       
     <Chain>
       <PackageGroupRef Id='Netfx4Full'/>
-      <RollbackBoundary Id="Net4FullInstalled" />
-      <MsiPackage SourceFile="$(var.SolutionDir)InstallComponents\Server Installer\bin\x86\Combined\Server Installer.msi"
-                  Id="ServerPackageId"
-                  Cache="yes"
-                  Vital="yes"
-                  InstallCondition="NOT VersionNT64"
-                  Visible="no">
-        <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
-
-      </MsiPackage>
+      <RollbackBoundary Id="Net4FullInstalled" />     
+      <ExePackage Id="UWS"
+                Cache="yes"
+                Compressed="yes"
+                PerMachine="yes"
+                Permanent="yes"
+                Vital="yes"
+                InstallCommand="/q"
+                SourceFile="$(var.SolutionDir)Dependencies\UltiDev Web Server Setup.exe" />
       <MsiPackage SourceFile="$(var.SolutionDir)InstallComponents\Server Installer x64\bin\x64\Combined\Server Installer x64.msi"
                   Id="ServerPackageIdx64"
                   Cache="yes"
@@ -39,15 +38,15 @@
                   InstallCondition="VersionNT64"
                   Visible="no">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
-      </MsiPackage>    
-      <ExePackage Id="UWS"
+      </MsiPackage>
+      <MsiPackage SourceFile="$(var.SolutionDir)InstallComponents\Server Installer\bin\x86\Combined\Server Installer.msi"
+                 Id="ServerPackageId"
                  Cache="yes"
-                 Compressed="yes"
-                 PerMachine="yes"
-                 Permanent="yes"
                  Vital="yes"
-                 InstallCommand="/q"
-                 SourceFile="$(var.SolutionDir)Dependencies\UltiDev Web Server Setup.exe" />      
+                 InstallCondition="NOT VersionNT64"
+                 Visible="no">
+        <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
+      </MsiPackage>
     </Chain>
 	</Bundle>
 </Wix>
