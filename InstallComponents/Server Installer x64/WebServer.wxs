@@ -60,6 +60,7 @@
       <ComponentRef Id="comp_WebServer_40" />
       <ComponentRef Id="comp_WebServer_42" />
       <ComponentRef Id="comp_WebServer_43" />
+      <ComponentRef Id="comp_WebServer_44" />
       <ComponentRef Id="comp_WebServer_45" />
       <ComponentRef Id="comp_WebServer_46" />
       <ComponentRef Id="comp_WebServer_47" />
@@ -240,8 +241,11 @@
             <Component Id="comp_WebServer_42" DiskId="1" KeyPath="yes" Guid="878D9091-7E2D-45F9-8FA1-6C6247BF7C5B">
               <File Id="file_WebServer_42" Checksum="yes" Source="..\..\output\Plugins\Web Server\wwwroot\Bin\Newtonsoft.Json.dll" />
             </Component>
+            <Component Id="comp_WebServer_44" DiskId="1" KeyPath="yes" Guid="{F217690F-71C1-49CB-A95E-6DF2AFB526E1}">
+              <File Id="file_WebServer_44" Checksum="yes" Source="..\..\output\MySql.Data.dll" />
+            </Component>
             <Component Id="comp_WebServer_43" DiskId="1" KeyPath="yes" Guid="9EBB8E6A-2B2C-42D8-9764-FB6694B688C7">
-              <File Id="file_WebServer_43" Checksum="yes" Source="..\..\output\Plugins\Web Server\wwwroot\Bin\OSAE.API.dll" />
+              <File Id="file_WebServer_43" Checksum="yes" Source="..\..\output\OSAE.API.dll" />
             </Component>
             <Component Id="comp_WebServer_45" DiskId="1" KeyPath="yes" Guid="30C52E5A-B9BC-47BB-B336-68F4CD45421D">
               <File Id="file_WebServer_45" Checksum="yes" Source="..\..\output\Plugins\Web Server\wwwroot\Bin\Visualization.dll" />
