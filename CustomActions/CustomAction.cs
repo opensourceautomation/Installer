@@ -1,8 +1,11 @@
 ﻿namespace OSAInstallCustomActions
 {
     using Microsoft.Deployment.WindowsInstaller;
+    using Microsoft.Win32;
+    using MySql.Data.MySqlClient;
     using OSAE;
     using System;
+    using System.Windows.Forms;
 
     public class CustomActions
     {
@@ -72,7 +75,6 @@
                 var installDir = session.CustomActionData[INSTALLFOLDER];
                 session.Log("Custom Action Using install folder: " + installDir);
 
-
                 DatabaseInstall databaseInstall = new DatabaseInstall(session, installDir, "Server");
 
                 if (databaseInstall.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -101,7 +103,6 @@
                 string installFolder = session["INSTALLFOLDER"];
                 session.Log("Custom Action Using install folder: " + installFolder);
 
-
                 DatabaseInstall databaseInstall = new DatabaseInstall(session, installFolder, "Client");
 
                 if (databaseInstall.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -118,6 +119,55 @@
             {
                 session.Log("Exception Occured during custom action details:" + ex.Message);
                 return ActionResult.Failure;
+            }
+        }
+
+        [CustomAction]
+        public static ActionResult Uninstall(Session session)
+        {
+            try
+            {
+                session.Log("Begin Uninstall CustomAction");
+
+                //DialogResult res = MessageBox.Show("Do you want to remove the OSA registry keys?", "Removal Option", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                //if (res == DialogResult.Yes)
+                //{
+                //    OSAE.ModifyRegistry registry = new OSAE.ModifyRegistry();
+                //    registry.BaseRegistryKey.DeleteSubKeyTree(@"SOFTWARE\OSAE", false);
+                //}
+
+                //MessageBox.Show("The OSA database has not been deleted if you no longer require it please remove it manually", "Removal Option", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                session.Log("Exception Occured during custom action details:" + ex.Message);
+                return ActionResult.Failure;
+            }
+
+            return ActionResult.Success;
+        }
+
+        private void RemoveDB()
+        {
+            OSAE.ModifyRegistry myRegistry = new OSAE.ModifyRegistry();
+            myRegistry.SubKey = @"SOFTWARE\OSAE\DBSETTINGS";
+
+            string pass = myRegistry.Read("DBPASSWORD");
+            string user = myRegistry.Read("DBUSERNAME");
+            string port = myRegistry.Read("DBPORT");
+            string server = myRegistry.Read("DBCONNECTION");
+
+            using (var connection = new MySqlConnection("server=localhost;user=root;password="))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandText = "drop schema if exists clusters";
+                command.ExecuteNonQuery();
+
+                command = connection.CreateCommand();
+                command.CommandText = "create schema clusters";
+                command.ExecuteNonQuery();
             }
         }
     }

@@ -24,9 +24,9 @@
           <File Id='OSAE.OSAManagerConfig' Name='OSAE.Manager.exe.config' DiskId='1' Source='$(var.SolutionDir)output\OSAE.Manager.exe.config' KeyPath='yes' />
         </Component>
         <!--Log Viewer-->
-        <Component Id='LogViewer' Guid='{0B2AD7FD-2438-4B78-BB04-ABB1E9348F7B}'>
+        <!--<Component Id='LogViewer' Guid='{0B2AD7FD-2438-4B78-BB04-ABB1E9348F7B}'>
           <File Id='LogViewer' Name='LogViewer.exe' DiskId='1' Source='$(var.SolutionDir)output\LogViewer.exe' KeyPath='yes' />
-        </Component>
+        </Component>-->
         <!--VR2-->
         <Component Id="OSAE.VR.exe" Guid='{064B8EEB-B886-4B76-886F-5A6D3AFCDB97}'>
           <File Id='OSAE.VR.exe' Name='OSAE.VR.exe' DiskId='1' Source='$(var.SolutionDir)output\OSAE.VR.exe' KeyPath='yes' />
