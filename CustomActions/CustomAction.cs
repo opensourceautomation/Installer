@@ -9,8 +9,9 @@
 
     public class CustomActions
     {
-        private const string INSTALLFOLDER = "INSTALLFOLDER"; 
+        private const string INSTALLFOLDER = "INSTALLFOLDER";
 
+        #region Server Actions
         /// <summary>
         /// Performing an install or upgrade as part of a server installer
         /// </summary>
@@ -25,39 +26,6 @@
                 customActionData.Add(INSTALLFOLDER, session[INSTALLFOLDER]);
                 session.DoAction("DeferredServerAction", customActionData);
                 return ActionResult.Success; 
-            }
-            catch (Exception ex)
-            {
-                session.Log("Exception Occured during custom action details:" + ex.Message);
-                return ActionResult.Failure;
-            }
-        }
-
-        /// <summary>
-        /// Running in the context of a client installer
-        /// </summary>
-        /// <param name="session"></param>
-        /// <returns></returns>
-        [CustomAction]
-        public static ActionResult Client(Session session)
-        {
-            try
-            {
-                session.Log("Begin Client CustomAction");
-                var installDir = session.CustomActionData[INSTALLFOLDER];
-                session.Log("Custom Action Using install folder: " + installDir);
-                DatabaseInstall databaseInstall = new DatabaseInstall(session, installDir, "Client");
-                //session.Log("Session Property Value: " + session["OSAInstallType"].ToString());
-
-                if (databaseInstall.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    return ActionResult.Success;
-                }
-                else
-                {
-                    session.Log("OSAInstallCustomActions CustomAction - User exited");
-                    return ActionResult.UserExit;
-                }
             }
             catch (Exception ex)
             {
@@ -94,6 +62,43 @@
             }
         }
 
+        #endregion
+
+        #region Client Actions
+
+        /// <summary>
+        /// Running in the context of a client installer
+        /// </summary>
+        /// <param name="session"></param>
+        /// <returns></returns>
+        [CustomAction]
+        public static ActionResult Client(Session session)
+        {
+            try
+            {
+                session.Log("Begin Client CustomAction");
+                var installDir = session.CustomActionData[INSTALLFOLDER];
+                session.Log("Custom Action Using install folder: " + installDir);
+                DatabaseInstall databaseInstall = new DatabaseInstall(session, installDir, "Client");
+                //session.Log("Session Property Value: " + session["OSAInstallType"].ToString());
+
+                if (databaseInstall.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    return ActionResult.Success;
+                }
+                else
+                {
+                    session.Log("OSAInstallCustomActions CustomAction - User exited");
+                    return ActionResult.UserExit;
+                }
+            }
+            catch (Exception ex)
+            {
+                session.Log("Exception Occured during custom action details:" + ex.Message);
+                return ActionResult.Failure;
+            }
+        }       
+
         [CustomAction]
         public static ActionResult DeferredClientAction(Session session)
         {
@@ -122,6 +127,8 @@
             }
         }
 
+        #endregion
+
         [CustomAction]
         public static ActionResult Uninstall(Session session)
         {
@@ -129,19 +136,12 @@
             {
                 session.Log("Begin Uninstall CustomAction");
 
-                //DialogResult res = MessageBox.Show("Do you want to remove the OSA registry keys?", "Removal Option", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                //if (res == DialogResult.Yes)
-                //{
-                //    OSAE.ModifyRegistry registry = new OSAE.ModifyRegistry();
-                //    registry.BaseRegistryKey.DeleteSubKeyTree(@"SOFTWARE\OSAE", false);
-                //}
-
-                //MessageBox.Show("The OSA database has not been deleted if you no longer require it please remove it manually", "Removal Option", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                OSAE.ModifyRegistry registry = new OSAE.ModifyRegistry();
+                registry.BaseRegistryKey.DeleteSubKeyTree(@"SOFTWARE\OSAE", false);
             }
             catch (Exception ex)
             {
-                session.Log("Exception Occured during custom action details:" + ex.Message);
-                return ActionResult.Failure;
+                session.Log("Exception Occured during custom action details:" + ex.Message);                
             }
 
             return ActionResult.Success;
