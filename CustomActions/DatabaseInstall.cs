@@ -401,6 +401,7 @@
                 MessageBox.Show("Upgrade script failed: " + ex.Message);
                 session.Log("Upgrade script failed: " + ex.Message);
             }
+            installationProgressBar.Value = 100;
         }
 
         private void btnClose_Click(object sender, EventArgs e)
