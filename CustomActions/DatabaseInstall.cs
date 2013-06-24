@@ -263,6 +263,7 @@
             {
                 try
                 {
+                    btnInstall.Enabled = false;
                     Install();
                 }
                 catch (Exception ex)
