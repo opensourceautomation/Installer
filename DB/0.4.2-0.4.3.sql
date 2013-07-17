@@ -205,7 +205,67 @@ DECLARE vScriptID INT DEFAULT NULL;
 END
 $$
 
+DROP TRIGGER IF EXISTS osae_tr_object_before_update$$
+CREATE TRIGGER osae_tr_object_before_update
+	BEFORE UPDATE
+	ON osae_object
+	FOR EACH ROW
+BEGIN
+DECLARE vState VARCHAR(50);
+DECLARE vEventCount INT;
+DECLARE vHideRedundantRvents INT;
+DECLARE vEvent VARCHAR(200);
+    IF OLD.object_type_id <> NEW.object_type_id THEN
+        DELETE FROM osae_object_property WHERE object_id=OLD.object_id;
+        INSERT INTO osae_object_property (object_id,object_type_property_id,property_value) SELECT OLD.object_id, property_id, property_default FROM osae_object_type_property WHERE object_type_id=NEW.object_type_id;
+        DELETE FROM osae_object_state_history WHERE object_id=OLD.object_id;
+        INSERT INTO osae_object_state_history (object_id,state_id) SELECT OLD.object_id, state_id FROM osae_v_object_state WHERE object_type_id=NEW.object_type_id;        
+        DELETE FROM osae_object_property WHERE object_id=OLD.object_id;
+        INSERT INTO osae_object_property (object_id,object_type_property_id,property_value) SELECT OLD.object_id, property_id, property_default FROM osae_object_type_property WHERE object_type_id=NEW.object_type_id;
+        DELETE FROM osae_object_event_script WHERE object_id=OLD.object_id;
+    END IF;
+    IF OLD.state_id <> NEW.state_id THEN
+        SET NEW.last_state_change=NOW();
+        UPDATE osae_object_state_history SET times_this_hour=times_this_hour + 1, times_this_day=times_this_day + 1,times_this_month=times_this_month+1,times_this_year=times_this_year+1,times_ever=times_ever + 1 WHERE object_id=OLD.object_id AND state_id=NEW.state_id;
+        INSERT INTO osae_object_state_change_history (object_id, state_id) VALUES (OLD.object_id, NEW.state_id);
+    END IF;    
+END
+$$
+
+
 DELIMITER ;
+
+CREATE TABLE osae_object_state_change_history (
+  history_id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  history_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  object_id INT(10) UNSIGNED NOT NULL,
+  state_id INT(10) UNSIGNED NOT NULL,
+  PRIMARY KEY (history_id)
+)
+ENGINE = INNODB
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
+
+
+CREATE
+VIEW osae_v_object_state_change_history
+AS
+SELECT
+  `osae_object`.`object_id` AS `object_id`,
+  `osae_object`.`object_name` AS `object_name`,
+  `osae_object`.`object_description` AS `object_description`,
+  `osae_object`.`address` AS `address`,
+  `osae_object_type_state`.`state_name` AS `state_name`,
+  `osae_object_type_state`.`state_label` AS `state_label`,
+  `osae_object_type_state`.`state_id` AS `state_id`,
+  `osae_object_state_change_history`.`history_timestamp` AS `history_timestamp`
+FROM ((`osae_object`
+  JOIN `osae_object_state_change_history`
+    ON ((`osae_object`.`object_id` = `osae_object_state_change_history`.`object_id`)))
+  JOIN `osae_object_type_state`
+    ON (((`osae_object_state_change_history`.`state_id` = `osae_object_type_state`.`state_id`) AND (`osae_object`.`object_type_id` = `osae_object_type_state`.`object_type_id`))));
+
+
 
 CREATE OR REPLACE 
 VIEW osae_v_schedule_recurring
