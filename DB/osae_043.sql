@@ -2990,7 +2990,7 @@ INSERT INTO osae_object_type_method VALUES
 (0000000101, 'MUTEVR', 'Mute the Microphone', 0000000058, '', '', '', ''),
 (0000000104, 'SETVOICE', 'Set Voice', 0000000058, 'Voice', '', 'Anna', ''),
 (0000000105, 'UPDATE', 'Update', 0000000034, '', '', '', ''),
-(0000000114, 'DEBOUNCE', 'Set Debounce Time', 0000000040, 'Time in ms', '', '120', ''),
+(0000000114, 'DEBOUNCE', 'Set Debounce Time', 0000000040, 'Time in ms', '', '800', ''),
 (0000000115, 'DEBUG MODE', 'Set Debug Mode', 0000000040, 'TRUE/FALSE', '', 'FALSE', ''),
 (0000000116, 'TRANSMIT ONLY', 'Set Transmit Only', 0000000040, 'TRUE / FALSE', '', 'FALSE', ''),
 (0000000117, 'TRANSMIT RF', 'Set Transmit RF', 0000000040, 'TRUE / FALSE', '', 'FALSE', ''),
