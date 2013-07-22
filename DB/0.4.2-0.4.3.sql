@@ -235,6 +235,9 @@ $$
 
 DELIMITER ;
 
+ALTER TABLE osae_event_log
+  ADD INDEX IDX_osae_event_log_log_time (log_time);
+
 CREATE TABLE osae_object_state_change_history (
   history_id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   history_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

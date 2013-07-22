@@ -357,6 +357,7 @@ CREATE TABLE osae_event_log (
   from_object_id INT(10) UNSIGNED DEFAULT NULL,
   debug_trace VARCHAR(2000) DEFAULT NULL,
   PRIMARY KEY (event_log_id),
+  INDEX IDX_osae_event_log_log_time (log_time),
   CONSTRAINT osae_fk_events_log_to_events FOREIGN KEY (event_id)
     REFERENCES osae_object_type_event(event_id) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT osae_fk_events_log_to_objects FOREIGN KEY (object_id)
