@@ -23,7 +23,6 @@
   <Fragment>
     <ComponentGroup Id="group_WebServer">
       <ComponentRef Id="comp_WebServer_0" />
-      <ComponentRef Id="comp_WebServer_1" />
       <ComponentRef Id="comp_WebServer_2" />
       <ComponentRef Id="comp_WebServer_3" />
       <ComponentRef Id="comp_WebServer_4" />
@@ -125,9 +124,6 @@
       <Directory Id="dir_Web_Server_0" Name="Web Server">
         <Component Id="comp_WebServer_0" DiskId="1" KeyPath="yes" Guid="7EF8D70F-A5DF-4563-87B7-62663C757606">
           <File Id="file_WebServer_0" Checksum="yes" Source="..\..\output\Plugins\Web Server\OSAE.WebServer.dll" />
-        </Component>
-        <Component Id="comp_WebServer_1" DiskId="1" KeyPath="yes" Guid="187E8E63-1843-4AF5-97BD-428514E26F8C">
-          <File Id="file_WebServer_1" Source="..\..\output\Plugins\Web Server\OSAE.WebServer.pdb" />
         </Component>
         <Component Id="comp_WebServer_2" DiskId="1" KeyPath="yes" Guid="5DBEE511-3D72-4A48-99B8-EAD067A3886D">
           <File Id="file_WebServer_2" Source="..\..\output\Plugins\Web Server\Screenshot.jpg" />
