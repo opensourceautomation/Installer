@@ -35,12 +35,6 @@
 					  Execute="immediate"
 					  Return="check" />
 
-    <CustomAction Id="DefferredCustomAction"
-					  BinaryKey="CustomActionsBinary"
-					  DllEntry="DeferredClientAction"
-					  Execute="immediate"
-					  Return="check" />
-
     <CustomAction Id="UninstallAction"
                   BinaryKey="CustomActionsBinary"
                   DllEntry="Uninstall"
