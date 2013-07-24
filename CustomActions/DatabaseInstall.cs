@@ -311,7 +311,7 @@
                 script.Execute();
             }
             installationProgressBar.Value = 50;
-            script = new MySqlScript(connection, "GRANT ALL ON osae.* TO `osae`@`%`;GRANT ALL ON osae.* TO `osae`@`%`;");
+            script = new MySqlScript(connection, "GRANT SUPER ON *.* TO `osae`@`%`;GRANT ALL PRIVILEGES ON *.* TO 'osae'@'%' WITH GRANT OPTION;");
             script.Execute();
             installationProgressBar.Value = 75;
             script = new MySqlScript(connection, File.ReadAllText(directory + @"osae.sql"));
