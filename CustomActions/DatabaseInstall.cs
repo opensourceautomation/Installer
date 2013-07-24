@@ -107,8 +107,11 @@
                     lb_Progress.Visible = false;
                     installationProgressBar.Visible = false;
                     txbUsername.Visible = false;
+                    txbPassword.Visible = false;
+                    txbWcfAddress.Visible = true;
                     usernameLabel.Visible = false;
-                    passwordLabel.Text = "OSA Server IP:";
+                    passwordLabel.Visible = false;
+                    WCFlabel.Visible = true;
                     label1.Text = "Please enter the server address and MySql port of your Open Source Automation server.";
                 }
                 else
@@ -130,9 +133,9 @@
                 txbPassword.Text = regSettings.DbPassword;
             }
 
-            if(machine == "Client" && !string.IsNullOrEmpty(regSettings.WcfServer))
+            if(!string.IsNullOrEmpty(regSettings.WcfServer))
             {
-                txbPassword.Text = regSettings.WcfServer;
+                txbWcfAddress.Text = regSettings.WcfServer;
             }
 
             if (!string.IsNullOrEmpty(regSettings.DbUsername))
@@ -176,7 +179,7 @@
                 {
                     OSAE.ModifyRegistry myRegistry = new OSAE.ModifyRegistry();
                     myRegistry.SubKey = @"SOFTWARE\OSAE";
-                    myRegistry.Write("WcfServer", txbPassword.Text);
+                    myRegistry.Write("WcfServer", txbWcfAddress.Text);
                 }
             }
         }

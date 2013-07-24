@@ -46,6 +46,8 @@
             this.lb_Progress = new System.Windows.Forms.Label();
             this.installationProgressBar = new System.Windows.Forms.ProgressBar();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.WCFlabel = new System.Windows.Forms.Label();
+            this.txbWcfAddress = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -125,6 +127,7 @@
             this.lblConnectResult.AutoSize = true;
             this.lblConnectResult.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblConnectResult.Location = new System.Drawing.Point(16, 224);
+            this.lblConnectResult.MaximumSize = new System.Drawing.Size(200, 0);
             this.lblConnectResult.Name = "lblConnectResult";
             this.lblConnectResult.Size = new System.Drawing.Size(0, 17);
             this.lblConnectResult.TabIndex = 34;
@@ -221,11 +224,33 @@
             this.pictureBox1.TabIndex = 41;
             this.pictureBox1.TabStop = false;
             // 
+            // WCFlabel
+            // 
+            this.WCFlabel.AutoSize = true;
+            this.WCFlabel.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.WCFlabel.Location = new System.Drawing.Point(61, 189);
+            this.WCFlabel.Name = "WCFlabel";
+            this.WCFlabel.Size = new System.Drawing.Size(91, 17);
+            this.WCFlabel.TabIndex = 43;
+            this.WCFlabel.Text = "OSA Server IP:";
+            this.WCFlabel.Visible = false;
+            // 
+            // txbWcfAddress
+            // 
+            this.txbWcfAddress.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txbWcfAddress.Location = new System.Drawing.Point(158, 186);
+            this.txbWcfAddress.Name = "txbWcfAddress";
+            this.txbWcfAddress.Size = new System.Drawing.Size(171, 25);
+            this.txbWcfAddress.TabIndex = 42;
+            this.txbWcfAddress.Visible = false;
+            // 
             // DatabaseInstall
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(339, 377);
+            this.Controls.Add(this.WCFlabel);
+            this.Controls.Add(this.txbWcfAddress);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.lblError);
             this.Controls.Add(this.btnClose);
@@ -276,5 +301,7 @@
         private System.Windows.Forms.Label lb_Progress;
         private System.Windows.Forms.ProgressBar installationProgressBar;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Label WCFlabel;
+        private System.Windows.Forms.TextBox txbWcfAddress;
     }
 }
