@@ -39,15 +39,7 @@
                   InstallCondition="VersionNT64"
                   Visible="no">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
-      </MsiPackage>
-      <ExePackage Id="UWS"
-                 Cache="yes"
-                 Compressed="yes"
-                 PerMachine="yes"
-                 Permanent="yes"
-                 Vital="yes"
-                 InstallCommand="/q"
-                 SourceFile="$(var.SolutionDir)Dependencies\UltiDev Web Server Setup.exe" />
+      </MsiPackage>    
     </Chain>
 	</Bundle>
 </Wix>
