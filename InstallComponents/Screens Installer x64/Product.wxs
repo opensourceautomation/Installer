@@ -31,15 +31,21 @@
      
     <CustomAction Id="DBUpdateCustomAction"
 					  BinaryKey="CustomActionsBinary"
-					  DllEntry="Server"
+					  DllEntry="Client"
 					  Execute="immediate"
 					  Return="check" />
 
     <CustomAction Id="DefferredCustomAction"
 					  BinaryKey="CustomActionsBinary"
-					  DllEntry="Server"
+					  DllEntry="DeferredClientAction"
 					  Execute="immediate"
 					  Return="check" />
+    
+    <CustomAction Id="UninstallAction"
+                  BinaryKey="CustomActionsBinary"
+                  DllEntry="Uninstall"
+                  Execute="deferred"
+                  Return="ignore" />
     
     <InstallExecuteSequence>
       <!--<RemoveExistingProducts Before="InstallInitialize" />-->
