@@ -1,4 +1,4 @@
-﻿namespace OSAInstallCustomActions
+﻿ namespace OSAInstallCustomActions
 {
     using Microsoft.Deployment.WindowsInstaller;
     using Microsoft.Win32;
@@ -77,7 +77,7 @@
             try
             {
                 session.Log("Begin Client CustomAction");
-                var installDir = session.CustomActionData[INSTALLFOLDER];
+                var installDir = session[INSTALLFOLDER];
                 session.Log("Custom Action Using install folder: " + installDir);
                 DatabaseInstall databaseInstall = new DatabaseInstall(session, installDir, "Client");
                 //session.Log("Session Property Value: " + session["OSAInstallType"].ToString());
