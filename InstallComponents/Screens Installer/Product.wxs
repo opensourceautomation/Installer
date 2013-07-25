@@ -27,6 +27,7 @@
       <ComponentRef Id="ProgramMenuDir" />
       <MergeRef Id='Core' />
       <MergeRef Id='Screens' />
+      <ComponentGroupRef Id="StartMenuComponents" />
     </Feature>
 
     <CustomAction Id="DBUpdateCustomAction"
@@ -68,8 +69,17 @@
 	</Fragment>
 
   <Fragment>
+    <ComponentGroup Id="StartMenuComponents" Directory="ProgramMenuDir">
+      <Component Id="ScreensShortcut" Guid="{0CFFF240-9A31-48B9-975A-DBC1B4E802F5}">
+        <Shortcut Id="ScreensShortcutMenu"
+                  Name="Screens"
+                  Description="Open Source Automation - Screens"
+                  Target="[INSTALLFOLDER]OSAE.GUI.exe"
+                  WorkingDirectory="INSTALLFOLDER"/>
+        <RegistryValue Root="HKCU" Key="Software\OSAE\Screens" Name="startMenuShortcutScreens" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </ComponentGroup>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER"   >
-    
     </ComponentGroup>
   </Fragment>
 </Wix>
