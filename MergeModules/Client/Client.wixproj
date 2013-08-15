@@ -4,10 +4,10 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>3.7</ProductVersion>
-    <ProjectGuid>61fba02a-24f2-4e6a-abad-be64260d5d5d</ProjectGuid>
+    <ProjectGuid>19895307-1aa3-403e-974a-0a1e242cb462</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>Client Installer</OutputName>
-    <OutputType>Package</OutputType>
+    <OutputName>Client</OutputName>
+    <OutputType>Module</OutputType>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
   </PropertyGroup>
@@ -33,7 +33,7 @@
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Product.wxs" />
+    <Compile Include="MergeModule.wxs" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <!--
