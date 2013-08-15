@@ -39,7 +39,7 @@
                   InstallCondition="VersionNT64"
                   Visible="no">
         <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
-      </MsiPackage>    
+      </MsiPackage>  
     </Chain>
 	</Bundle>
 </Wix>
