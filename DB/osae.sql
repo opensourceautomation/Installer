@@ -1939,15 +1939,16 @@ $$
 CREATE DEFINER = 'osae'@'%'
 PROCEDURE osae_sp_schedule_queue_add(IN pscheduleddate DATETIME, IN pobject VARCHAR(400), IN pmethod VARCHAR(400), IN pparameter1 VARCHAR(2000), IN pparameter2 VARCHAR(2000), IN pscript VARCHAR(200), IN precurringid INT(10))
 BEGIN
+DECLARE vObjectID INT DEFAULT NULL;
 DECLARE vMethodID INT DEFAULT NULL;
 DECLARE vScriptID INT DEFAULT NULL;
 DECLARE vRecurringID INT DEFAULT NULL;
     SELECT script_id INTO vScriptID FROM osae_script WHERE UPPER(script_name)=UPPER(pscript);
-    SELECT method_id INTO vMethodID FROM osae_v_object_method WHERE object_id = pobject AND (UPPER(method_name)=UPPER(pmethod) OR UPPER(method_label)=UPPER(pmethod));
+    SELECT object_id, method_id INTO vObjectID, vMethodID FROM osae_v_object_method WHERE object_id = pobject AND (UPPER(method_name)=UPPER(pmethod) OR UPPER(method_label)=UPPER(pmethod));
     IF precurringid > 0 THEN
         SET vRecurringID = precurringid;
     END IF;
-    INSERT INTO osae_schedule_queue (queue_datetime,object_id,method_id,parameter_1,parameter_2,script_id,recurring_id) VALUES(pscheduleddate,pobject,vMethodID,pparameter1,pparameter2,vScriptID,vRecurringID);
+    INSERT INTO osae_schedule_queue (queue_datetime,object_id,method_id,parameter_1,parameter_2,script_id,recurring_id) VALUES(pscheduleddate,vObjectID,vMethodID,pparameter1,pparameter2,vScriptID,vRecurringID);
 END
 $$
 
