@@ -1944,7 +1944,7 @@ DECLARE vMethodID INT DEFAULT NULL;
 DECLARE vScriptID INT DEFAULT NULL;
 DECLARE vRecurringID INT DEFAULT NULL;
     SELECT script_id INTO vScriptID FROM osae_script WHERE UPPER(script_name)=UPPER(pscript);
-    SELECT object_id, method_id INTO vObjectID, vMethodID FROM osae_v_object_method WHERE object_id = pobject AND (UPPER(method_name)=UPPER(pmethod) OR UPPER(method_label)=UPPER(pmethod));
+    SELECT object_id, method_id INTO vObjectID, vMethodID FROM osae_v_object_method WHERE object_name = pobject AND (UPPER(method_name)=UPPER(pmethod) OR UPPER(method_label)=UPPER(pmethod));
     IF precurringid > 0 THEN
         SET vRecurringID = precurringid;
     END IF;
