@@ -1806,6 +1806,9 @@ DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done = 1;
                 SET dCURDATE = CURDATE();
                 IF dCURDATETIME > ADDTIME(NOW(),SEC_TO_TIME(iRECURRINGMINUTES * 60)) THEN
                     SET dCURDAYOFWEEK = dCURDAYOFWEEK + 1;
+                    If dCURDAYOFWEEK > 7 THEN
+			SET dCURDAYOFWEEK = 1;
+		    END IF;
                     SET dCURDATE=DATE_ADD(CURDATE(),INTERVAL 1 DAY);
                 END IF; 
                 CALL osae_sp_debug_log_add(CONCAT(dRECURRINGDATE,' ',TIME(dRECURRINGTIME)),'SYSTEM'); 
@@ -1835,7 +1838,10 @@ DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done = 1;
                 SET dCURDAYOFMONTH = DAYOFMONTH(NOW());
   
                 IF dCURDATETIME > CONCAT(dCURDATE,' ',dRECURRINGTIME) THEN
-                    SET dCURDAYOFWEEK = dCURDAYOFWEEK + 1;
+                    SET dCURDAYOFWEEK = dCURDAYOFWEEK + 1
+                    If dCURDAYOFWEEK > 7 THEN
+			SET dCURDAYOFWEEK = 1;
+		    END IF;
                     SET dCURDATE=DATE_ADD(CURDATE(),INTERVAL 1 DAY);
                 END IF; 
                 CALL osae_sp_debug_log_add(CONCAT('IF ',dCURDATETIME,' > ',dCURDATE,' ',dRECURRINGTIME,' Then Write new queue'),'SYSTEM');              
