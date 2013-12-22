@@ -976,13 +976,13 @@ $$
 -- Definition for procedure osae_sp_object_property_set
 --
 CREATE DEFINER = 'osae'@'%'
-PROCEDURE osae_sp_object_property_set(IN pname varchar(200), IN pproperty varchar(200), IN pvalue varchar(255), IN pfromobject varchar(200), IN pdebuginfo varchar(2000))
+PROCEDURE osae_sp_object_property_set(IN pname varchar(200), IN pproperty varchar(200), IN pvalue varchar(4000), IN pfromobject varchar(200), IN pdebuginfo varchar(2000))
 BEGIN
 DECLARE vObjectID INT DEFAULT 0;
 DECLARE vObjectCount INT DEFAULT 0;
 DECLARE vObjectTypeID INT DEFAULT 0;
 DECLARE vPropertyID INT DEFAULT 0;
-DECLARE vPropertyValue VARCHAR(2000);
+DECLARE vPropertyValue VARCHAR(4000);
 DECLARE vPropertyCount INT DEFAULT 0;
 DECLARE vEventCount INT;
 DECLARE vDebugTrace VARCHAR(2000) DEFAULT '';
