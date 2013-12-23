@@ -30,24 +30,7 @@
       <ComponentGroupRef Id="StartMenuComponents" />
     </Feature>
 
-    <CustomAction Id="DBUpdateCustomAction"
-					  BinaryKey="CustomActionsBinary"
-					  DllEntry="Client"
-					  Execute="immediate"
-					  Return="check" />
-
-    <CustomAction Id="UninstallAction"
-                  BinaryKey="CustomActionsBinary"
-                  DllEntry="Uninstall"
-                  Execute="deferred"
-                  Return="ignore" />
-
-    <InstallExecuteSequence>
-      <!--<RemoveExistingProducts Before="InstallInitialize" />-->
-      <Custom Action="DBUpdateCustomAction" Before="InstallFinalize">
-        NOT REMOVE="ALL"
-      </Custom>
-    </InstallExecuteSequence>
+ 
 	</Product>
   
 	<Fragment >

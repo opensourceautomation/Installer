@@ -5,40 +5,73 @@
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high"  />
-    <Binary Id="RegKeyBinary" SourceFile="$(var.SolutionDir)\RegKeys\bin\Release\RegKeys.CA.dll" />
+    <Binary Id="CustomActionsBinary" SourceFile="$(var.SolutionDir)CustomActions\bin\x86\Combined\OSAInstallCustomActions.CA.dll" />
 
-		<Feature Id="ProductFeature" Title="Client_Installer_x64" Level="1">
-			<ComponentGroupRef Id="ProductComponents" />
+		<Feature Id="ProductFeature" Title="Client_Installer_x64" Level="1">	
+      <MergeRef Id='Core' />
+      <MergeRef Id='Screens' />
+      <MergeRef Id='ClientMergeModule' />
 		</Feature>
 
-    <CustomAction Id="RegKeysCustomAction"
-					  BinaryKey="RegKeyBinary"
-					  DllEntry="CheckServerIp"
-					  Execute="deferred"
-					  Return="check" />
+      <CustomAction Id="DBUpdateCustomAction"
+           BinaryKey="CustomActionsBinary"
+           DllEntry="Client"
+           Execute="immediate"
+           Return="check" />
 
-    <InstallExecuteSequence>
-      <Custom Action="RegKeysCustomAction" Before="InstallFinalize">
-        NOT Installed
-      </Custom>
-    </InstallExecuteSequence>
+      <CustomAction Id="UninstallAction"
+                    BinaryKey="CustomActionsBinary"
+                    DllEntry="Uninstall"
+                    Execute="deferred"
+                    Return="ignore" />
+
+      <InstallExecuteSequence>
+        <!--<RemoveExistingProducts Before="InstallInitialize" />-->
+        <Custom Action="DBUpdateCustomAction" Before="InstallFinalize">
+          NOT REMOVE="ALL"
+        </Custom>
+      </InstallExecuteSequence>
   
 	</Product>
 
 	<Fragment>
-		<Directory Id="TARGETDIR" Name="SourceDir">
-			<Directory Id="ProgramFilesFolder">
-				<Directory Id="INSTALLFOLDER" Name="Client_Installer_x64" />
-			</Directory>
-		</Directory>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <!--<Directory Id="ProgramMenuFolder" Name="Programs">
+        <Directory Id="ProgramMenuDir" Name="OSA" />
+      </Directory>-->
+      <Directory Id="DesktopFolder" Name="Desktop" />
+      <Directory Id="INSTALLFOLDER" Name="INSTALLLOCATION" >
+        <Merge Id='Screens' Language='1033' src='$(var.SolutionDir)MergeModules\Screens\bin\x86\Combined\Screens.msm' DiskId='1' />
+        <Merge Id='Core' Language='1033' src='$(var.SolutionDir)MergeModules\Core\bin\x86\Combined\Core.msm' DiskId='1' />
+        <Merge Id='ClientMergeModule' Language='1033' src='$(var.SolutionDir)MergeModules\Client\bin\x86\Combined\Client.msm' DiskId='1' />
+      </Directory>
+    </Directory>
 	</Fragment>
 
 	<Fragment>
-		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-			<!-- TODO: Remove the comments around this Component element and the ComponentRef below in order to add resources to this installer. -->
-			<!-- <Component Id="ProductComponent"> -->
-				<!-- TODO: Insert files, registry keys, and other resources here. -->
-			<!-- </Component> -->
-		</ComponentGroup>
+    <Property Id="URL" Value="http://localhost:8081" />
+    <Icon Id="WebIcon.ico" SourceFile="$(var.SolutionDir)Resources\WebIcon.ico"/>
+    <ComponentGroup Id="StartMenuComponents" Directory="ProgramMenuDir">
+      <Component Id="ScreensShortcut" Guid="{0CFFF240-9A31-48B9-975A-DBC1B4E802F5}">
+        <Shortcut Id="ScreensShortcutMenu"
+                  Name="Screens"
+                  Description="Open Source Automation - Screens"
+                  Target="[INSTALLFOLDER]OSAE.GUI.exe"
+                  WorkingDirectory="INSTALLFOLDER"/>
+        <RegistryValue Root="HKCU" Key="Software\OSAE\Screens" Name="startMenuShortcutScreens" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+      <Component Id="ManagerShortcut" Guid="{05DE0D7A-B21C-48E2-B105-25F932DC91F5}">
+        <Shortcut Id="ManagerShortcutMenu"
+                  Name="Manager"
+                  Description="Open Source Automation - Manager"
+                  Target="[INSTALLFOLDER]OSAE.Manager.exe"
+                  WorkingDirectory="INSTALLFOLDER"/>
+        <RegistryValue Root="HKCU" Key="Software\OSAE\Manager" Name="startMenuShortcutManager" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>     
+      <Component Id="ProgramMenuDir" Guid="{5E965BEC-2EF3-4B2A-96EB-7C38FDB5E984}">
+        <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
+        <RegistryValue Root="HKMU" Key="Software\OSAE\Server" Type="string" Value="1" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
 	</Fragment>
 </Wix>

@@ -976,13 +976,13 @@ $$
 -- Definition for procedure osae_sp_object_property_set
 --
 CREATE DEFINER = 'osae'@'%'
-PROCEDURE osae_sp_object_property_set(IN pname varchar(200), IN pproperty varchar(200), IN pvalue varchar(255), IN pfromobject varchar(200), IN pdebuginfo varchar(2000))
+PROCEDURE osae_sp_object_property_set(IN pname varchar(200), IN pproperty varchar(200), IN pvalue varchar(4000), IN pfromobject varchar(200), IN pdebuginfo varchar(2000))
 BEGIN
 DECLARE vObjectID INT DEFAULT 0;
 DECLARE vObjectCount INT DEFAULT 0;
 DECLARE vObjectTypeID INT DEFAULT 0;
 DECLARE vPropertyID INT DEFAULT 0;
-DECLARE vPropertyValue VARCHAR(2000);
+DECLARE vPropertyValue VARCHAR(4000);
 DECLARE vPropertyCount INT DEFAULT 0;
 DECLARE vEventCount INT;
 DECLARE vDebugTrace VARCHAR(2000) DEFAULT '';
@@ -1806,6 +1806,9 @@ DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done = 1;
                 SET dCURDATE = CURDATE();
                 IF dCURDATETIME > ADDTIME(NOW(),SEC_TO_TIME(iRECURRINGMINUTES * 60)) THEN
                     SET dCURDAYOFWEEK = dCURDAYOFWEEK + 1;
+                    If dCURDAYOFWEEK > 7 THEN
+			SET dCURDAYOFWEEK = 1;
+		    END IF;
                     SET dCURDATE=DATE_ADD(CURDATE(),INTERVAL 1 DAY);
                 END IF; 
                 CALL osae_sp_debug_log_add(CONCAT(dRECURRINGDATE,' ',TIME(dRECURRINGTIME)),'SYSTEM'); 
@@ -1836,6 +1839,9 @@ DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done = 1;
   
                 IF dCURDATETIME > CONCAT(dCURDATE,' ',dRECURRINGTIME) THEN
                     SET dCURDAYOFWEEK = dCURDAYOFWEEK + 1;
+                    If dCURDAYOFWEEK > 7 THEN
+			SET dCURDAYOFWEEK = 1;
+		    END IF;
                     SET dCURDATE=DATE_ADD(CURDATE(),INTERVAL 1 DAY);
                 END IF; 
                 CALL osae_sp_debug_log_add(CONCAT('IF ',dCURDATETIME,' > ',dCURDATE,' ',dRECURRINGTIME,' Then Write new queue'),'SYSTEM');              
@@ -1939,15 +1945,16 @@ $$
 CREATE DEFINER = 'osae'@'%'
 PROCEDURE osae_sp_schedule_queue_add(IN pscheduleddate DATETIME, IN pobject VARCHAR(400), IN pmethod VARCHAR(400), IN pparameter1 VARCHAR(2000), IN pparameter2 VARCHAR(2000), IN pscript VARCHAR(200), IN precurringid INT(10))
 BEGIN
+DECLARE vObjectID INT DEFAULT NULL;
 DECLARE vMethodID INT DEFAULT NULL;
 DECLARE vScriptID INT DEFAULT NULL;
 DECLARE vRecurringID INT DEFAULT NULL;
     SELECT script_id INTO vScriptID FROM osae_script WHERE UPPER(script_name)=UPPER(pscript);
-    SELECT method_id INTO vMethodID FROM osae_v_object_method WHERE object_id = pobject AND (UPPER(method_name)=UPPER(pmethod) OR UPPER(method_label)=UPPER(pmethod));
+    SELECT object_id, method_id INTO vObjectID, vMethodID FROM osae_v_object_method WHERE object_name = pobject AND (UPPER(method_name)=UPPER(pmethod) OR UPPER(method_label)=UPPER(pmethod));
     IF precurringid > 0 THEN
         SET vRecurringID = precurringid;
     END IF;
-    INSERT INTO osae_schedule_queue (queue_datetime,object_id,method_id,parameter_1,parameter_2,script_id,recurring_id) VALUES(pscheduleddate,pobject,vMethodID,pparameter1,pparameter2,vScriptID,vRecurringID);
+    INSERT INTO osae_schedule_queue (queue_datetime,object_id,method_id,parameter_1,parameter_2,script_id,recurring_id) VALUES(pscheduleddate,vObjectID,vMethodID,pparameter1,pparameter2,vScriptID,vRecurringID);
 END
 $$
 
