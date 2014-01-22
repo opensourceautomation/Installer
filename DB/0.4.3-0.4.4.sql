@@ -242,6 +242,94 @@ $$
 
 DELIMITER ;
 
+
+DELIMITER $$
+
+CREATE
+DEFINER = 'root'@'localhost'
+TRIGGER osae_tr_object_before_update
+BEFORE UPDATE
+ON osae_object
+FOR EACH ROW
+BEGIN
+  DECLARE vState               VARCHAR(50);
+  DECLARE vEventCount          INT;
+  DECLARE vHideRedundantRvents INT;
+  DECLARE vEvent               VARCHAR(200);
+
+  IF OLD.object_type_id <> NEW.object_type_id THEN
+    DELETE
+    FROM
+      osae_object_property
+    WHERE
+      object_id = OLD.object_id;
+    INSERT INTO osae_object_property (object_id, object_type_property_id, property_value)
+    SELECT OLD.object_id
+         , property_id
+         , property_default
+    FROM
+      osae_object_type_property
+    WHERE
+      object_type_id = NEW.object_type_id;
+    DELETE
+    FROM
+      osae_object_state_history
+    WHERE
+      object_id = OLD.object_id;
+    INSERT INTO osae_object_state_history (object_id, state_id)
+    SELECT OLD.object_id
+         , state_id
+    FROM
+      osae_v_object_state
+    WHERE
+      object_type_id = NEW.object_type_id;
+    DELETE
+    FROM
+      osae_object_property
+    WHERE
+      object_id = OLD.object_id;
+    INSERT INTO osae_object_property (object_id, object_type_property_id, property_value)
+    SELECT OLD.object_id
+         , property_id
+         , property_default
+    FROM
+      osae_object_type_property
+    WHERE
+      object_type_id = NEW.object_type_id;
+    DELETE
+    FROM
+      osae_object_event_script
+    WHERE
+      object_id = OLD.object_id;
+  END IF;
+  IF OLD.state_id <> NEW.state_id THEN
+    SET NEW.last_state_change = now();
+    UPDATE osae_object_state_history
+    SET
+      times_this_hour = times_this_hour + 1, times_this_day = times_this_day + 1, times_this_month = times_this_month + 1, times_this_year = times_this_year + 1, times_ever = times_ever + 1
+    WHERE
+      object_id = OLD.object_id
+      AND state_id = NEW.state_id;
+    INSERT INTO osae_object_state_change_history (object_id, state_id) VALUES (OLD.object_id, NEW.state_id);
+  END IF;
+  IF OLD.object_name <> NEW.object_name THEN
+    UPDATE osae_object_property
+    SET
+      property_value = NEW.object_name
+    WHERE
+      property_value = OLD.object_name;
+  END IF;
+# IF OLD.object_name <> NEW.object_name THEN
+#UPDATE osae_object_state_history SET times_this_hour=times_this_hour + 1, times_this_day=times_this_day + 1,times_this_month=times_this_month+1,times_this_year=times_this_year+1,times_ever=times_ever + 1 WHERE object_id=OLD.object_id AND state_id=NEW.state_id;
+#Write the code to update screen_object's Object Name property when this object name changes
+#for issue #150
+# END IF;    
+END
+$$
+
+DELIMITER ;
+
+
 --
 -- Enable foreign keys
 --
