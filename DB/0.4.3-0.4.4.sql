@@ -330,6 +330,161 @@ $$
 DELIMITER ;
 
 
+
+----  ----------------------------------------------------------------------------------------------------
+--   The following if for the new system plugin monitor   - Vaughn
+
+DELIMITER $$
+
+CREATE DEFINER = 'osae'@'%'
+PROCEDURE osae_sp_system_count_plugins()
+BEGIN
+DECLARE vPluginCount INT;
+DECLARE vOldCount INT;
+DECLARE iPluginCount INT;
+DECLARE iPluginEnabledCount INT;
+DECLARE iPluginRunningCount INT;  
+DECLARE iPluginErrorCount INT;
+DECLARE bDone INT; 
+DECLARE vOutput VARCHAR(200);
+DECLARE oCount INT;
+DECLARE var1 CHAR(40);
+  
+DECLARE curs CURSOR FOR SELECT object_name FROM osae_v_object WHERE base_type='PLUGIN' AND enabled=1 AND state_name='OFF';
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET bDone = 1;
+    SET vOldCount = (SELECT COUNT(property_value) FROM osae_v_object_property WHERE object_name='SYSTEM' AND property_name='Plugins Running');  
+    SET iPluginErrorCount = (SELECT COUNT(object_name) FROM osae_v_object WHERE base_type='PLUGIN' AND enabled=1 AND state_name='OFF');
+ 
+   -- IF vOldCount != iPluginErrorCount THEN  
+        SET iPluginCount = (SELECT COUNT(object_name) FROM osae_v_object WHERE base_type='PLUGIN');
+        SET iPluginEnabledCount = (SELECT COUNT(object_name) FROM osae_v_object WHERE base_type='PLUGIN' AND enabled=1);
+        SET iPluginRunningCount = (SELECT COUNT(object_name) FROM osae_v_object WHERE base_type='PLUGIN' AND enabled=1 AND state_name='ON');
+
+        CALL osae_sp_object_property_set('SYSTEM','Plugins Found',iPluginCount,'SYSTEM','osae_sp_system_count_plugins');
+        CALL osae_sp_object_property_set('SYSTEM','Plugins Enabled',iPluginEnabledCount,'SYSTEM','osae_sp_system_count_plugins');
+        CALL osae_sp_object_property_set('SYSTEM','Plugins Running',iPluginRunningCount,'SYSTEM','osae_sp_system_count_plugins');
+        CALL osae_sp_object_property_set('SYSTEM','Plugins Errored',iPluginErrorCount,'SYSTEM','osae_sp_system_count_plugins');
+
+        CASE iPluginErrorCount
+          WHEN 0 THEN 
+            SET vOutput = 'All Plugins are Running';
+            CALL osae_sp_object_property_set('SYSTEM','Plugins',vOutput,'SYSTEM','osae_sp_system_count_plugins');            
+          WHEN 1 THEN 
+            SET vOutput = (SELECT COALESCE(object_name,'Unknown') FROM osae_v_object WHERE base_type='PLUGIN' AND enabled=1 AND state_name='OFF' LIMIT 1);
+            SET vOutput = CONCAT(vOutput,' is Stopped!');
+            CALL osae_sp_object_property_set('SYSTEM','Plugins',vOutput,'SYSTEM','osae_sp_system_count_plugins');
+          ELSE
+            OPEN curs;
+            SET oCount = 0;
+            SET bDone = 0;
+            SET vOutput = '';
+            REPEAT
+              FETCH curs INTO var1;
+              IF oCount < iPluginErrorCount THEN
+                IF oCount = 0 THEN
+                  SET vOutput = CONCAT(vOutput,CONCAT(' and ', var1, ' are Stopped!'));
+                ELSEIF oCount = 1 THEN
+                  SET vOutput = CONCAT(var1, vOutput);
+                ELSE
+                  SET vOutput = CONCAT(var1, ', ', vOutput);
+                END IF;
+                SET oCount = oCount + 1;
+              END IF;
+            UNTIL bDone END REPEAT;
+            CLOSE curs;
+            CALL osae_sp_object_property_set('SYSTEM','Plugins',vOutput,'SYSTEM','osae_sp_system_count_plugins');
+         END CASE;
+ --     END IF;
+END
+$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE 
+	DEFINER = 'root'@'localhost'
+EVENT osae_ev_off_timer
+	ON SCHEDULE EVERY '1' SECOND
+	STARTS '2010-05-23 10:09:24'
+	DO 
+BEGIN
+  DECLARE vObjectName  VARCHAR(200);
+  DECLARE iLoopCount   INT DEFAULT 0;
+  DECLARE iMethodCount INT DEFAULT 0;
+  DECLARE iStateCount  INT DEFAULT 0;
+  DECLARE done         INT DEFAULT 0;
+  DECLARE cur1 CURSOR FOR SELECT object_name FROM osae_v_object_property WHERE state_name <> 'OFF' AND property_name = 'OFF TIMER' AND property_value IS NOT NULL AND property_value <> '' AND subtime(now(), sec_to_time(property_value)) > object_last_updated;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+  DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done = 1;
+  
+  CALL osae_sp_object_property_set('SYSTEM', 'Time', curtime(), 'SYSTEM', 'osae_ev_off_timer');
+  CALL osae_sp_object_property_set('SYSTEM', 'Time AMPM', DATE_FORMAT(now(), '%h:%i %p'), 'SYSTEM', 'osae_ev_off_timer');
+  CALL osae_sp_system_count_occupants();
+  CALL osae_sp_system_count_plugins();
+  SELECT count(object_name)
+  INTO
+    iLoopCount
+  FROM
+    osae_v_object_property
+  WHERE
+    state_name <> 'OFF'
+    AND property_name = 'OFF TIMER'
+    AND property_value IS NOT NULL
+    AND property_value <> ''
+    AND subtime(now(), sec_to_time(property_value)) > object_last_updated;
+  OPEN cur1;
+
+Loop_Tag:
+  LOOP
+    FETCH cur1 INTO vObjectName;
+    IF done THEN
+      LEAVE Loop_Tag;
+    END IF;
+    SELECT count(method_id)
+    INTO
+      iMethodCount
+    FROM
+      osae_v_object_method
+    WHERE
+      upper(object_name) = upper(vObjectName)
+      AND upper(method_name) = 'OFF';
+    IF iMethodCount > 0 THEN
+      CALL osae_sp_debug_log_add(concat('Turning ', vObjectName, ' Off'), 'osae_ev_off_timer');
+      CALL osae_sp_method_queue_add(vObjectName, 'OFF', '', '', 'SYSTEM', 'osae_ev_off_timer');
+    ELSE
+      SELECT count(state_id)
+      INTO
+        iStateCount
+      FROM
+        osae_v_object_state
+      WHERE
+        upper(object_name) = upper(vObjectName)
+        AND upper(state_name) = 'OFF';
+      IF iStateCount > 0 THEN
+        CALL osae_sp_debug_log_add(concat('Turning ', vObjectName, ' Off'), 'osae_ev_off_timer');
+        CALL osae_sp_object_state_set(vObjectName, 'OFF', 'SYSTEM', 'osae_ev_off_timer');
+      END IF;
+    END IF;
+  END LOOP;
+  CLOSE cur1;
+
+  SELECT count(method_id) INTO iMethodCount FROM osae_v_object_method;
+END
+$$
+
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
 --
 -- Enable foreign keys
 --
