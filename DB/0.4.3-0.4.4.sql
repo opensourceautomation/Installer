@@ -476,6 +476,167 @@ $$
 DELIMITER ;
 
 
+--  The new system properties for the above code
+CALL osae_sp_object_type_property_add('Plugins Found','Integer','','SYSTEM',1);
+CALL osae_sp_object_type_property_add('Plugins Running','Integer','','SYSTEM',1);
+CALL osae_sp_object_type_property_add('Plugins Enabled','Integer','','SYSTEM',1);
+CALL osae_sp_object_type_property_add('Plugins Errored','Integer','','SYSTEM',1);
+CALL osae_sp_object_type_property_add('Plugins','String','','SYSTEM',0);
+
+
+
+
+
+
+
+
+
+
+
+
+----  ----------------------------------------------------------------------------------------------------
+--   The following if for the Object Type Export   - Vaughn
+
+
+
+CREATE OR REPLACE DEFINER = 'osae'@'%' VIEW osae.osae_v_object_property
+AS
+SELECT `osae_object`.`object_id` AS `object_id`
+     , `osae_object`.`object_name` AS `object_name`
+     , `osae_object`.`object_description` AS `object_description`
+     , `osae_object`.`state_id` AS `state_id`
+     , `osae_object`.`object_value` AS `object_value`
+     , `osae_object`.`address` AS `address`
+     , `osae_object`.`container_id` AS `container_id`
+     , `osae_object`.`enabled` AS `enabled`
+     , `osae_object`.`last_updated` AS `object_last_updated`
+     , coalesce(`osae_object`.`last_state_change`, now()) AS `last_state_change`
+     , `osae_object_property`.`last_updated` AS `last_updated`
+     , `osae_object_property`.`object_property_id` AS `object_property_id`
+     , `osae_object_property`.`object_type_property_id` AS `object_type_property_id`
+     , `osae_object_property`.`property_value` AS `property_value`
+     , `osae_object_type`.`object_type_id` AS `object_type_id`
+     , `osae_object_type`.`object_type_description` AS `object_type_description`
+     , `osae_object_type`.`object_type` AS `object_type`
+     , `osae_object_type`.`system_hidden` AS `system_hidden`
+     , `osae_object_type`.`plugin_object_id` AS `plugin_object_id`
+     , `osae_object_type`.`base_type_id` AS `base_type_id`
+     , `osae_object_type`.`object_type_owner` AS `object_type_owner`
+     , `osae_object_type_property`.`property_datatype` AS `property_datatype`
+     , `osae_object_type_property`.`property_name` AS `property_name`
+     , `osae_object_type_property`.`property_default` AS `property_default`
+     , `osae_object_type_property`.`property_id` AS `property_id`
+     , `osae_object_type_property`.`track_history` AS `track_history`
+     , `ot1`.`object_type` AS `base_type`
+     , `osae_object_type_state`.`state_name` AS `state_name`
+FROM
+  (((((`osae_object`
+JOIN `osae_object_property`
+ON ((`osae_object`.`object_id` = `osae_object_property`.`object_id`)))
+JOIN `osae_object_type`
+ON ((`osae_object`.`object_type_id` = `osae_object_type`.`object_type_id`)))
+JOIN `osae_object_type_property`
+ON (((`osae_object_type`.`object_type_id` = `osae_object_type_property`.`object_type_id`) AND (`osae_object_property`.`object_type_property_id` = `osae_object_type_property`.`property_id`))))
+LEFT JOIN `osae_object_type_state`
+ON ((`osae_object`.`state_id` = `osae_object_type_state`.`state_id`)))
+JOIN `osae_object_type` `ot1`
+ON ((`osae_object_type`.`base_type_id` = `ot1`.`object_type_id`)));
+
+
+
+
+CREATE DEFINER = 'root'@'localhost'
+PROCEDURE osae.osae_sp_object_type_export(IN objectName VARCHAR(255))
+BEGIN
+  DECLARE vResults TEXT;
+  DECLARE vDescription VARCHAR(200);
+  DECLARE vOwner VARCHAR(200);
+  DECLARE vObjectType VARCHAR(200);
+  DECLARE vBaseType VARCHAR(200);
+  DECLARE vTypeOwner INT;
+  DECLARE vSystemType INT;
+  DECLARE vContainer INT;
+  DECLARE vHideRedundant INT;
+  DECLARE v_finished INT; 
+  DECLARE vName VARCHAR(200);
+  DECLARE vLabel VARCHAR(200);
+  DECLARE vParam1Name VARCHAR(200);
+  DECLARE vParam1Default VARCHAR(200);
+  DECLARE vParam2Name VARCHAR(200);
+  DECLARE vParam2Default VARCHAR(200);
+  DECLARE vDataType VARCHAR(200);
+  DECLARE vDefault VARCHAR(200);
+  DECLARE vTrackHistory VARCHAR(200);
+
+  DECLARE state_cursor CURSOR FOR SELECT state_name,state_label FROM osae_v_object_type_state WHERE object_type=objectName;
+  DECLARE event_cursor CURSOR FOR SELECT event_name,event_label FROM osae_v_object_type_event WHERE object_type=objectName;
+  DECLARE method_cursor CURSOR FOR SELECT method_name,method_label,param_1_label,param_1_default,param_2_label,param_2_default FROM osae_v_object_type_method WHERE object_type=objectName;
+  DECLARE property_cursor CURSOR FOR SELECT property_name,property_datatype,property_default,track_history FROM osae_v_object_type_property WHERE object_type=objectName;
+
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_finished = 1;
+
+  #SET vObjectType = CONCAT(objectName,'2');
+  SET vObjectType = objectName;
+  SELECT object_type_description, object_name, base_type,object_type_owner,system_hidden,container,hide_redundant_events INTO vDescription,vOwner,vBaseType,vTypeOwner,vSystemType,vContainer,vHideRedundant FROM osae_v_object_type WHERE object_type = objectName;
+  SET vResults = CONCAT('CALL osae_sp_object_type_add (\'', vObjectType,'\',\'',vDescription,'\',\'',vOwner,'\',\'',vBaseType,'\',',vTypeOwner,',', vSystemType,',',vContainer,',',vHideRedundant,');','\r\n');
+
+  OPEN state_cursor;
+  get_states: LOOP
+    FETCH state_cursor INTO vName,vLabel;
+    IF v_finished = 1 THEN 
+      LEAVE get_states;
+    END IF;
+    SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_state_add(\'',vName,'\',\'',vLabel,'\',\'',vObjectType,'\');','\r\n');
+  END LOOP get_states;
+  CLOSE state_cursor;
+  SET v_finished = 0;
+
+  OPEN event_cursor;
+  get_events: LOOP
+    FETCH event_cursor INTO vName,vLabel;
+    IF v_finished = 1 THEN 
+      LEAVE get_events;
+    END IF;
+    SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_event_add(\'',vName,'\',\'',vLabel,'\',\'',vObjectType,'\');','\r\n');
+  END LOOP get_events;
+  CLOSE event_cursor;
+  SET v_finished = 0;
+
+  OPEN method_cursor;
+  get_methods: LOOP
+    FETCH method_cursor INTO vName,vLabel,vParam1Name,vParam1Default,vParam2Name,vParam2Default;
+    IF v_finished = 1 THEN 
+      LEAVE get_methods;
+    END IF;
+    SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_method_add(\'',vName,'\',\'',vLabel,'\',\'',vObjectType,'\',\'',vParam1Name,'\',\'',vParam2Name,'\',\'',vParam1Default,'\',\'',vParam2Default,'\');','\r\n');
+  END LOOP get_methods;
+  CLOSE method_cursor;
+  SET v_finished = 0;
+
+  OPEN property_cursor;
+  get_methods: LOOP
+    FETCH property_cursor INTO vName,vDataType,vDefault,vTrackHistory;
+    IF v_finished = 1 THEN 
+      LEAVE get_methods;
+    END IF;
+    SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_property_add(\'',vName,'\',\'',vDataType,'\',\'',vDefault,'\',\'',vObjectType,'\',',vTrackHistory,');','\r\n');
+  END LOOP get_methods;
+  CLOSE property_cursor;
+  SET v_finished = 0;
+
+  SELECT vResults;
+END
+
+
+
+
+
+
+
+
+
+
+
 
 
 
