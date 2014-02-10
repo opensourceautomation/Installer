@@ -572,40 +572,43 @@ BEGIN
   DECLARE event_cursor CURSOR FOR SELECT event_name,event_label FROM osae_v_object_type_event WHERE object_type=objectName;
   DECLARE method_cursor CURSOR FOR SELECT method_name,method_label,param_1_label,param_1_default,param_2_label,param_2_default FROM osae_v_object_type_method WHERE object_type=objectName;
   DECLARE property_cursor CURSOR FOR SELECT property_name,property_datatype,property_default,track_history FROM osae_v_object_type_property WHERE object_type=objectName;
+  DECLARE property_Option_cursor CURSOR FOR SELECT property_name,property_datatype,property_default,track_history FROM osae_v_object_type_property_option WHERE object_type=objectName;
 
-  DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_finished = 1;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_finished = TRUE;
 
   #SET vObjectType = CONCAT(objectName,'2');
   SET vObjectType = objectName;
-  SELECT object_type_description, object_name, base_type,object_type_owner,system_hidden,container,hide_redundant_events INTO vDescription,vOwner,vBaseType,vTypeOwner,vSystemType,vContainer,vHideRedundant FROM osae_v_object_type WHERE object_type = objectName;
+  SELECT object_type_description,COALESCE(object_name,''),base_type,object_type_owner,system_hidden,container,hide_redundant_events INTO vDescription,vOwner,vBaseType,vTypeOwner,vSystemType,vContainer,vHideRedundant FROM osae_v_object_type WHERE object_type = objectName;
   SET vResults = CONCAT('CALL osae_sp_object_type_add (\'', vObjectType,'\',\'',vDescription,'\',\'',vOwner,'\',\'',vBaseType,'\',',vTypeOwner,',', vSystemType,',',vContainer,',',vHideRedundant,');','\r\n');
 
   OPEN state_cursor;
-  get_states: LOOP
-    FETCH state_cursor INTO vName,vLabel;
-    IF v_finished = 1 THEN 
-      LEAVE get_states;
-    END IF;
-    SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_state_add(\'',vName,'\',\'',vLabel,'\',\'',vObjectType,'\');','\r\n');
-  END LOOP get_states;
+    get_states: LOOP
+    SET v_finished = FALSE;
+      FETCH state_cursor INTO vName,vLabel;
+      IF v_finished THEN 
+        LEAVE get_states;
+      END IF;
+      SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_state_add(\'',vName,'\',\'',vLabel,'\',\'',vObjectType,'\');','\r\n');
+    END LOOP get_states;
   CLOSE state_cursor;
-  SET v_finished = 0;
+
 
   OPEN event_cursor;
   get_events: LOOP
+    SET v_finished = FALSE;
     FETCH event_cursor INTO vName,vLabel;
-    IF v_finished = 1 THEN 
+    IF v_finished THEN 
       LEAVE get_events;
     END IF;
     SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_event_add(\'',vName,'\',\'',vLabel,'\',\'',vObjectType,'\');','\r\n');
   END LOOP get_events;
   CLOSE event_cursor;
-  SET v_finished = 0;
 
   OPEN method_cursor;
   get_methods: LOOP
+    SET v_finished = FALSE;
     FETCH method_cursor INTO vName,vLabel,vParam1Name,vParam1Default,vParam2Name,vParam2Default;
-    IF v_finished = 1 THEN 
+    IF v_finished THEN 
       LEAVE get_methods;
     END IF;
     SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_method_add(\'',vName,'\',\'',vLabel,'\',\'',vObjectType,'\',\'',vParam1Name,'\',\'',vParam2Name,'\',\'',vParam1Default,'\',\'',vParam2Default,'\');','\r\n');
@@ -614,19 +617,18 @@ BEGIN
   SET v_finished = 0;
 
   OPEN property_cursor;
-  get_methods: LOOP
+  get_properties: LOOP
+    SET v_finished = FALSE;
     FETCH property_cursor INTO vName,vDataType,vDefault,vTrackHistory;
-    IF v_finished = 1 THEN 
-      LEAVE get_methods;
+    IF v_finished THEN 
+      LEAVE get_properties;
     END IF;
     SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_property_add(\'',vName,'\',\'',vDataType,'\',\'',vDefault,'\',\'',vObjectType,'\',',vTrackHistory,');','\r\n');
-  END LOOP get_methods;
+  END LOOP get_properties;
   CLOSE property_cursor;
-  SET v_finished = 0;
 
   SELECT vResults;
 END
-
 
 
 
