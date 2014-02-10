@@ -632,9 +632,47 @@ END
 
 
 
+----  ----------------------------------------------------------------------------------------------------
+--   The following if for the Object Export   - Vaughn
 
+CREATE DEFINER = 'root'@'localhost'
+PROCEDURE osae.osae_sp_object_export(IN objectName VARCHAR(255))
+BEGIN
+  DECLARE vObjectName VARCHAR(255);
+  DECLARE vDescription VARCHAR(200);
+  DECLARE vObjectType VARCHAR(200);
+  DECLARE vAddress VARCHAR(200);
+  DECLARE vContainer VARCHAR(200);
+  DECLARE vEnabled INT;
+  DECLARE vProcResults INT;
 
+  DECLARE vPropertyName VARCHAR(200);
+  DECLARE vPropertyValue VARCHAR(2000);
 
+  DECLARE vResults TEXT;
+  DECLARE v_finished BOOL; 
+
+  DECLARE property_cursor CURSOR FOR SELECT property_name,COALESCE(property_value,'') AS property_value FROM osae_v_object_property WHERE object_name=objectName;
+
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_finished = TRUE;
+
+  #SET vObjectType = CONCAT(objectName,'2');
+  SELECT object_name,object_description,object_type,COALESCE(address,''),COALESCE(container_name,''),enabled INTO vObjectName,vDescription,vObjectType,vAddress,vContainer,vEnabled FROM osae_v_object WHERE object_name = objectName;
+  SET vResults = CONCAT('CALL osae_sp_object_add (\'', vObjectName,'\',\'',vDescription,'\',\'',vObjectType,'\',\'',vAddress,'\',\'',vContainer,'\',',vEnabled,',@results);','\r\n');
+
+  OPEN property_cursor;
+  get_properties: LOOP
+    SET v_finished = FALSE;
+    FETCH property_cursor INTO vPropertyName,vPropertyValue;
+    IF v_finished THEN 
+      LEAVE get_properties;
+    END IF;
+    SET vResults = CONCAT(vResults,'CALL osae_sp_object_property_set(\'',vObjectName,'\',\'',vPropertyName,'\',\'',vPropertyValue,'\',\'SYSTEM\',\'Import\');','\r\n');
+  END LOOP get_properties;
+  CLOSE property_cursor;
+
+ SELECT vResults; 
+END
 
 
 
