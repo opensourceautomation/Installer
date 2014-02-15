@@ -683,6 +683,26 @@ END
 
 
 
+----  ----------------------------------------------------------------------------------------------------
+--   The following is to Edit Pattern Matchest  - Vaughn
+
+
+CREATE DEFINER = 'root'@'localhost'
+PROCEDURE osae.osae_sp_pattern_match_update(IN pPattern VARCHAR(255), IN pOldName VARCHAR(255), IN pNewName VARCHAR(255))
+BEGIN
+DECLARE vPatternCount INT;
+DECLARE vPatternID INT Default NULL;
+    SELECT COUNT(pattern_id) INTO vPatternCount FROM osae_pattern WHERE pattern=pPattern;
+    IF vPatternCount > 0 THEN
+        SELECT pattern_id INTO vPatternID FROM osae_pattern WHERE pattern=pPattern;
+        UPDATE osae_pattern_match SET `match`=pNewName WHERE pattern_id=vPatternID and `match`=pOldName;
+    END IF; 
+END
+
+
+
+
+
 
 
 
