@@ -706,6 +706,53 @@ END
 
 
 
+
+CREATE DEFINER = 'osae'@'%'
+PROCEDURE osae.osae_sp_pattern_parse(IN ppattern varchar(2000))
+BEGIN
+  # This script parses output and replaces placeholders with Objects, properties and other values.
+  DECLARE vInput VARCHAR(2000) DEFAULT '';
+  DECLARE vOutput VARCHAR(2000) DEFAULT '';  
+  DECLARE vOld VARCHAR(200);  
+  DECLARE vWorking VARCHAR(200); 
+  DECLARE vDot INT DEFAULT 0;
+  DECLARE vSpace1 INT DEFAULT 0;
+  DECLARE vSpace2 INT DEFAULT 0;  
+  DECLARE vObject VARCHAR(200);
+  DECLARE vParam VARCHAR(255);  
+  DECLARE vTemp VARCHAR(255);  
+    SET vInput = ppattern; 
+    SELECT INSTR(vInput,'[') INTO vSpace1;
+    SELECT INSTR(vInput,']') INTO vSpace2;
+        
+    WHILE vSpace2 > vSpace1 DO 
+      SELECT MID(vInput,vSpace1,vSpace2 - vSpace1 + 1) INTO vOld; 
+      SELECT MID(vInput,vSpace1+1,vSpace2 - vSpace1 - 1) INTO vWorking; 
+      #SELECT vOld, vWorking;     
+      SELECT INSTR(vWorking,'.') INTO vDot;
+      IF vDOT > 0 THEN
+        SET vObject = LEFT(vWorking,vDot - 1);
+        SET vParam = RIGHT(vWorking,LENGTH(vWorking) - vDot);
+        IF vParam = 'State' THEN
+          SELECT state_name INTO vTemp FROM osae_v_object WHERE object_name=vObject;        
+          SET vInput = REPLACE(vInput,vOld,vTemp);
+        ELSEIF vParam = 'Container' THEN
+          SELECT container_name INTO vTemp FROM osae_v_object WHERE object_name=vObject;        
+          SET vInput = REPLACE(vInput,vOld,vTemp);
+        ELSE
+          SELECT property_value INTO vTemp FROM osae_v_object_property WHERE object_name=vObject AND property_name=vParam;
+          SET vInput = REPLACE(vInput,vOld,vTemp);          
+        END IF;      
+      END IF;
+      SELECT INSTR(vInput,'[') INTO vSpace1;
+      SELECT INSTR(vInput,']') INTO vSpace2;
+    END WHILE;
+    SELECT vInput;
+END
+
+
+
+
 --
 -- Enable foreign keys
 --
