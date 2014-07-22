@@ -10,15 +10,12 @@
 --
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 
-SET NAMES 'utf8';
-USE osae;
-
 
 --
 -- Alter table "osae_event_log"
 --
-ALTER TABLE osae_event_log
-  ADD INDEX IDX_osae_event_log_log_time (log_time);
+-- ALTER TABLE osae_event_log
+--  ADD INDEX IDX_osae_event_log_log_time (log_time);
 
 DELIMITER $$
 
@@ -57,7 +54,7 @@ $$
 --
 -- Alter procedure "osae_sp_process_recurring"
 --
-DROP PROCEDURE osae_sp_process_recurring$$
+DROP PROCEDURE IF EXISTS osae_sp_process_recurring$$
 CREATE PROCEDURE osae_sp_process_recurring()
 BEGIN
 DECLARE iRECURRINGID INT;
@@ -225,6 +222,8 @@ DECLARE vRecurringID INT DEFAULT NULL;
 END
 $$
 
+DROP TABLE IF EXISTS osae_log
+$$
 CREATE TABLE osae_log (
   ID INT(11) NOT NULL AUTO_INCREMENT,
   Date DATETIME NOT NULL,
@@ -245,8 +244,11 @@ DELIMITER ;
 
 DELIMITER $$
 
+DROP TRIGGER IF EXISTS osae_tr_object_before_update
+$$
+
 CREATE
-DEFINER = 'root'@'localhost'
+DEFINER = 'osae'@'%'
 TRIGGER osae_tr_object_before_update
 BEFORE UPDATE
 ON osae_object
@@ -327,8 +329,473 @@ BEGIN
 END
 $$
 
+
+
+
+--  ----------------------------------------------------------------------------------------------------
+--   The following is for the new system plugin monitor   - Vaughn
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS osae_sp_system_count_plugins
+  $$
+CREATE DEFINER = 'osae'@'%'
+PROCEDURE osae_sp_system_count_plugins()
+BEGIN
+DECLARE vPluginCount INT;
+DECLARE vOldCount INT;
+DECLARE iPluginCount INT;
+DECLARE iPluginEnabledCount INT;
+DECLARE iPluginRunningCount INT;  
+DECLARE iPluginErrorCount INT;
+DECLARE bDone INT; 
+DECLARE vOutput VARCHAR(200);
+DECLARE oCount INT;
+DECLARE var1 CHAR(40);
+  
+DECLARE curs CURSOR FOR SELECT object_name FROM osae_v_object WHERE base_type='PLUGIN' AND enabled=1 AND state_name='OFF';
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET bDone = 1;
+    SET vOldCount = (SELECT COUNT(property_value) FROM osae_v_object_property WHERE object_name='SYSTEM' AND property_name='Plugins Running');  
+    SET iPluginErrorCount = (SELECT COUNT(object_name) FROM osae_v_object WHERE base_type='PLUGIN' AND enabled=1 AND state_name='OFF');
+ 
+   -- IF vOldCount != iPluginErrorCount THEN  
+        SET iPluginCount = (SELECT COUNT(object_name) FROM osae_v_object WHERE base_type='PLUGIN');
+        SET iPluginEnabledCount = (SELECT COUNT(object_name) FROM osae_v_object WHERE base_type='PLUGIN' AND enabled=1);
+        SET iPluginRunningCount = (SELECT COUNT(object_name) FROM osae_v_object WHERE base_type='PLUGIN' AND enabled=1 AND state_name='ON');
+
+        CALL osae_sp_object_property_set('SYSTEM','Plugins Found',iPluginCount,'SYSTEM','osae_sp_system_count_plugins');
+        CALL osae_sp_object_property_set('SYSTEM','Plugins Enabled',iPluginEnabledCount,'SYSTEM','osae_sp_system_count_plugins');
+        CALL osae_sp_object_property_set('SYSTEM','Plugins Running',iPluginRunningCount,'SYSTEM','osae_sp_system_count_plugins');
+        CALL osae_sp_object_property_set('SYSTEM','Plugins Errored',iPluginErrorCount,'SYSTEM','osae_sp_system_count_plugins');
+
+        CASE iPluginErrorCount
+          WHEN 0 THEN 
+            SET vOutput = 'All Plugins are Running';
+            CALL osae_sp_object_property_set('SYSTEM','Plugins',vOutput,'SYSTEM','osae_sp_system_count_plugins');            
+          WHEN 1 THEN 
+            SET vOutput = (SELECT COALESCE(object_name,'Unknown') FROM osae_v_object WHERE base_type='PLUGIN' AND enabled=1 AND state_name='OFF' LIMIT 1);
+            SET vOutput = CONCAT(vOutput,' is Stopped!');
+            CALL osae_sp_object_property_set('SYSTEM','Plugins',vOutput,'SYSTEM','osae_sp_system_count_plugins');
+          ELSE
+            OPEN curs;
+            SET oCount = 0;
+            SET bDone = 0;
+            SET vOutput = '';
+            REPEAT
+              FETCH curs INTO var1;
+              IF oCount < iPluginErrorCount THEN
+                IF oCount = 0 THEN
+                  SET vOutput = CONCAT(vOutput,CONCAT(' and ', var1, ' are Stopped!'));
+                ELSEIF oCount = 1 THEN
+                  SET vOutput = CONCAT(var1, vOutput);
+                ELSE
+                  SET vOutput = CONCAT(var1, ', ', vOutput);
+                END IF;
+                SET oCount = oCount + 1;
+              END IF;
+            UNTIL bDone END REPEAT;
+            CLOSE curs;
+            CALL osae_sp_object_property_set('SYSTEM','Plugins',vOutput,'SYSTEM','osae_sp_system_count_plugins');
+         END CASE;
+ --     END IF;
+END
+$$
+
 DELIMITER ;
 
+DELIMITER $$
+
+DROP EVENT IF EXISTS osae_ev_off_timer
+$$
+
+CREATE 
+	DEFINER = 'osae'@'%'
+EVENT osae_ev_off_timer
+	ON SCHEDULE EVERY '1' SECOND
+	STARTS '2010-05-23 10:09:24'
+	DO 
+BEGIN
+  DECLARE vObjectName  VARCHAR(200);
+  DECLARE iLoopCount   INT DEFAULT 0;
+  DECLARE iMethodCount INT DEFAULT 0;
+  DECLARE iStateCount  INT DEFAULT 0;
+  DECLARE done         INT DEFAULT 0;
+  DECLARE cur1 CURSOR FOR SELECT object_name FROM osae_v_object_property WHERE state_name <> 'OFF' AND property_name = 'OFF TIMER' AND property_value IS NOT NULL AND property_value <> '' AND subtime(now(), sec_to_time(property_value)) > object_last_updated;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+  DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done = 1;
+  
+  CALL osae_sp_object_property_set('SYSTEM', 'Time', curtime(), 'SYSTEM', 'osae_ev_off_timer');
+  CALL osae_sp_object_property_set('SYSTEM', 'Time AMPM', DATE_FORMAT(now(), '%h:%i %p'), 'SYSTEM', 'osae_ev_off_timer');
+  CALL osae_sp_system_count_occupants();
+  CALL osae_sp_system_count_plugins();
+  SELECT count(object_name)
+  INTO
+    iLoopCount
+  FROM
+    osae_v_object_property
+  WHERE
+    state_name <> 'OFF'
+    AND property_name = 'OFF TIMER'
+    AND property_value IS NOT NULL
+    AND property_value <> ''
+    AND subtime(now(), sec_to_time(property_value)) > object_last_updated;
+  OPEN cur1;
+
+Loop_Tag:
+  LOOP
+    FETCH cur1 INTO vObjectName;
+    IF done THEN
+      LEAVE Loop_Tag;
+    END IF;
+    SELECT count(method_id)
+    INTO
+      iMethodCount
+    FROM
+      osae_v_object_method
+    WHERE
+      upper(object_name) = upper(vObjectName)
+      AND upper(method_name) = 'OFF';
+    IF iMethodCount > 0 THEN
+      CALL osae_sp_debug_log_add(concat('Turning ', vObjectName, ' Off'), 'osae_ev_off_timer');
+      CALL osae_sp_method_queue_add(vObjectName, 'OFF', '', '', 'SYSTEM', 'osae_ev_off_timer');
+    ELSE
+      SELECT count(state_id)
+      INTO
+        iStateCount
+      FROM
+        osae_v_object_state
+      WHERE
+        upper(object_name) = upper(vObjectName)
+        AND upper(state_name) = 'OFF';
+      IF iStateCount > 0 THEN
+        CALL osae_sp_debug_log_add(concat('Turning ', vObjectName, ' Off'), 'osae_ev_off_timer');
+        CALL osae_sp_object_state_set(vObjectName, 'OFF', 'SYSTEM', 'osae_ev_off_timer');
+      END IF;
+    END IF;
+  END LOOP;
+  CLOSE cur1;
+
+  SELECT count(method_id) INTO iMethodCount FROM osae_v_object_method;
+END
+$$
+
+DELIMITER ;
+
+
+--  The new system properties for the above code
+CALL osae_sp_object_type_property_add('Plugins Found','Integer','','SYSTEM',1);
+CALL osae_sp_object_type_property_add('Plugins Running','Integer','','SYSTEM',1);
+CALL osae_sp_object_type_property_add('Plugins Enabled','Integer','','SYSTEM',1);
+CALL osae_sp_object_type_property_add('Plugins Errored','Integer','','SYSTEM',1);
+CALL osae_sp_object_type_property_add('Plugins','String','','SYSTEM',0);
+
+
+
+
+
+
+
+
+
+
+
+
+--  ----------------------------------------------------------------------------------------------------
+--   The following is for the Object Type Export   - Vaughn
+
+DELIMITER $$
+
+CREATE OR REPLACE DEFINER = 'osae'@'%' VIEW osae_v_object_property
+AS
+SELECT `osae_object`.`object_id` AS `object_id`
+     , `osae_object`.`object_name` AS `object_name`
+     , `osae_object`.`object_description` AS `object_description`
+     , `osae_object`.`state_id` AS `state_id`
+     , `osae_object`.`object_value` AS `object_value`
+     , `osae_object`.`address` AS `address`
+     , `osae_object`.`container_id` AS `container_id`
+     , `osae_object`.`enabled` AS `enabled`
+     , `osae_object`.`last_updated` AS `object_last_updated`
+     , coalesce(`osae_object`.`last_state_change`, now()) AS `last_state_change`
+     , `osae_object_property`.`last_updated` AS `last_updated`
+     , `osae_object_property`.`object_property_id` AS `object_property_id`
+     , `osae_object_property`.`object_type_property_id` AS `object_type_property_id`
+     , `osae_object_property`.`property_value` AS `property_value`
+     , `osae_object_type`.`object_type_id` AS `object_type_id`
+     , `osae_object_type`.`object_type_description` AS `object_type_description`
+     , `osae_object_type`.`object_type` AS `object_type`
+     , `osae_object_type`.`system_hidden` AS `system_hidden`
+     , `osae_object_type`.`plugin_object_id` AS `plugin_object_id`
+     , `osae_object_type`.`base_type_id` AS `base_type_id`
+     , `osae_object_type`.`object_type_owner` AS `object_type_owner`
+     , `osae_object_type_property`.`property_datatype` AS `property_datatype`
+     , `osae_object_type_property`.`property_name` AS `property_name`
+     , `osae_object_type_property`.`property_default` AS `property_default`
+     , `osae_object_type_property`.`property_id` AS `property_id`
+     , `osae_object_type_property`.`track_history` AS `track_history`
+     , `ot1`.`object_type` AS `base_type`
+     , `osae_object_type_state`.`state_name` AS `state_name`
+FROM
+  (((((`osae_object`
+JOIN `osae_object_property`
+ON ((`osae_object`.`object_id` = `osae_object_property`.`object_id`)))
+JOIN `osae_object_type`
+ON ((`osae_object`.`object_type_id` = `osae_object_type`.`object_type_id`)))
+JOIN `osae_object_type_property`
+ON (((`osae_object_type`.`object_type_id` = `osae_object_type_property`.`object_type_id`) AND (`osae_object_property`.`object_type_property_id` = `osae_object_type_property`.`property_id`))))
+LEFT JOIN `osae_object_type_state`
+ON ((`osae_object`.`state_id` = `osae_object_type_state`.`state_id`)))
+JOIN `osae_object_type` `ot1`
+ON ((`osae_object_type`.`base_type_id` = `ot1`.`object_type_id`)));
+
+$$
+
+DROP Procedure IF EXISTS osae_sp_object_type_export
+  $$
+CREATE DEFINER = 'osae'@'%'
+PROCEDURE osae_sp_object_type_export(IN objectName VARCHAR(255))
+BEGIN
+  DECLARE vResults TEXT;
+  DECLARE vDescription VARCHAR(200);
+  DECLARE vOwner VARCHAR(200);
+  DECLARE vObjectType VARCHAR(200);
+  DECLARE vBaseType VARCHAR(200);
+  DECLARE vTypeOwner INT;
+  DECLARE vSystemType INT;
+  DECLARE vContainer INT;
+  DECLARE vHideRedundant INT;
+  DECLARE v_finished INT; 
+  DECLARE vName VARCHAR(200);
+  DECLARE vLabel VARCHAR(200);
+  DECLARE vParam1Name VARCHAR(200);
+  DECLARE vParam1Default VARCHAR(200);
+  DECLARE vParam2Name VARCHAR(200);
+  DECLARE vParam2Default VARCHAR(200);
+  DECLARE vDataType VARCHAR(200);
+  DECLARE vDefault VARCHAR(200);
+  DECLARE vTrackHistory VARCHAR(200);
+
+  DECLARE state_cursor CURSOR FOR SELECT state_name,state_label FROM osae_v_object_type_state WHERE object_type=objectName;
+  DECLARE event_cursor CURSOR FOR SELECT event_name,event_label FROM osae_v_object_type_event WHERE object_type=objectName;
+  DECLARE method_cursor CURSOR FOR SELECT method_name,method_label,param_1_label,param_1_default,param_2_label,param_2_default FROM osae_v_object_type_method WHERE object_type=objectName;
+  DECLARE property_cursor CURSOR FOR SELECT property_name,property_datatype,property_default,track_history FROM osae_v_object_type_property WHERE object_type=objectName;
+  DECLARE property_Option_cursor CURSOR FOR SELECT property_name,property_datatype,property_default,track_history FROM osae_v_object_type_property_option WHERE object_type=objectName;
+
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_finished = TRUE;
+
+  #SET vObjectType = CONCAT(objectName,'2');
+  SET vObjectType = objectName;
+  SELECT object_type_description,COALESCE(object_name,''),base_type,object_type_owner,system_hidden,container,hide_redundant_events INTO vDescription,vOwner,vBaseType,vTypeOwner,vSystemType,vContainer,vHideRedundant FROM osae_v_object_type WHERE object_type = objectName;
+  SET vResults = CONCAT('CALL osae_sp_object_type_add (\'', vObjectType,'\',\'',vDescription,'\',\'',vOwner,'\',\'',vBaseType,'\',',vTypeOwner,',', vSystemType,',',vContainer,',',vHideRedundant,');','\r\n');
+
+  OPEN state_cursor;
+    get_states: LOOP
+    SET v_finished = FALSE;
+      FETCH state_cursor INTO vName,vLabel;
+      IF v_finished THEN 
+        LEAVE get_states;
+      END IF;
+      SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_state_add(\'',vName,'\',\'',vLabel,'\',\'',vObjectType,'\');','\r\n');
+    END LOOP get_states;
+  CLOSE state_cursor;
+
+
+  OPEN event_cursor;
+  get_events: LOOP
+    SET v_finished = FALSE;
+    FETCH event_cursor INTO vName,vLabel;
+    IF v_finished THEN 
+      LEAVE get_events;
+    END IF;
+    SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_event_add(\'',vName,'\',\'',vLabel,'\',\'',vObjectType,'\');','\r\n');
+  END LOOP get_events;
+  CLOSE event_cursor;
+
+  OPEN method_cursor;
+  get_methods: LOOP
+    SET v_finished = FALSE;
+    FETCH method_cursor INTO vName,vLabel,vParam1Name,vParam1Default,vParam2Name,vParam2Default;
+    IF v_finished THEN 
+      LEAVE get_methods;
+    END IF;
+    SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_method_add(\'',vName,'\',\'',vLabel,'\',\'',vObjectType,'\',\'',vParam1Name,'\',\'',vParam2Name,'\',\'',vParam1Default,'\',\'',vParam2Default,'\');','\r\n');
+  END LOOP get_methods;
+  CLOSE method_cursor;
+  SET v_finished = 0;
+
+  OPEN property_cursor;
+  get_properties: LOOP
+    SET v_finished = FALSE;
+    FETCH property_cursor INTO vName,vDataType,vDefault,vTrackHistory;
+    IF v_finished THEN 
+      LEAVE get_properties;
+    END IF;
+    SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_property_add(\'',vName,'\',\'',vDataType,'\',\'',vDefault,'\',\'',vObjectType,'\',',vTrackHistory,');','\r\n');
+  END LOOP get_properties;
+  CLOSE property_cursor;
+
+  SELECT vResults;
+END
+
+$$
+
+--  ----------------------------------------------------------------------------------------------------
+--   The following is for the Object Export   - Vaughn
+
+DROP PROCEDURE osae_sp_object_export
+  $$
+CREATE DEFINER = 'osae'@'%'
+PROCEDURE osae_sp_object_export(IN objectName VARCHAR(255))
+BEGIN
+  DECLARE vObjectName VARCHAR(255);
+  DECLARE vDescription VARCHAR(200);
+  DECLARE vObjectType VARCHAR(200);
+  DECLARE vAddress VARCHAR(200);
+  DECLARE vContainer VARCHAR(200);
+  DECLARE vEnabled INT;
+  DECLARE vProcResults INT;
+
+  DECLARE vPropertyName VARCHAR(200);
+  DECLARE vPropertyValue VARCHAR(2000);
+
+  DECLARE vResults TEXT;
+  DECLARE v_finished BOOL; 
+
+  DECLARE property_cursor CURSOR FOR SELECT property_name,COALESCE(property_value,'') AS property_value FROM osae_v_object_property WHERE object_name=objectName;
+
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_finished = TRUE;
+
+  #SET vObjectType = CONCAT(objectName,'2');
+  SELECT object_name,object_description,object_type,COALESCE(address,''),COALESCE(container_name,''),enabled INTO vObjectName,vDescription,vObjectType,vAddress,vContainer,vEnabled FROM osae_v_object WHERE object_name = objectName;
+  SET vResults = CONCAT('CALL osae_sp_object_add (\'', vObjectName,'\',\'',vDescription,'\',\'',vObjectType,'\',\'',vAddress,'\',\'',vContainer,'\',',vEnabled,',@results);','\r\n');
+
+  OPEN property_cursor;
+  get_properties: LOOP
+    SET v_finished = FALSE;
+    FETCH property_cursor INTO vPropertyName,vPropertyValue;
+    IF v_finished THEN 
+      LEAVE get_properties;
+    END IF;
+    SET vResults = CONCAT(vResults,'CALL osae_sp_object_property_set(\'',vObjectName,'\',\'',vPropertyName,'\',\'',vPropertyValue,'\',\'SYSTEM\',\'Import\');','\r\n');
+  END LOOP get_properties;
+  CLOSE property_cursor;
+
+ SELECT vResults; 
+END
+
+
+
+$$
+
+
+
+
+
+
+--  ----------------------------------------------------------------------------------------------------
+--   The following is to Edit Pattern Matchest  - Vaughn
+
+  DROP PROCEDURE IF EXISTS osae_sp_pattern_match_update
+    $$
+
+CREATE DEFINER = 'osae'@'%'
+PROCEDURE osae_sp_pattern_match_update(IN pPattern VARCHAR(255), IN pOldName VARCHAR(255), IN pNewName VARCHAR(255))
+BEGIN
+DECLARE vPatternCount INT;
+DECLARE vPatternID INT Default NULL;
+    SELECT COUNT(pattern_id) INTO vPatternCount FROM osae_pattern WHERE pattern=pPattern;
+    IF vPatternCount > 0 THEN
+        SELECT pattern_id INTO vPatternID FROM osae_pattern WHERE pattern=pPattern;
+        UPDATE osae_pattern_match SET `match`=pNewName WHERE pattern_id=vPatternID and `match`=pOldName;
+    END IF; 
+END
+
+
+
+
+
+$$
+
+
+DROP PROCEDURE osae_sp_pattern_parse$$
+
+CREATE DEFINER = 'osae'@'%'
+PROCEDURE osae_sp_pattern_parse(IN ppattern varchar(2000))
+BEGIN
+  # This script parses output and replaces placeholders with Objects, properties and other values.
+  DECLARE vInput VARCHAR(2000) DEFAULT '';
+  DECLARE vOutput VARCHAR(2000) DEFAULT '';  
+  DECLARE vOld VARCHAR(200);  
+  DECLARE vWorking VARCHAR(200); 
+  DECLARE vDot INT DEFAULT 0;
+  DECLARE vSpace1 INT DEFAULT 0;
+  DECLARE vSpace2 INT DEFAULT 0;  
+  DECLARE vObject VARCHAR(200);
+  DECLARE vParam VARCHAR(255);  
+  DECLARE vTemp VARCHAR(255);  
+    SET vInput = ppattern; 
+    SELECT INSTR(vInput,'[') INTO vSpace1;
+    SELECT INSTR(vInput,']') INTO vSpace2;
+        
+    WHILE vSpace2 > vSpace1 DO 
+      SELECT MID(vInput,vSpace1,vSpace2 - vSpace1 + 1) INTO vOld; 
+      SELECT MID(vInput,vSpace1+1,vSpace2 - vSpace1 - 1) INTO vWorking; 
+      #SELECT vOld, vWorking;     
+      SELECT INSTR(vWorking,'.') INTO vDot;
+      IF vDOT > 0 THEN
+        SET vObject = LEFT(vWorking,vDot - 1);
+        SET vParam = RIGHT(vWorking,LENGTH(vWorking) - vDot);
+        IF vParam = 'State' THEN
+          SELECT state_name INTO vTemp FROM osae_v_object WHERE object_name=vObject;        
+          SET vInput = REPLACE(vInput,vOld,vTemp);
+        ELSEIF vParam = 'Container' THEN
+          SELECT container_name INTO vTemp FROM osae_v_object WHERE object_name=vObject;        
+          SET vInput = REPLACE(vInput,vOld,vTemp);
+        ELSE
+          SELECT property_value INTO vTemp FROM osae_v_object_property WHERE object_name=vObject AND property_name=vParam;
+          SET vInput = REPLACE(vInput,vOld,vTemp);          
+        END IF;      
+      END IF;
+      SELECT INSTR(vInput,'[') INTO vSpace1;
+      SELECT INSTR(vInput,']') INTO vSpace2;
+    END WHILE;
+    SELECT vInput;
+END
+
+
+$$
+
+DROP PROCEDURE IF EXISTS osae_sp_server_log_clear
+  $$
+CREATE PROCEDURE osae_sp_server_log_clear()
+BEGIN
+  DELETE
+    FROM osae_log;
+END
+
+  $$
+
+DROP PROCEDURE IF EXISTS osae_sp_server_log_get
+$$
+CREATE PROCEDURE osae_sp_server_log_get(IN pinfo bit,
+IN pdebug bit,
+IN perror bit,
+IN psource varchar(50))
+BEGIN
+  SELECT
+    *
+  FROM osae_log
+  WHERE ((Level = 'INFO' AND pinfo = 1)
+  OR (Level = 'DEBUG' AND pdebug = 1)
+  OR (Level = 'ERROR' AND perror = 1))
+  AND (Logger = psource OR psource = 'ALL')
+
+  ORDER BY Date DESC, ID DESC
+  LIMIT 500;
+END
+ $$
+
+DELIMITER ;
 
 --
 -- Enable foreign keys
