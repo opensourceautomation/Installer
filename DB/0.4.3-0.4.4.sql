@@ -10,15 +10,12 @@
 --
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 
-SET NAMES 'utf8';
-USE osae;
-
 
 --
 -- Alter table "osae_event_log"
 --
-ALTER TABLE osae_event_log
-  ADD INDEX IDX_osae_event_log_log_time (log_time);
+-- ALTER TABLE osae_event_log
+--  ADD INDEX IDX_osae_event_log_log_time (log_time);
 
 DELIMITER $$
 
@@ -57,7 +54,7 @@ $$
 --
 -- Alter procedure "osae_sp_process_recurring"
 --
-DROP PROCEDURE osae_sp_process_recurring$$
+DROP PROCEDURE IF EXISTS osae_sp_process_recurring$$
 CREATE PROCEDURE osae_sp_process_recurring()
 BEGIN
 DECLARE iRECURRINGID INT;
@@ -225,6 +222,8 @@ DECLARE vRecurringID INT DEFAULT NULL;
 END
 $$
 
+DROP TABLE IF EXISTS osae_log
+$$
 CREATE TABLE osae_log (
   ID INT(11) NOT NULL AUTO_INCREMENT,
   Date DATETIME NOT NULL,
@@ -245,8 +244,11 @@ DELIMITER ;
 
 DELIMITER $$
 
+DROP TRIGGER IF EXISTS osae_tr_object_before_update
+$$
+
 CREATE
-DEFINER = 'root'@'localhost'
+DEFINER = 'osae'@'%'
 TRIGGER osae_tr_object_before_update
 BEFORE UPDATE
 ON osae_object
@@ -327,15 +329,16 @@ BEGIN
 END
 $$
 
-DELIMITER ;
 
 
 
-----  ----------------------------------------------------------------------------------------------------
---   The following if for the new system plugin monitor   - Vaughn
+--  ----------------------------------------------------------------------------------------------------
+--   The following is for the new system plugin monitor   - Vaughn
 
 DELIMITER $$
 
+DROP PROCEDURE IF EXISTS osae_sp_system_count_plugins
+  $$
 CREATE DEFINER = 'osae'@'%'
 PROCEDURE osae_sp_system_count_plugins()
 BEGIN
@@ -402,8 +405,11 @@ DELIMITER ;
 
 DELIMITER $$
 
+DROP EVENT IF EXISTS osae_ev_off_timer
+$$
+
 CREATE 
-	DEFINER = 'root'@'localhost'
+	DEFINER = 'osae'@'%'
 EVENT osae_ev_off_timer
 	ON SCHEDULE EVERY '1' SECOND
 	STARTS '2010-05-23 10:09:24'
@@ -494,12 +500,12 @@ CALL osae_sp_object_type_property_add('Plugins','String','','SYSTEM',0);
 
 
 
-----  ----------------------------------------------------------------------------------------------------
---   The following if for the Object Type Export   - Vaughn
+--  ----------------------------------------------------------------------------------------------------
+--   The following is for the Object Type Export   - Vaughn
 
+DELIMITER $$
 
-
-CREATE OR REPLACE DEFINER = 'osae'@'%' VIEW osae.osae_v_object_property
+CREATE OR REPLACE DEFINER = 'osae'@'%' VIEW osae_v_object_property
 AS
 SELECT `osae_object`.`object_id` AS `object_id`
      , `osae_object`.`object_name` AS `object_name`
@@ -542,11 +548,12 @@ ON ((`osae_object`.`state_id` = `osae_object_type_state`.`state_id`)))
 JOIN `osae_object_type` `ot1`
 ON ((`osae_object_type`.`base_type_id` = `ot1`.`object_type_id`)));
 
+$$
 
-
-
-CREATE DEFINER = 'root'@'localhost'
-PROCEDURE osae.osae_sp_object_type_export(IN objectName VARCHAR(255))
+DROP Procedure IF EXISTS osae_sp_object_type_export
+  $$
+CREATE DEFINER = 'osae'@'%'
+PROCEDURE osae_sp_object_type_export(IN objectName VARCHAR(255))
 BEGIN
   DECLARE vResults TEXT;
   DECLARE vDescription VARCHAR(200);
@@ -630,13 +637,15 @@ BEGIN
   SELECT vResults;
 END
 
+$$
 
+--  ----------------------------------------------------------------------------------------------------
+--   The following is for the Object Export   - Vaughn
 
-----  ----------------------------------------------------------------------------------------------------
---   The following if for the Object Export   - Vaughn
-
-CREATE DEFINER = 'root'@'localhost'
-PROCEDURE osae.osae_sp_object_export(IN objectName VARCHAR(255))
+DROP PROCEDURE osae_sp_object_export
+  $$
+CREATE DEFINER = 'osae'@'%'
+PROCEDURE osae_sp_object_export(IN objectName VARCHAR(255))
 BEGIN
   DECLARE vObjectName VARCHAR(255);
   DECLARE vDescription VARCHAR(200);
@@ -676,19 +685,21 @@ END
 
 
 
+$$
 
 
 
 
 
 
-
-----  ----------------------------------------------------------------------------------------------------
+--  ----------------------------------------------------------------------------------------------------
 --   The following is to Edit Pattern Matchest  - Vaughn
 
+  DROP PROCEDURE IF EXISTS osae_sp_pattern_match_update
+    $$
 
-CREATE DEFINER = 'root'@'localhost'
-PROCEDURE osae.osae_sp_pattern_match_update(IN pPattern VARCHAR(255), IN pOldName VARCHAR(255), IN pNewName VARCHAR(255))
+CREATE DEFINER = 'osae'@'%'
+PROCEDURE osae_sp_pattern_match_update(IN pPattern VARCHAR(255), IN pOldName VARCHAR(255), IN pNewName VARCHAR(255))
 BEGIN
 DECLARE vPatternCount INT;
 DECLARE vPatternID INT Default NULL;
@@ -703,12 +714,13 @@ END
 
 
 
+$$
 
 
-
+DROP PROCEDURE osae_sp_pattern_parse$$
 
 CREATE DEFINER = 'osae'@'%'
-PROCEDURE osae.osae_sp_pattern_parse(IN ppattern varchar(2000))
+PROCEDURE osae_sp_pattern_parse(IN ppattern varchar(2000))
 BEGIN
   # This script parses output and replaces placeholders with Objects, properties and other values.
   DECLARE vInput VARCHAR(2000) DEFAULT '';
@@ -751,7 +763,39 @@ BEGIN
 END
 
 
+$$
 
+DROP PROCEDURE IF EXISTS osae_sp_server_log_clear
+  $$
+CREATE PROCEDURE osae_sp_server_log_clear()
+BEGIN
+  DELETE
+    FROM osae_log;
+END
+
+  $$
+
+DROP PROCEDURE IF EXISTS osae_sp_server_log_get
+$$
+CREATE PROCEDURE osae_sp_server_log_get(IN pinfo bit,
+IN pdebug bit,
+IN perror bit,
+IN psource varchar(50))
+BEGIN
+  SELECT
+    *
+  FROM osae_log
+  WHERE ((Level = 'INFO' AND pinfo = 1)
+  OR (Level = 'DEBUG' AND pdebug = 1)
+  OR (Level = 'ERROR' AND perror = 1))
+  AND (Logger = psource OR psource = 'ALL')
+
+  ORDER BY Date DESC, ID DESC
+  LIMIT 500;
+END
+ $$
+
+DELIMITER ;
 
 --
 -- Enable foreign keys
