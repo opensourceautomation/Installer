@@ -710,6 +710,25 @@ $$
 
 DELIMITER ;
 
+
+
+DELIMITER $$
+DROP TRIGGER IF EXISTS osae_tr_object_type_properties_after_insert$$
+CREATE 
+	DEFINER = 'osae'@'%'
+TRIGGER osae_tr_object_type_properties_after_insert
+	AFTER INSERT
+	ON osae_object_type_property
+	FOR EACH ROW
+BEGIN
+    INSERT INTO osae_object_property (object_id,object_type_property_id,property_value) SELECT object_id,NEW.property_id,NEW.property_default FROM osae_object WHERE object_type_id=NEW.object_type_id;
+END
+$$
+
+DELIMITER ;
+
+
+
 --
 -- Enable foreign keys
 --
@@ -765,6 +784,12 @@ CALL osae_sp_object_type_property_add('State 2 Image 3','File','','CONTROL STATE
 CALL osae_sp_object_type_property_add('State 2 Image 4','File','','CONTROL STATE IMAGE',0);
 CALL osae_sp_object_type_property_add('Repeat Animation','Boolean','TRUE','CONTROL STATE IMAGE',0);
 CALL osae_sp_object_type_property_add('Frame Delay','Integer','100','CONTROL STATE IMAGE',0);
+CALL osae_sp_object_type_property_add('Show Slider','Boolean','','CONTROL STATE IMAGE',0);
+CALL osae_sp_object_type_property_add('State 3 Image 2','File','','CONTROL STATE IMAGE',0);
+CALL osae_sp_object_type_property_add('State 3 Image 3','File','','CONTROL STATE IMAGE',0);
+CALL osae_sp_object_type_property_add('State 3 Image 4','File','','CONTROL STATE IMAGE',0);
+CALL osae_sp_object_type_property_add('Slider Method','String','','CONTROL STATE IMAGE',0);
+
 
 
 
