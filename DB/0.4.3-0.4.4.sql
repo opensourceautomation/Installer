@@ -14,7 +14,7 @@ USE osae;
 --
 -- Create table "osae_log"
 --
-CREATE TABLE osae_log (
+CREATE TABLE IF NOT EXISTS osae_log (
   ID INT(11) NOT NULL AUTO_INCREMENT,
   Date DATETIME NOT NULL,
   Thread VARCHAR(255) NOT NULL,
@@ -39,7 +39,7 @@ DELIMITER $$
 --
 -- Alter procedure "osae_sp_method_queue_add"
 --
-DROP PROCEDURE osae_sp_method_queue_add$$
+DROP PROCEDURE IF EXIST osae_sp_method_queue_add$$
 CREATE PROCEDURE osae_sp_method_queue_add(IN pobject varchar(200), IN pmethod varchar(200), IN pparameter1 varchar(1024), IN pparameter2 varchar(1024), IN pfromobject varchar(200), IN pdebuginfo varchar(1000))
 BEGIN
 DECLARE vObjectCount INT;
@@ -88,7 +88,7 @@ $$
 --
 -- Alter procedure "osae_sp_object_add"
 --
-DROP PROCEDURE osae_sp_object_add$$
+DROP PROCEDURE IF EXIST osae_sp_object_add$$
 CREATE PROCEDURE osae_sp_object_add(IN pname VARCHAR(200), IN pdescription VARCHAR(200), IN pobjecttype VARCHAR(200), IN paddress VARCHAR(200), IN pcontainer VARCHAR(200), IN penabled TINYINT(1), OUT results INTEGER)
 BEGIN
   DECLARE vObjectCount     INT;
@@ -127,6 +127,7 @@ $$
 --
 -- Create procedure "osae_sp_object_export"
 --
+DROP PROCEDURE IF EXISTS osae_sp_object_export$$
 CREATE PROCEDURE osae_sp_object_export(IN objectName VARCHAR(255))
 BEGIN
   DECLARE vObjectName VARCHAR(255);
@@ -169,7 +170,7 @@ $$
 --
 -- Alter procedure "osae_sp_object_property_set"
 --
-DROP PROCEDURE osae_sp_object_property_set$$
+DROP PROCEDURE IF EXISTS osae_sp_object_property_set$$
 CREATE PROCEDURE osae_sp_object_property_set(IN pname varchar(200), IN pproperty varchar(200), IN pvalue varchar(4000), IN pfromobject varchar(200), IN pdebuginfo varchar(2000))
 BEGIN
 DECLARE vObjectID INT DEFAULT 0;
@@ -201,6 +202,7 @@ $$
 --
 -- Create procedure "osae_sp_object_type_export"
 --
+DROP PROCEDURE IF EXISTS osae_sp_object_type_export$$
 CREATE PROCEDURE osae_sp_object_type_export(IN objectName VARCHAR(255))
 BEGIN
   DECLARE vResults TEXT;
@@ -289,7 +291,7 @@ $$
 --
 -- Alter procedure "osae_sp_object_type_update"
 --
-DROP PROCEDURE osae_sp_object_type_update$$
+DROP PROCEDURE IF EXISTS osae_sp_object_type_update$$
 CREATE PROCEDURE osae_sp_object_type_update(
   IN  poldname              varchar(200),
   IN  pnewname              varchar(200),
@@ -330,6 +332,7 @@ $$
 --
 -- Create procedure "osae_sp_pattern_match_update"
 --
+DROP PROCEDURE IF EXISTS osae_sp_pattern_match_update$$
 CREATE PROCEDURE osae_sp_pattern_match_update(IN pPattern VARCHAR(255), IN pOldName VARCHAR(255), IN pNewName VARCHAR(255))
 BEGIN
 DECLARE vPatternCount INT;
@@ -345,7 +348,7 @@ $$
 --
 -- Alter procedure "osae_sp_pattern_parse"
 --
-DROP PROCEDURE osae_sp_pattern_parse$$
+DROP PROCEDURE IF EXISTS osae_sp_pattern_parse$$
 CREATE PROCEDURE osae_sp_pattern_parse(IN ppattern varchar(2000))
 BEGIN
   # This script parses output and replaces placeholders with Objects, properties and other values.
@@ -392,7 +395,7 @@ $$
 --
 -- Alter procedure "osae_sp_process_recurring"
 --
-DROP PROCEDURE osae_sp_process_recurring$$
+DROP PROCEDURE IF EXISTS osae_sp_process_recurring$$
 CREATE PROCEDURE osae_sp_process_recurring()
 BEGIN
 DECLARE iRECURRINGID INT;
@@ -544,6 +547,7 @@ $$
 --
 -- Create procedure "osae_sp_process_system_methods"
 --
+DROP PROCEDURE IF EXISTS osae_sp_process_system_methods$$
 CREATE PROCEDURE osae_sp_process_system_methods()
 BEGIN
 DECLARE vMethodQueueID INT;
@@ -652,6 +656,7 @@ $$
 --
 -- Create procedure "osae_sp_server_log_clear"
 --
+DROP PROCEDURE IF EXISTS osae_sp_server_log_clear$$
 CREATE PROCEDURE osae_sp_server_log_clear()
 BEGIN
  DELETE
@@ -662,6 +667,7 @@ $$
 --
 -- Create procedure "osae_sp_server_log_get"
 --
+DROP PROCEDURE IF EXISTS osae_sp_server_log_get$$
 CREATE PROCEDURE osae_sp_server_log_get(IN pinfo bit,
 IN pdebug bit,
 IN perror bit,
@@ -683,6 +689,7 @@ $$
 --
 -- Create procedure "osae_sp_system_count_plugins"
 --
+DROP PROCEDURE IF EXISTS osae_sp_system_count_plugins$$
 CREATE PROCEDURE osae_sp_system_count_plugins()
 BEGIN
 DECLARE vPluginCount INT;
