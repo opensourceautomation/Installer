@@ -39,7 +39,7 @@ DELIMITER $$
 --
 -- Alter procedure "osae_sp_method_queue_add"
 --
-DROP PROCEDURE IF EXIST osae_sp_method_queue_add$$
+DROP PROCEDURE IF EXISTS osae_sp_method_queue_add$$
 CREATE PROCEDURE osae_sp_method_queue_add(IN pobject varchar(200), IN pmethod varchar(200), IN pparameter1 varchar(1024), IN pparameter2 varchar(1024), IN pfromobject varchar(200), IN pdebuginfo varchar(1000))
 BEGIN
 DECLARE vObjectCount INT;
@@ -88,7 +88,7 @@ $$
 --
 -- Alter procedure "osae_sp_object_add"
 --
-DROP PROCEDURE IF EXIST osae_sp_object_add$$
+DROP PROCEDURE IF EXISTS osae_sp_object_add$$
 CREATE PROCEDURE osae_sp_object_add(IN pname VARCHAR(200), IN pdescription VARCHAR(200), IN pobjecttype VARCHAR(200), IN paddress VARCHAR(200), IN pcontainer VARCHAR(200), IN penabled TINYINT(1), OUT results INTEGER)
 BEGIN
   DECLARE vObjectCount     INT;
@@ -668,13 +668,13 @@ $$
 -- Create procedure "osae_sp_server_log_get"
 --
 DROP PROCEDURE IF EXISTS osae_sp_server_log_get$$
-CREATE PROCEDURE osae_sp_server_log_get(IN pinfo bit,
+CREATE PROCEDURE osae.osae_sp_server_log_get(IN pinfo bit,
 IN pdebug bit,
 IN perror bit,
 IN psource varchar(50))
 BEGIN
  SELECT
-   ID,DATE_FORMAT(`Date`,'%y-%m-%d %H:%i:%s') as `Date`,`Thread`,`Level`,`Logger`,`Message`,`Exception`
+   ID,DATE_FORMAT(`Date`,'%m/%d %h:%i:%s %p') as `Date`,`Thread`,`Level`,`Logger`,`Message`,`Exception`
  FROM osae_log
  WHERE ((Level = 'INFO' AND pinfo = 1)
  OR (Level = 'DEBUG' AND pdebug = 1)
