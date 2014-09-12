@@ -12,7 +12,7 @@
     {
         private MySqlConnection connection;
         private string current = "0.1.0";
-        private string newVersion = "0.4.3";
+        private string newVersion = "0.4.4";
         private string ConnectionStringRoot;
         private string ConnectionStringOSAE;
         RegistrySettings regSettings;
@@ -222,6 +222,7 @@
                 }
                 else if (status == InstallStatus.NOTINSTALLED)
                 {
+                    session.Log("InstallStatus.NOTINSTALLED");
                     lblConnectResult.ForeColor = System.Drawing.Color.Green;
                     lblConnectResult.Text = "Connection Successful. \nClick to install.";
                     btnInstall.Text = "Install";
@@ -230,6 +231,7 @@
                 }
                 else if (status == InstallStatus.NEEDSUPGRADE)
                 {
+                    session.Log("InstallStatus.NEEDSUPGRADE");
                     lblConnectResult.ForeColor = System.Drawing.Color.Green;
                     lblConnectResult.Text = "Connection Successful. \nClick to upgrade.";
                     btnInstall.Text = "Upgrade";
@@ -238,6 +240,7 @@
                 }
                 else if (status == InstallStatus.UPTODATE)
                 {
+                    session.Log("InstallStatus.UPTODATE");
                     lblConnectResult.ForeColor = System.Drawing.Color.Green;
                     lblConnectResult.Text = "Connection Successful. \nDatabase is up to date.";
                     btnInstall.Text = "Close";
@@ -448,9 +451,16 @@
                     adapter = new MySqlDataAdapter(command);
                     adapter.Fill(dataset);
                     if (dataset.Tables[0].Rows[0][0].ToString() == string.Empty)
+                    {
                         current = "0.1.0";
+                        session.Log("No Version Number Found");
+                    }
                     else
+                    {
                         current = dataset.Tables[0].Rows[0][0].ToString();
+                        session.Log("Current Version of DB: " + current);
+                    }
+
                     if (current == newVersion)
                     {
                         return InstallStatus.UPTODATE;

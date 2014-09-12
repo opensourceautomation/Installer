@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?ifndef Version?>
-<?define Version = "0.4.3" ?>
+<?define Version = "0.4.4" ?>
 <?endif ?>
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
@@ -16,6 +16,12 @@
         <!--MySQL.data.dll-->
         <Component Id="MySQL.data.dll" Guid="{0E178727-5ADF-4F81-9D32-835A422095B9}">
           <File Id='MySQL.data.dll' Name='MySQL.data.dll' DiskId='1' Source='$(var.SolutionDir)output\MySQL.data.dll' KeyPath='yes' />
+        </Component>
+        <Component Id="NetworkCommsDotNetComplete.dll" Guid="{DFA9B093-3E80-413C-8081-C53169588925}">
+          <File Id='NetworkCommsDotNetComplete.dll' Name='NetworkCommsDotNetComplete.dll' DiskId='1' Source='$(var.SolutionDir)output\NetworkCommsDotNetComplete.dll' KeyPath='yes' />
+        </Component>
+        <Component Id="log4net.dll" Guid="{7C1F74FB-5BBD-4E7F-B4FB-48A49D3E3831}">
+          <File Id='log4net.dll' Name='log4net.dll' DiskId='1' Source='$(var.SolutionDir)output\log4net.dll' KeyPath='yes' />
         </Component>
         <Component Id="OSARegKeys" Guid="{784EA4F7-DCCC-4C4F-9321-A99297181B8B}">
           <RegistryKey Root="HKLM"
