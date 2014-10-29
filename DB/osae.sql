@@ -5,10 +5,10 @@
 -- Client version: 4.1
 
 --
--- Definition for database osae_044
+-- Definition for database osae
 --
-DROP DATABASE IF EXISTS osae_044;
-CREATE DATABASE osae_044
+DROP DATABASE IF EXISTS osae;
+CREATE DATABASE osae
 	CHARACTER SET latin1
 	COLLATE latin1_swedish_ci;
 
@@ -25,7 +25,7 @@ SET NAMES 'utf8';
 -- 
 -- Set default database
 --
-USE osae_044;
+USE osae;
 
 --
 -- Definition for table osae_debug_log
@@ -3001,19 +3001,19 @@ INSERT INTO osae_images VALUES
 -- Dumping data for table osae_log
 --
 
--- Table osae_044.osae_log does not contain any data (it is empty)
+-- Table osae.osae_log does not contain any data (it is empty)
 
 -- 
 -- Dumping data for table osae_object_pattern
 --
 
--- Table osae_044.osae_object_pattern does not contain any data (it is empty)
+-- Table osae.osae_object_pattern does not contain any data (it is empty)
 
 -- 
 -- Dumping data for table osae_object_state_change_history
 --
 
--- Table osae_044.osae_object_state_change_history does not contain any data (it is empty)
+-- Table osae.osae_object_state_change_history does not contain any data (it is empty)
 
 -- 
 -- Dumping data for table osae_object_type
@@ -3849,7 +3849,7 @@ INSERT INTO osae_object_type_state VALUES
 -- Dumping data for table osae_pattern_script
 --
 
--- Table osae_044.osae_pattern_script does not contain any data (it is empty)
+-- Table osae.osae_pattern_script does not contain any data (it is empty)
 
 -- 
 -- Dumping data for table osae_object
@@ -3898,13 +3898,13 @@ INSERT INTO osae_event_log VALUES
 -- Dumping data for table osae_method_log
 --
 
--- Table osae_044.osae_method_log does not contain any data (it is empty)
+-- Table osae.osae_method_log does not contain any data (it is empty)
 
 -- 
 -- Dumping data for table osae_method_queue
 --
 
--- Table osae_044.osae_method_queue does not contain any data (it is empty)
+-- Table osae.osae_method_queue does not contain any data (it is empty)
 
 -- 
 -- Dumping data for table osae_object_event_script
@@ -4096,25 +4096,25 @@ INSERT INTO osae_object_property VALUES
 -- Dumping data for table osae_object_state_history
 --
 
--- Table osae_044.osae_object_state_history does not contain any data (it is empty)
+-- Table osae.osae_object_state_history does not contain any data (it is empty)
 
 -- 
 -- Dumping data for table osae_schedule_queue
 --
 
--- Table osae_044.osae_schedule_queue does not contain any data (it is empty)
+-- Table osae.osae_schedule_queue does not contain any data (it is empty)
 
 -- 
 -- Dumping data for table osae_schedule_recurring
 --
 
--- Table osae_044.osae_schedule_recurring does not contain any data (it is empty)
+-- Table osae.osae_schedule_recurring does not contain any data (it is empty)
 
 -- 
 -- Dumping data for table osae_screen_object
 --
 
--- Table osae_044.osae_screen_object does not contain any data (it is empty)
+-- Table osae.osae_screen_object does not contain any data (it is empty)
 
 -- 
 -- Dumping data for table osae_object_property_array

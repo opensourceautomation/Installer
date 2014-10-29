@@ -10,7 +10,7 @@
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="MergeRedirectFolder">        
         <Component Id="OSAE.GUI.exe" Guid="A7B96657-0DA3-454E-9ED2-58A4F121DD85" >
-          <File Id='OSAE.GUI.exe' Name='OSAE.GUI.exe' DiskId='1' Source='$(var.SolutionDir)output\OSAE.GUI.exe' KeyPath='yes'  />
+          <File Id='OSAE.Screens.exe' Name='OSAE.Screens.exe' DiskId='1' Source='$(var.SolutionDir)output\OSAE.Screens.exe' KeyPath='yes'  />
         </Component>
         <Component Id="OSA.png" Guid="A7B96657-0DA3-454E-9ED2-58A4F121DD83">
           <File Id='OSA.png' Name='OSA.png' DiskId='1' Source='$(var.SolutionDir)output\OSA.png' KeyPath='no' />
