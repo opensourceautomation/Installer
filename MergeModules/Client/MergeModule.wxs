@@ -51,9 +51,9 @@
           <File Id='OSAE.OSAManagerConfig' Name='OSAE.Manager.exe.config' DiskId='1' Source='$(var.SolutionDir)output\OSAE.Manager.exe.config' KeyPath='yes' />
         </Component>
         <!--Zip Library-->
-        <Component Id='ICSharpCode.SharpZipLib.dll' Guid='{4986521E-9DB6-4A7C-874F-3342C25C35DA}'>
+        <!--<Component Id='ICSharpCode.SharpZipLib.dll' Guid='{4986521E-9DB6-4A7C-874F-3342C25C35DA}'>
           <File Id='ICSharpCode.SharpZipLib.dll' Name='ICSharpCode.SharpZipLib.dll' DiskId='1' Source='$(var.SolutionDir)output\ICSharpCode.SharpZipLib.dll' KeyPath='yes' />
-        </Component>
+        </Component>-->
         <!--VR2-->
         <Component Id="OSAE.VR.exe" Guid='{064B8EEB-B886-4B76-886F-5A6D3AFCDB97}'>
           <File Id='OSAE.VR.exe' Name='OSAE.VR.exe' DiskId='1' Source='$(var.SolutionDir)output\OSAE.VR.exe' KeyPath='yes' />
