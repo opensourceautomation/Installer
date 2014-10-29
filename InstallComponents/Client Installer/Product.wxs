@@ -41,9 +41,9 @@
       </Directory>-->
       <Directory Id="DesktopFolder" Name="Desktop" />
       <Directory Id="INSTALLFOLDER" Name="INSTALLLOCATION" >
-        <Merge Id='Screens' Language='1033' src='$(var.SolutionDir)MergeModules\Screens\bin\x86\Combined\Screens.msm' DiskId='1' />
-        <Merge Id='Core' Language='1033' src='$(var.SolutionDir)MergeModules\Core\bin\x86\Combined\Core.msm' DiskId='1' />
-        <Merge Id='ClientMergeModule' Language='1033' src='$(var.SolutionDir)MergeModules\Client\bin\x86\Combined\Client.msm' DiskId='1' />       
+        <Merge Id='Screens' Language='1033' SourceFile='$(var.SolutionDir)MergeModules\Screens\bin\x86\Combined\Screens.msm' DiskId='1' />
+        <Merge Id='Core' Language='1033' SourceFile='$(var.SolutionDir)MergeModules\Core\bin\x86\Combined\Core.msm' DiskId='1' />
+        <Merge Id='ClientMergeModule' Language='1033' SourceFile='$(var.SolutionDir)MergeModules\Client\bin\x86\Combined\Client.msm' DiskId='1' />       
       </Directory>
     </Directory>
   </Fragment>
