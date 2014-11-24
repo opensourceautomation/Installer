@@ -63,8 +63,8 @@
       </Directory>
       <Directory Id="DesktopFolder" Name="Desktop" />     
         <Directory Id="INSTALLFOLDER" Name="INSTALLLOCATION" >
-          <Merge Id='Screens' Language='1033' src='$(var.SolutionDir)MergeModules\Screens\bin\x86\Combined\Screens.msm' DiskId='1' />
-          <Merge Id='Core' Language='1033' src='$(var.SolutionDir)MergeModules\Core\bin\x86\Combined\Core.msm' DiskId='1' />
+          <Merge Id='Screens' Language='1033' SourceFile='$(var.SolutionDir)MergeModules\Screens\bin\x86\Combined\Screens.msm' DiskId='1' />
+          <Merge Id='Core' Language='1033' SourceFile='$(var.SolutionDir)MergeModules\Core\bin\x86\Combined\Core.msm' DiskId='1' />
         </Directory>
       </Directory>   
   </Fragment>
@@ -75,7 +75,7 @@
         <Shortcut Id="ScreensShortcutMenu"
                   Name="Screens"
                   Description="Open Source Automation - Screens"
-                  Target="[INSTALLFOLDER]OSAE.GUI.exe"
+                  Target="[INSTALLFOLDER]OSAE.Screens.exe"
                   WorkingDirectory="INSTALLFOLDER"/>
         <RegistryValue Root="HKCU" Key="Software\OSAE\Screens" Name="startMenuShortcutScreens" Type="integer" Value="1" KeyPath="yes"/>
       </Component>

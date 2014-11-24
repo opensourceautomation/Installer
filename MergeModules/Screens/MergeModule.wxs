@@ -9,7 +9,7 @@
 		<Package Id="b32b823d-f0dc-4225-8318-747ea2417ec0" Manufacturer="Open Source Automation" InstallerVersion="200" InstallScope="perMachine" />    
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="MergeRedirectFolder">        
-        <Component Id="OSAE.GUI.exe" Guid="A7B96657-0DA3-454E-9ED2-58A4F121DD85" >
+        <Component Id="OSAE.Screens.exe" Guid="A7B96657-0DA3-454E-9ED2-58A4F121DD85" >
           <File Id='OSAE.Screens.exe' Name='OSAE.Screens.exe' DiskId='1' Source='$(var.SolutionDir)output\OSAE.Screens.exe' KeyPath='yes'  />
         </Component>
         <Component Id="OSA.png" Guid="A7B96657-0DA3-454E-9ED2-58A4F121DD83">
