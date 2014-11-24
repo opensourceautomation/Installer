@@ -137,6 +137,10 @@
             {
                 txbWcfAddress.Text = regSettings.WcfServer;
             }
+            else
+            {
+                txbServer.Text = "localhost";
+            }
 
             if (!string.IsNullOrEmpty(regSettings.DbUsername))
             {
@@ -319,10 +323,15 @@
             {
                 script = new MySqlScript(connection, "CREATE USER `osae`@`%` IDENTIFIED BY 'osaePass';");
                 script.Execute();
+                session.Log("User account (osae) created.");
             }
+            else
+                session.Log("User account (osae) found.");
+
             installationProgressBar.Value = 50;
             script = new MySqlScript(connection, "GRANT SUPER ON *.* TO `osae`@`%`;GRANT ALL PRIVILEGES ON *.* TO 'osae'@'%' WITH GRANT OPTION;");
             script.Execute();
+            session.Log("Privileges granted to OSAE.");
             installationProgressBar.Value = 75;
             script = new MySqlScript(connection, File.ReadAllText(directory + @"osae.sql"));
             script.Execute();

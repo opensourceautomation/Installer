@@ -56,7 +56,7 @@ namespace OSAInstallCustomActions
 
             OSAE.ModifyRegistry baseRegistry = new OSAE.ModifyRegistry();
             baseRegistry.SubKey = @"SOFTWARE\OSAE";
-            WcfServer = baseRegistry.Read("WcfServer");
+            WcfServer = baseRegistry.Read("WCFSERVER");
         }
 
         public bool RequiredPresent()
@@ -64,7 +64,8 @@ namespace OSAInstallCustomActions
             if (string.IsNullOrEmpty(DbPassword) ||
                string.IsNullOrEmpty(DbUsername) ||
                string.IsNullOrEmpty(DbPort) ||
-               string.IsNullOrEmpty(DbConnection))
+               string.IsNullOrEmpty(DbConnection) ||
+               string.IsNullOrEmpty(WcfServer))
             {
                 return false;
             }
