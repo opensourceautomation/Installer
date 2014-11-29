@@ -668,7 +668,7 @@ $$
 -- Create procedure "osae_sp_server_log_get"
 --
 DROP PROCEDURE IF EXISTS osae_sp_server_log_get$$
-CREATE PROCEDURE osae.osae_sp_server_log_get(IN pinfo bit,
+CREATE PROCEDURE osae_sp_server_log_get(IN pinfo bit,
 IN pdebug bit,
 IN perror bit,
 IN psource varchar(50))
