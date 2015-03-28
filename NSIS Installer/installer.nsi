@@ -286,13 +286,13 @@ Section Server s1
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\App_WebReferences\WCFServiceReference"
   File "..\WebUI\App_WebReferences\WCFServiceReference\*.*"
 
-  ${If} $0 != 0
-  SetOutPath $INSTDIR
-    File "UltiDev.WebServer.msi"
+ ; ${If} $0 != 0
+ ; SetOutPath $INSTDIR
+    ;File "UltiDev Web Server Setup.exe"
 
-    DetailPrint "Installing UltiDev Web Server Pro"
-    ExecWait 'msiexec.exe /passive /i "$INSTDIR\UltiDev.WebServer.msi"'
-  ${EndIf} 
+    ;DetailPrint "Installing UltiDev Web Server Pro"
+   ; ExecWait 'msiexec.exe /passive /i "$INSTDIR\UltiDev.WebServer.msi"'
+ ; ${EndIf} 
 
   ; Unregister website to make sure no files are in use by webserver while upgrading 
   ; and to pick up any changes in how we register it now
@@ -301,7 +301,7 @@ Section Server s1
   ; ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /unreg /AppID:{58fe03ca-9975-4df2-863e-a228614258c4}'
   ; Register the website 
 
-  ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /r /AppId={58fe03ca-9975-4df2-863e-a228614258c4} /path:"$INSTDIR\Plugins\Web Server\wwwroot" "/EndPoints:http://*:8081/" /ddoc:default.aspx /appname:"Open Source Automation" /apphost=SharedLocalSystem /clr:4 /vpath:"/"'
+  ;ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /r /AppId={58fe03ca-9975-4df2-863e-a228614258c4} /path:"$INSTDIR\Plugins\Web Server\wwwroot" "/EndPoints:http://*:8081/" /ddoc:default.aspx /appname:"Open Source Automation" /apphost=SharedLocalSystem /clr:4 /vpath:"/"'
   
   # Start Menu Shortcuts
   SetShellVarContext all

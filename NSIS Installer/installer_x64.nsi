@@ -14,7 +14,7 @@
 
   ;Name and file
   Name "Open Source Automation"
-  OutFile "OSA Setup v0.4.3_x64.exe"
+  OutFile "OSA Setup v0.5.0.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES64\OSA"
@@ -64,12 +64,12 @@ Section -Prerequisites
     ${If} ${DOTNETVER_4_0} HasDotNetFullProfile 1
       DetailPrint "Microsoft .NET Framework 4.0 (Full Profile) available."
     ${Else}
-      File "dotNetFx40_Full_setup.exe"
-      ExecWait "$INSTDIR\dotNetFx40_Full_setup.exe /q /norestart"
+      File "dotNetFx40_Full_x86_x64.exe"
+      ExecWait "$INSTDIR\dotNetFx40_Full_x86_x64.exe /q /norestart"
     ${EndIf}    
   ${Else}
-    File "dotNetFx40_Full_setup.exe"
-    ExecWait "$INSTDIR\dotNetFx40_Full_setup.exe /q /norestart"
+    File "dotNetFx40_Full_x86_x64.exe"
+    ExecWait "$INSTDIR\dotNetFx40_Full_x86_x64.exe /q /norestart"
   ${EndIf}         
   ReadRegStr $0 HKLM "SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x64" 'Installed'
   ${If} $0 == 1
@@ -83,7 +83,7 @@ Section -Prerequisites
   ${EndIf}
   endVC:
   
-  Delete "$INSTDIR\dotNetFx40_Full_setup.exe"
+  Delete "$INSTDIR\dotNetFx40_Full_x86_x64.exe"
    
 SectionEnd
 
@@ -107,22 +107,20 @@ Section Server s1
   ${AndIf} $1 != 0
   ${AndIf} $2 != 0
   ${AndIf} $3 != 0
-    SetOutPath "$INSTDIR"
-    File "..\DB\osae.sql"
-    File "MySql.Data.dll"
-    File "mysql-5.5.23-winx64.msi"
+    ;SetOutPath "$INSTDIR"
+    ;File "..\DB\osae.sql"
+    ;File "MySql.Data.dll"
+    DetailPrint "MySql must be pre-installed!"
+    ;File "mysql-5.5.23-winx64.msi"
     ;NSISdl::download_quiet http://dev.mysql.com/get/Downloads/MySQLInstaller/mysql-installer-community-5.6.10.1.msi/from/http://cdn.mysql.com/ "$INSTDIR\mysql-installer-community-5.6.10.1.msi"
-    ExecWait 'msiexec /q /log "$INSTDIR\MySQLINstall.log" /i mysql-5.5.23-winx64.msi installdir="$PROGRAMFILES64\MySql"'
-    SetOutPath "$PROGRAMFILES64\MySql"
-    ExecWait '"$PROGRAMFILES64\MySql\bin\mysqld.exe" --install MySQL --defaults-file="$PROGRAMFILES64\MySql\my.ini"'
-    ExecWait '"$PROGRAMFILES64\MySql\bin\MySQLInstanceConfig.exe" -i -q "-lc:mysql_install_log.txt" ServerType=DEVELOPMENT DatabaseType=MIXED ConnectionUsage=DSS Port=3306 RootPassword=password'
-    Delete "mysql-5.5.23-winx64.msi"
-    File "my.ini"
+    ;ExecWait 'msiexec /q /log "$INSTDIR\MySQLINstall.log" /i mysql-5.5.23-winx64.msi installdir="$PROGRAMFILES64\MySql"'
+    ;SetOutPath "$PROGRAMFILES64\MySql"
+    ;ExecWait '"$PROGRAMFILES64\MySql\bin\mysqld.exe" --install MySQL --defaults-file="$PROGRAMFILES64\MySql\my.ini"'
+    ;ExecWait '"$PROGRAMFILES64\MySql\bin\MySQLInstanceConfig.exe" -i -q "-lc:mysql_install_log.txt" ServerType=DEVELOPMENT DatabaseType=MIXED ConnectionUsage=DSS Port=3306 RootPassword=password'
+    ;Delete "mysql-5.5.23-winx64.msi"
+    ;File "my.ini"
     
-    SimpleSC::RestartService "MySql" "" 30
-    ExecWait '"$PROGRAMFILES64\MySql\bin\mysql" -uroot -ppassword --execute "CREATE USER `osae`@`%` IDENTIFIED BY $\'osaePass$\'";'
-    ExecWait '"$PROGRAMFILES64\MySql\bin\mysql" -uroot -ppassword --execute "GRANT ALL ON osae.* TO `osae`@`%`";'
-    ExecWait '"$PROGRAMFILES64\MySql\bin\mysql" -uroot -ppassword --execute "GRANT SUPER PRIVILEGES ON *.* TO `osae`@`%`";' 
+    ;SimpleSC::RestartService "MySql" "" 30
 
     Goto endMysql
   ${Else}
@@ -134,17 +132,18 @@ Section Server s1
     ${If} $1 == 4
       ExecWait "net start MySql"
     ${EndIf}
+
+    ExecWait '"$PROGRAMFILES64\MySql\bin\mysql" -uroot -ppassword --execute "CREATE USER `osae`@`%` IDENTIFIED BY $\'osaePass$\'";'
+    ExecWait '"$PROGRAMFILES64\MySql\bin\mysql" -uroot -ppassword --execute "GRANT ALL ON osae.* TO `osae`@`%`";'
+    ExecWait '"$PROGRAMFILES64\MySql\bin\mysql" -uroot -ppassword --execute "GRANT SUPER PRIVILEGES ON *.* TO `osae`@`%`";' 
+
   ${EndIf}
  
   endMysql: 
-    Delete "$INSTDIR\mysql-5.5.21-win32.msi"
   
   SetOutPath "$INSTDIR"  
   File "..\DB\osae.sql"
-  File "..\DB\0.3.9-0.4.0.sql"
-  File "..\DB\0.4.0-0.4.1.sql"
-  File "..\DB\0.4.1-0.4.2.sql"
-  File "..\DB\0.4.2-0.4.3.sql"
+  ;File "..\DB\0.4.2-0.4.3.sql"
   File "MySql.Data.dll"
   File "DBInstall\DBInstall\bin\Debug\DBInstall.exe"
   ExecWait 'DBInstall.exe "$INSTDIR" "Server"'
@@ -160,36 +159,37 @@ Section Server s1
   Delete "..\output\OSAE Manager.exe.config"
   
   File "..\output\ICSharpCode.SharpZipLib.dll"
+  File "..\output\NetworkCommsDotNetComplete.dll"
+  File "..\output\log4net.dll"
+  File "..\output\log4net.xml"
   File "..\output\MjpegProcessor.dll"
   File "..\output\OSAE.UI.Controls.dll"
   File "..\output\OSA.png"
   File "..\output\OSAE.Manager.exe"
   File "..\output\OSAE.Manager.exe.config"
-  File "..\output\LogViewer.exe"
   File "..\output\OSAE.api.dll"
-  File "..\output\OSAE.GUI.exe"
+  File "..\output\OSAE.Screens.exe"
   File "..\output\OSAEService.exe"
   File "..\output\OSAEService.exe.config"
+  File "..\output\ClientService.exe"
+  File "..\output\ClientService.exe.config"
   File "..\output\PluginDescriptionEditor.exe"
   File "..\output\OSAE.VR.exe"
-  CreateDirectory "Sounds"
-  CreateDirectory "Logs"
+  ;CreateDirectory "Sounds"
+  CreateDirectory "$APPDATA\Logs"
 
-  CreateDirectory "Plugins"
-  
-  
-  SetOutPath "$INSTDIR\Logs"
-  
+  CreateDirectory "$INSTDIR\Plugins"
   SetOutPath "$INSTDIR\Plugins"
-  CreateDirectory "Bluetooth"
-  CreateDirectory "Email"
-  CreateDirectory "Jabber"
-  CreateDirectory "Network Monitor"
-  CreateDirectory "Rest"
-  CreateDirectory "Script Processor"
-  CreateDirectory "Speech"
-  CreateDirectory "WUnderground"
-  CreateDirectory "Web Server"
+
+  CreateDirectory "$INSTDIR\Plugins\Bluetooth"
+  CreateDirectory "$INSTDIR\Plugins\Email"
+  CreateDirectory "$INSTDIR\Plugins\Jabber"
+  CreateDirectory "$INSTDIR\Plugins\Network Monitor"
+  CreateDirectory "$INSTDIR\Plugins\Rest"
+  CreateDirectory "$INSTDIR\Plugins\Script Processor"
+  CreateDirectory "$INSTDIR\Plugins\Speech"
+  CreateDirectory "$INSTDIR\Plugins\WUnderground"
+  CreateDirectory "$INSTDIR\Plugins\Web Server"
   
   SetOutPath "$INSTDIR\Plugins\Bluetooth"
   File "..\output\Plugins\Bluetooth\Bluetooth.osapd"
@@ -236,59 +236,55 @@ Section Server s1
   SetOutPath "$INSTDIR\Plugins\Web Server"
   File "..\output\Plugins\Web Server\Web Server.osapd"
   File "..\output\Plugins\Web Server\Screenshot.jpg"
-  CreateDirectory "wwwroot"
-    
+
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot"
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot"
-  File "..\WebUI\*.*"
-  CreateDirectory "bootstrap"
-  CreateDirectory "Bin"
-  CreateDirectory "mobile"
-  CreateDirectory "Images"
-  CreateDirectory "css"
-  CreateDirectory "js"
-  CreateDirectory "App_WebReferences"
+  File "..\output\Plugins\Web Server\wwwroot\*.*"
+
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\bootstrap"
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\Bin"
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\mobile"
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\Images"
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\css"
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\js"
+  ;CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\App_WebReferences"
   
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\bootstrap"
-  CreateDirectory "css"
-  CreateDirectory "js"
-  CreateDirectory "img"
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\bootstrap\css"
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\bootstrap\js"
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\bootstrap\img"
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\bootstrap\css"
-  File "..\WebUI\bootstrap\css\*.*"
+  File "..\output\Plugins\Web Server\wwwroot\bootstrap\css\*.*"
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\bootstrap\js"
-  File "..\WebUI\bootstrap\js\*.*"
+  File "..\output\Plugins\Web Server\wwwroot\bootstrap\js\*.*"
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\bootstrap\img"
-  File "..\WebUI\bootstrap\img\*.*"
+  File "..\output\Plugins\Web Server\wwwroot\bootstrap\img\*.*"
   
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\Bin"
-  File "..\WebUI\Bin\*.*"
+  File "..\output\Plugins\Web Server\wwwroot\Bin\*.*"
   
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\Images"
-  File "..\WebUI\Images\*.*"
+  File "..\output\Plugins\Web Server\wwwroot\Images\*.*"
   
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\mobile"
-  File "..\WebUI\mobile\*.*"
-  CreateDirectory "images"
+  File "..\output\Plugins\Web Server\wwwroot\mobile\*.*"
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\mobile\images"
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\mobile\images"
-  File "..\WebUI\mobile\images\*.*"
+  File "..\output\Plugins\Web Server\wwwroot\mobile\images\*.*"
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\mobile"
-  CreateDirectory "jquery"
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\mobile\jquery"
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\mobile\jquery"
-  File "..\WebUI\mobile\jquery\*.*"
-  CreateDirectory "images"
+  File "..\output\Plugins\Web Server\wwwroot\mobile\jquery\*.*"
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\mobile\jquery\images"
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\mobile\jquery\images"
-  File "..\WebUI\mobile\jquery\images\*.*"
+  File "..\output\Plugins\Web Server\wwwroot\mobile\jquery\images\*.*"
   
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\css"
-  File "..\WebUI\css\*.*"
+  File "..\output\Plugins\Web Server\wwwroot\css\*.*"
 
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\js"
-  File "..\WebUI\js\*.*"
+  File "..\output\Plugins\Web Server\wwwroot\js\*.*"
 
-  SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\App_WebReferences"
-  CreateDirectory "WCFServiceReference"
-  SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\App_WebReferences\WCFServiceReference"
-  File "..\WebUI\App_WebReferences\WCFServiceReference\*.*"
- 
   SimpleSC::ExistsService "UWS LoPriv Services"
   Pop $0
   
@@ -302,11 +298,11 @@ Section Server s1
   ; Unregister website to make sure no files are in use by webserver while upgrading 
   ; and to pick up any changes in how we register it now
 
-  ; DetailPrint "Unregistering Website"
-  ; ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /unreg /AppID:{58fe03ca-9975-4df2-863e-a228614258c4}'
+   DetailPrint "Unregistering Website"
+   ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /unreg /AppID:{58fe03ca-9975-4df2-863e-a228614258c4}'
   ; Register the website 
 
-  ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /r /AppId={58fe03ca-9975-4df2-863e-a228614258c4} /path:"$INSTDIR\Plugins\Web Server\wwwroot" "/EndPoints:http://*:8081/" /ddoc:default.aspx /appname:"Open Source Automation" /apphost=SharedLocalSystem /clr:4 /vpath:"/"'
+   ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /r /AppId={58fe03ca-9975-4df2-863e-a228614258c4} /path:"$INSTDIR\Plugins\Web Server\wwwroot" "/EndPoints:http://*:8081/" /ddoc:default.aspx /appname:"Open Source Automation" /apphost=SharedLocalSystem /clr:4 /vpath:"/"'
 
 
 
@@ -314,14 +310,14 @@ Section Server s1
   SetShellVarContext all
   CreateDirectory "$SMPROGRAMS\OSA"
   createShortCut "$SMPROGRAMS\OSA\Manager.lnk" "$INSTDIR\OSAE.Manager.exe"
-  createShortCut "$SMPROGRAMS\OSA\OSAE.GUI.lnk" "$INSTDIR\OSAE.GUI.exe"
+  createShortCut "$SMPROGRAMS\OSA\OSAE.Screens.lnk" "$INSTDIR\OSAE.Screens.exe"
 
   ${If} ${AtLeastWinVista}
     SetShellVarContext all
     ShellLink::SetRunAsAdministrator "$INSTDIR\OSAE.Manager.exe"
     ShellLink::SetRunAsAdministrator "$SMPROGRAMS\OSA\Manager.lnk"
-    ShellLink::SetRunAsAdministrator "$INSTDIR\OSAE.GUI.exe"
-    ShellLink::SetRunAsAdministrator "$SMPROGRAMS\OSA\OSAE.GUI.lnk"
+    ShellLink::SetRunAsAdministrator "$INSTDIR\OSAE.Screens.exe"
+    ShellLink::SetRunAsAdministrator "$SMPROGRAMS\OSA\OSAE.Screens.lnk"
     #Pop $0
   ${EndIf}          
   
@@ -339,8 +335,9 @@ Section Server s1
   !insertmacro APP_ASSOCIATE "osapp" "OSA.osapp" "Plugin Package" "$INSTDIR\OSAE Manager.exe,0" "Open" "$INSTDIR\OSAE Manager.exe $\"%1$\"" 
   !insertmacro UPDATEFILEASSOC    
   
-  AccessControl::GrantOnFile \
-    "$INSTDIR" "(BU)" "GenericRead + GenericWrite"
+  AccessControl::GrantOnFile "$INSTDIR" "(BU)" "GenericRead + GenericWrite"
+  AccessControl::GrantOnFile "$APPDATA\Logs" "(S-1-5-32-545)" "FullAccess"
+  AccessControl::GrantOnFile "$APPDATA\Logs\*" "(S-1-5-32-545)" "FullAccess"
       
   writeUninstaller $INSTDIR\uninstall.exe
   
@@ -372,18 +369,15 @@ Section Client s2
   File "..\output\OSAE.Manager.exe"
   File "..\output\OSAE.Manager.exe.config"
   File "..\output\OSAE.api.dll"
-  File "..\output\OSAE.GUI.exe"
+  File "..\output\OSAE.Screens.exe"
   File "..\output\ClientService.exe"
   File "..\output\ClientService.exe.config"
   File "..\output\PluginDescriptionEditor.exe"
   File "..\output\OSAE.VR.exe"
-  CreateDirectory "Sounds"
-  CreateDirectory "Logs"
-  CreateDirectory "Plugins"
-       
+
+  CreateDirectory "$INSTDIR\Plugins"
   SetOutPath "$INSTDIR\Plugins"
-  CreateDirectory "Speech"
-     
+  CreateDirectory "$INSTDIR\Plugins\Speech"
   SetOutPath "$INSTDIR\Plugins\Speech"
   File "..\output\Plugins\Speech\Speech.osapd"
   File "..\output\Plugins\Speech\OSAE.Speech.dll"
@@ -399,14 +393,14 @@ Section Client s2
   SetShellVarContext all
   CreateDirectory "$SMPROGRAMS\OSA"
   createShortCut "$SMPROGRAMS\OSA\Manager.lnk" "$INSTDIR\OSAE.Manager.exe"
-  createShortCut "$SMPROGRAMS\OSA\OSAE.GUI.lnk" "$INSTDIR\OSAE.GUI.exe"
+  createShortCut "$SMPROGRAMS\OSA\OSAE.Screens.lnk" "$INSTDIR\OSAE.Screens.exe"
 
   ${If} ${AtLeastWinVista}
     SetShellVarContext all
     ShellLink::SetRunAsAdministrator "$INSTDIR\OSAE.Manager.exe"
     ShellLink::SetRunAsAdministrator "$SMPROGRAMS\OSA\Manager.lnk"
-    ShellLink::SetRunAsAdministrator "$INSTDIR\OSAE.GUI.exe"
-    ShellLink::SetRunAsAdministrator "$SMPROGRAMS\OSA\OSAE.GUI.lnk"
+    ShellLink::SetRunAsAdministrator "$INSTDIR\OSAE.Screens.exe"
+    ShellLink::SetRunAsAdministrator "$SMPROGRAMS\OSA\OSAE.Screens.lnk"
     #Pop $0
   ${EndIf}  
   
@@ -451,7 +445,7 @@ Section "Uninstall"
   Delete "$INSTDIR\Uninstall.exe"
   Delete "$SMPROGRAMS\OSA\Manager.lnk"
   Delete "$SMPROGRAMS\OSA\Uninstall.lnk"
-  Delete "$SMPROGRAMS\OSA\OSAE.GUI.lnk"
+  Delete "$SMPROGRAMS\OSA\OSAE.Screens.lnk"
   Delete "$SMPROGRAMS\OSA\DevTools.lnk"
   RMDir /r "$SMPROGRAMS\OSA"
   !insertmacro APP_UNASSOCIATE "osapd" "OSA.osapd"
