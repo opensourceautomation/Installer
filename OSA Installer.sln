@@ -352,7 +352,7 @@ Global
 		{2CC7929F-9540-4845-954B-39A15C7FB56D}.Combined|arm.ActiveCfg = Debug|x86
 		{2CC7929F-9540-4845-954B-39A15C7FB56D}.Combined|ia64.ActiveCfg = Debug|x86
 		{2CC7929F-9540-4845-954B-39A15C7FB56D}.Combined|Itanium.ActiveCfg = Debug|x86
-		{2CC7929F-9540-4845-954B-39A15C7FB56D}.Combined|Mixed Platforms.ActiveCfg = Combined|x64
+		{2CC7929F-9540-4845-954B-39A15C7FB56D}.Combined|Mixed Platforms.ActiveCfg = Combined|x86
 		{2CC7929F-9540-4845-954B-39A15C7FB56D}.Combined|Win32.ActiveCfg = Debug|x86
 		{2CC7929F-9540-4845-954B-39A15C7FB56D}.Combined|x64.ActiveCfg = Debug|x86
 		{2CC7929F-9540-4845-954B-39A15C7FB56D}.Combined|x86.ActiveCfg = Debug|x86

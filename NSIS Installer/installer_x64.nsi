@@ -14,7 +14,7 @@
 
   ;Name and file
   Name "Open Source Automation"
-  OutFile "OSA Setup v0.5.0.exe"
+  OutFile "OSA Setup v0.4.4.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES64\OSA"
@@ -243,6 +243,7 @@ Section Server s1
 
   CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\bootstrap"
   CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\Bin"
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\controls"
   CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\mobile"
   CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\Images"
   CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\css"
@@ -262,6 +263,9 @@ Section Server s1
   
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\Bin"
   File "..\output\Plugins\Web Server\wwwroot\Bin\*.*"
+
+  SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\controls"
+  File "..\output\Plugins\Web Server\wwwroot\controls\*.*"
   
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\Images"
   File "..\output\Plugins\Web Server\wwwroot\Images\*.*"
@@ -290,18 +294,20 @@ Section Server s1
   
   ${If} $0 != 0
   SetOutPath $INSTDIR
-    File "UltiDev.WebServer.msi"
+    ;File "UltiDev.WebServer.msi"
+    File "UltiDev Web Server Setup.exe"
 
     DetailPrint "Installing UltiDev Web Server Pro"
-    ExecWait 'msiexec.exe /passive /i "$INSTDIR\UltiDev.WebServer.msi"'
+    ExecWait "$INSTDIR\UltiDev Web Server Setup.exe"
+    ;ExecWait 'msiexec.exe /passive /i "$INSTDIR\UltiDev Web Server Setup.msi"'
   ${EndIf} 
+
   ; Unregister website to make sure no files are in use by webserver while upgrading 
   ; and to pick up any changes in how we register it now
-
    DetailPrint "Unregistering Website"
    ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /unreg /AppID:{58fe03ca-9975-4df2-863e-a228614258c4}'
-  ; Register the website 
 
+  ; Register the website 
    ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /r /AppId={58fe03ca-9975-4df2-863e-a228614258c4} /path:"$INSTDIR\Plugins\Web Server\wwwroot" "/EndPoints:http://*:8081/" /ddoc:default.aspx /appname:"Open Source Automation" /apphost=SharedLocalSystem /clr:4 /vpath:"/"'
 
 

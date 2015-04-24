@@ -366,12 +366,13 @@
             lb_Progress.Visible = true;
             installationProgressBar.Visible = true;
 
-            session.Log("Upgrading...");
+            
             string[] version = current.Split('.');
             int major = Int32.Parse(version[0]);
             int minor = Int32.Parse(version[1]);
             int bug = Int32.Parse(version[2]);
-
+            session.Log("-----------------------------------------------------------------");
+            session.Log("Upgrading from v" + current + ".  Looking in " + directory + " for upgrade scripts...");
             string[] updateScripts = Directory.GetFiles(directory, @"*.sql", SearchOption.TopDirectoryOnly);
             List<string> scripts = new List<string>();
             
