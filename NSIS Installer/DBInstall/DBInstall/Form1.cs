@@ -18,8 +18,8 @@ namespace DBInstall
     {
         string directory = "";
         string existing = "";
-        string current = "0.1.0";
-        string newVersion = "0.4.2";
+        string current = "0.4.4";
+        string newVersion = "0.4.5";
         string machine = "";
         MySqlConnection connection;
 
@@ -66,7 +66,7 @@ namespace DBInstall
                         adapter = new MySqlDataAdapter(command);
                         adapter.Fill(dataset);
                         if (dataset.Tables[0].Rows[0][0].ToString() == "")
-                            current = "0.1.0";
+                            current = "0.4.4";
                         else
                             current = dataset.Tables[0].Rows[0][0].ToString();
                         if (current == newVersion)

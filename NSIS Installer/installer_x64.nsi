@@ -14,7 +14,7 @@
 
   ;Name and file
   Name "Open Source Automation"
-  OutFile "OSA Setup v0.4.4.exe"
+  OutFile "OSA Setup v0.4.5.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES64\OSA"
@@ -143,7 +143,7 @@ Section Server s1
   
   SetOutPath "$INSTDIR"  
   File "..\DB\osae.sql"
-  ;File "..\DB\0.4.2-0.4.3.sql"
+  ;File "..\DB\0.4.4-0.4.5.sql"
   File "MySql.Data.dll"
   File "DBInstall\DBInstall\bin\Debug\DBInstall.exe"
   ExecWait 'DBInstall.exe "$INSTDIR" "Server"'
@@ -299,18 +299,15 @@ Section Server s1
 
     DetailPrint "Installing UltiDev Web Server Pro"
     ExecWait "$INSTDIR\UltiDev Web Server Setup.exe"
-    ;ExecWait 'msiexec.exe /passive /i "$INSTDIR\UltiDev Web Server Setup.msi"'
+
+    ; Unregister website to make sure no files are in use by webserver while upgrading 
+    ; and to pick up any changes in how we register it now
+    ;DetailPrint "Unregistering Website"
+    ;ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /unreg /AppID:{58fe03ca-9975-4df2-863e-a228614258c4}'
+
+    ; Register the website 
+    ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /r /AppId={58fe03ca-9975-4df2-863e-a228614258c4} /path:"$INSTDIR\Plugins\Web Server\wwwroot" "/EndPoints:http://*:8081/" /ddoc:default.aspx /appname:"Open Source Automation" /apphost=SharedLocalSystem /clr:4 /vpath:"/"'
   ${EndIf} 
-
-  ; Unregister website to make sure no files are in use by webserver while upgrading 
-  ; and to pick up any changes in how we register it now
-   DetailPrint "Unregistering Website"
-   ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /unreg /AppID:{58fe03ca-9975-4df2-863e-a228614258c4}'
-
-  ; Register the website 
-   ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /r /AppId={58fe03ca-9975-4df2-863e-a228614258c4} /path:"$INSTDIR\Plugins\Web Server\wwwroot" "/EndPoints:http://*:8081/" /ddoc:default.aspx /appname:"Open Source Automation" /apphost=SharedLocalSystem /clr:4 /vpath:"/"'
-
-
 
   # Start Menu Shortcuts
   SetShellVarContext all
