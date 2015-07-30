@@ -18,8 +18,8 @@ namespace DBInstall
     {
         string directory = "";
         string existing = "";
-        string current = "0.4.4";
-        string newVersion = "0.4.5";
+        string current = "0.4.5";
+        string newVersion = "0.4.6";
         string machine = "";
         MySqlConnection connection;
 
@@ -44,7 +44,7 @@ namespace DBInstall
                 {
                     connection.Open();
                     // osae user found and connection succeeded.  Now Check for DB.
-
+                    addToLog("Connected to MySQL Server.");
                     MySqlCommand command;
                     MySqlDataAdapter adapter;
                     DataSet dataset = new DataSet();
@@ -88,7 +88,6 @@ namespace DBInstall
                         script.Execute();
                         connection.Close();
                         this.Close();
-                    
                     }
                 }
                 catch(Exception ex)
@@ -97,10 +96,10 @@ namespace DBInstall
                     addToLog("Unable to connect with osae account: " + ex.Message);
 
                     ServiceController sc = new ServiceController();
-                    if(IsServiceInstalled("MySql55"))
-                        sc = new ServiceController("MySql55");
-                    else if (IsServiceInstalled("MySQL55"))
-                        sc = new ServiceController("MySQL55");
+                    if(IsServiceInstalled("MySql56"))
+                        sc = new ServiceController("MySql56");
+                    else if (IsServiceInstalled("MySQL56"))
+                        sc = new ServiceController("MySQL56");
                     else if (IsServiceInstalled("MySql"))
                         sc = new ServiceController("MySql");
                     else if (IsServiceInstalled("MySQL"))

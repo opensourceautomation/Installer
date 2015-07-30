@@ -14,7 +14,7 @@
 
   ;Name and file
   Name "Open Source Automation"
-  OutFile "OSA Setup v0.4.5.exe"
+  OutFile "OSA Setup v0.4.6.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES64\OSA"
@@ -64,12 +64,12 @@ Section -Prerequisites
     ${If} ${DOTNETVER_4_0} HasDotNetFullProfile 1
       DetailPrint "Microsoft .NET Framework 4.0 (Full Profile) available."
     ${Else}
-      File "dotNetFx40_Full_x86_x64.exe"
-      ExecWait "$INSTDIR\dotNetFx40_Full_x86_x64.exe /q /norestart"
+      File "dotNetFx40_Full_setup.exe"
+      ExecWait "$INSTDIR\dotNetFx40_Full_setup.exe /q /norestart"
     ${EndIf}    
   ${Else}
-    File "dotNetFx40_Full_x86_x64.exe"
-    ExecWait "$INSTDIR\dotNetFx40_Full_x86_x64.exe /q /norestart"
+    File "dotNetFx40_Full_setup.exe"
+    ExecWait "$INSTDIR\dotNetFx40_Full_setup.exe /q /norestart"
   ${EndIf}         
   ReadRegStr $0 HKLM "SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x64" 'Installed'
   ${If} $0 == 1
@@ -107,17 +107,22 @@ Section Server s1
   ${AndIf} $1 != 0
   ${AndIf} $2 != 0
   ${AndIf} $3 != 0
-    ;SetOutPath "$INSTDIR"
-    ;File "..\DB\osae.sql"
-    ;File "MySql.Data.dll"
-    DetailPrint "MySql must be pre-installed!"
-    ;File "mysql-5.5.23-winx64.msi"
-    ;NSISdl::download_quiet http://dev.mysql.com/get/Downloads/MySQLInstaller/mysql-installer-community-5.6.10.1.msi/from/http://cdn.mysql.com/ "$INSTDIR\mysql-installer-community-5.6.10.1.msi"
-    ;ExecWait 'msiexec /q /log "$INSTDIR\MySQLINstall.log" /i mysql-5.5.23-winx64.msi installdir="$PROGRAMFILES64\MySql"'
-    ;SetOutPath "$PROGRAMFILES64\MySql"
-    ;ExecWait '"$PROGRAMFILES64\MySql\bin\mysqld.exe" --install MySQL --defaults-file="$PROGRAMFILES64\MySql\my.ini"'
-    ;ExecWait '"$PROGRAMFILES64\MySql\bin\MySQLInstanceConfig.exe" -i -q "-lc:mysql_install_log.txt" ServerType=DEVELOPMENT DatabaseType=MIXED ConnectionUsage=DSS Port=3306 RootPassword=password'
-    ;Delete "mysql-5.5.23-winx64.msi"
+    SetOutPath "$INSTDIR"
+    File "..\DB\osae.sql"
+    File "MySql.Data.dll"
+    DetailPrint "*** Installing MySql! ***"
+    File "mysql-installer-web-community-5.6.26.0.msi"
+    ExecWait 'msiexec /i mysql-installer-web-community-5.6.26.0.msi /qn'
+    ExecWait '"$PROGRAMFILES\MySql\MySQL Installer for Windows\MySQLInstallerConsole.exe" community install server;5.6.26;x64:*:port=3306;passwd=password -silent'
+    ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\mysql" -uroot -ppassword --execute "CREATE USER `osae`@`%` IDENTIFIED BY $\'osaePass$\'";'
+    ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\mysql" -uroot -ppassword --execute "GRANT ALL ON osae.* TO `osae`@`%`";'
+    ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\mysql" -uroot -ppassword --execute "GRANT SUPER ON *.* TO `osae`@`%`";' 
+    ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\mysql" -uroot -ppassword --execute "FLUSH PRIVILEGES";' 
+
+    ;SetOutPath "$PROGRAMFILES64\MySql\mysql server 5.6"
+    ;ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\mysqld.exe" --install MySQL --defaults-file="$PROGRAMFILES64\MySql\my.ini"'
+    ;ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\MySQLInstanceConfig.exe" -i -q "-lc:mysql_install_log.txt" ServerType=DEVELOPMENT DatabaseType=MIXED ConnectionUsage=DSS Port=3306 RootPassword=password'
+    Delete "mysql-installer-web-community-5.6.26.0.msi"
     ;File "my.ini"
     
     ;SimpleSC::RestartService "MySql" "" 30
@@ -130,13 +135,12 @@ Section Server s1
     Pop $1 ; return the status of the service (See "service_status" in the parameters)
     
     ${If} $1 == 4
-      ExecWait "net start MySql"
+      ;ExecWait "net start MySql"
     ${EndIf}
 
-    ExecWait '"$PROGRAMFILES64\MySql\bin\mysql" -uroot -ppassword --execute "CREATE USER `osae`@`%` IDENTIFIED BY $\'osaePass$\'";'
-    ExecWait '"$PROGRAMFILES64\MySql\bin\mysql" -uroot -ppassword --execute "GRANT ALL ON osae.* TO `osae`@`%`";'
-    ExecWait '"$PROGRAMFILES64\MySql\bin\mysql" -uroot -ppassword --execute "GRANT SUPER PRIVILEGES ON *.* TO `osae`@`%`";' 
-
+    ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\mysql" -uroot -ppassword --execute "CREATE USER `osae`@`%` IDENTIFIED BY $\'osaePass$\'";'
+    ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\mysql" -uroot -ppassword --execute "GRANT ALL ON osae.* TO `osae`@`%`";'
+    ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\mysql" -uroot -ppassword --execute "GRANT SUPER ON *.* TO `osae`@`%`";' 
   ${EndIf}
  
   endMysql: 
@@ -168,6 +172,7 @@ Section Server s1
   File "..\output\OSAE.Manager.exe"
   File "..\output\OSAE.Manager.exe.config"
   File "..\output\OSAE.api.dll"
+  File "..\output\OSAE.api.dll.config"
   File "..\output\OSAE.Screens.exe"
   File "..\output\OSAEService.exe"
   File "..\output\OSAEService.exe.config"
@@ -241,6 +246,11 @@ Section Server s1
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot"
   File "..\output\Plugins\Web Server\wwwroot\*.*"
 
+
+  ; Unregister website to make sure no files are in use by webserver while upgrading and to pick up any changes in how we register it now
+  DetailPrint "Unregistering Website"
+  ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /unreg /AppID:{58fe03ca-9975-4df2-863e-a228614258c4}'
+
   CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\bootstrap"
   CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\Bin"
   CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\controls"
@@ -294,20 +304,14 @@ Section Server s1
   
   ${If} $0 != 0
   SetOutPath $INSTDIR
-    ;File "UltiDev.WebServer.msi"
-    File "UltiDev Web Server Setup.exe"
-
     DetailPrint "Installing UltiDev Web Server Pro"
+    File "UltiDev Web Server Setup.exe"
     ExecWait "$INSTDIR\UltiDev Web Server Setup.exe"
-
-    ; Unregister website to make sure no files are in use by webserver while upgrading 
-    ; and to pick up any changes in how we register it now
-    ;DetailPrint "Unregistering Website"
-    ;ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /unreg /AppID:{58fe03ca-9975-4df2-863e-a228614258c4}'
-
-    ; Register the website 
-    ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /r /AppId={58fe03ca-9975-4df2-863e-a228614258c4} /path:"$INSTDIR\Plugins\Web Server\wwwroot" "/EndPoints:http://*:8081/" /ddoc:default.aspx /appname:"Open Source Automation" /apphost=SharedLocalSystem /clr:4 /vpath:"/"'
   ${EndIf} 
+
+
+  ; Register the website 
+  ExecWait '"$PROGRAMFILES64\UltiDev\Web Server\UWS.RegApp.exe" /r /AppId={58fe03ca-9975-4df2-863e-a228614258c4} /path:"$INSTDIR\Plugins\Web Server\wwwroot" "/EndPoints:http://*:8081/" /ddoc:default.aspx /appname:"Open Source Automation" /apphost=SharedLocalSystem /clr:4 /vpath:"/"'
 
   # Start Menu Shortcuts
   SetShellVarContext all
@@ -372,6 +376,7 @@ Section Client s2
   File "..\output\OSAE.Manager.exe"
   File "..\output\OSAE.Manager.exe.config"
   File "..\output\OSAE.api.dll"
+  File "..\output\OSAE.api.dll.config"
   File "..\output\OSAE.Screens.exe"
   File "..\output\ClientService.exe"
   File "..\output\ClientService.exe.config"
