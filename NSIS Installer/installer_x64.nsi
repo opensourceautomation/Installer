@@ -14,7 +14,7 @@
 
   ;Name and file
   Name "Open Source Automation"
-  OutFile "OSA Setup v0.4.6.exe"
+  OutFile "OSA Setup v0.4.7.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES64\OSA"
@@ -52,13 +52,14 @@
 ;Install Types
   InstType "Server"
   InstType "Client"
+  InstType "UIs"
   InstType /NOCUSTOM
 
 ;Installer Sections
  
 ; These are the programs that are needed by OSA.
 Section -Prerequisites
-  SectionIn 1 2
+  SectionIn 1 2 3
   SetOutPath $INSTDIR
   ${If} ${HasDotNet4.0}
     ${If} ${DOTNETVER_4_0} HasDotNetFullProfile 1
@@ -94,60 +95,32 @@ Section Server s1
   
   SetOutPath $INSTDIR
   
-  SimpleSC::ExistsService "MySql"
-  Pop $0
-  SimpleSC::ExistsService "MySql55"
-  Pop $1
   SimpleSC::ExistsService "MySQL"
+  Pop $0
+  SimpleSC::ExistsService "MySQL56"
+  Pop $1
+  SimpleSC::ExistsService "MySQL57"
   Pop $2
-  SimpleSC::ExistsService "MySql56"
-  Pop $3
   
   ${If} $0 != 0
   ${AndIf} $1 != 0
   ${AndIf} $2 != 0
-  ${AndIf} $3 != 0
-    SetOutPath "$INSTDIR"
-    File "..\DB\osae.sql"
-    File "MySql.Data.dll"
-    DetailPrint "*** Installing MySql! ***"
-    File "mysql-installer-web-community-5.6.26.0.msi"
-    ExecWait 'msiexec /i mysql-installer-web-community-5.6.26.0.msi /qn'
-    ExecWait '"$PROGRAMFILES\MySql\MySQL Installer for Windows\MySQLInstallerConsole.exe" community install server;5.6.26;x64:*:port=3306;passwd=password -silent'
-    ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\mysql" -uroot -ppassword --execute "CREATE USER `osae`@`%` IDENTIFIED BY $\'osaePass$\'";'
-    ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\mysql" -uroot -ppassword --execute "GRANT ALL ON osae.* TO `osae`@`%`";'
-    ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\mysql" -uroot -ppassword --execute "GRANT SUPER ON *.* TO `osae`@`%`";' 
-    ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\mysql" -uroot -ppassword --execute "FLUSH PRIVILEGES";' 
-
-    ;SetOutPath "$PROGRAMFILES64\MySql\mysql server 5.6"
-    ;ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\mysqld.exe" --install MySQL --defaults-file="$PROGRAMFILES64\MySql\my.ini"'
-    ;ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\MySQLInstanceConfig.exe" -i -q "-lc:mysql_install_log.txt" ServerType=DEVELOPMENT DatabaseType=MIXED ConnectionUsage=DSS Port=3306 RootPassword=password'
-    Delete "mysql-installer-web-community-5.6.26.0.msi"
-    ;File "my.ini"
-    
-    ;SimpleSC::RestartService "MySql" "" 30
-
-    Goto endMysql
+    MessageBox MB_OK "*** Sorry! You MUST Install MySQL Before Installing OSA ***" IDOK lbl_ok1 
+    lbl_ok1:
+      GoTo lblDone
   ${Else}
-    DetailPrint "MySql is already installed!"
+    DetailPrint "MySql is already installed, Great!"
     SimpleSC::GetServiceStatus "MyService"
     Pop $0 ; returns an errorcode (<>0) otherwise success (0)
     Pop $1 ; return the status of the service (See "service_status" in the parameters)
-    
-    ${If} $1 == 4
-      ;ExecWait "net start MySql"
-    ${EndIf}
 
-    ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\mysql" -uroot -ppassword --execute "CREATE USER `osae`@`%` IDENTIFIED BY $\'osaePass$\'";'
-    ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\mysql" -uroot -ppassword --execute "GRANT ALL ON osae.* TO `osae`@`%`";'
-    ExecWait '"$PROGRAMFILES64\MySql\mysql server 5.6\bin\mysql" -uroot -ppassword --execute "GRANT SUPER ON *.* TO `osae`@`%`";' 
   ${EndIf}
  
   endMysql: 
   
   SetOutPath "$INSTDIR"  
   File "..\DB\osae.sql"
-  ;File "..\DB\0.4.4-0.4.5.sql"
+  File "..\DB\0.4.6-0.4.7.sql"
   File "MySql.Data.dll"
   File "DBInstall\DBInstall\bin\Debug\DBInstall.exe"
   ExecWait 'DBInstall.exe "$INSTDIR" "Server"'
@@ -174,14 +147,31 @@ Section Server s1
   File "..\output\OSAE.api.dll"
   File "..\output\OSAE.api.dll.config"
   File "..\output\OSAE.Screens.exe"
+  File "..\output\OSAE.Screens.exe.config"
   File "..\output\OSAEService.exe"
+  File "..\output\OSAE.VR.exe"
   File "..\output\OSAEService.exe.config"
   File "..\output\ClientService.exe"
   File "..\output\ClientService.exe.config"
   File "..\output\PluginDescriptionEditor.exe"
-  File "..\output\OSAE.VR.exe"
-  ;CreateDirectory "Sounds"
+  File "..\output\PluginDescriptionEditor.exe.config"
+  File "..\output\UserControlDescriptionEditor.exe"
+  File "..\output\UserControlDescriptionEditor.exe.config"
   CreateDirectory "$APPDATA\Logs"
+  CreateDirectory "$INSTDIR\UserControls"
+  CreateDirectory "$INSTDIR\UserControls\Weather Control"
+  SetOutPath "$INSTDIR\UserControls\Weather Control"
+  File "..\output\UserControls\Weather Control\install.sql"
+  File "..\output\UserControls\Weather Control\Screenshot.jpg"
+  File "..\output\UserControls\Weather Control\Weather.osaud"
+  File "..\output\UserControls\Weather Control\Weather_Control.dll"
+
+  CreateDirectory "$INSTDIR\UserControls\MyStateButton"
+  SetOutPath "$INSTDIR\UserControls\MyStateButton"
+  File "..\output\UserControls\MyStateButton\install.sql"
+  File "..\output\UserControls\MyStateButton\Screenshot.jpg"
+  File "..\output\UserControls\MyStateButton\MyStateButton.osaud"
+  File "..\output\UserControls\MyStateButton\MyStateButton.dll"
 
   CreateDirectory "$INSTDIR\Plugins"
   SetOutPath "$INSTDIR\Plugins"
@@ -190,6 +180,7 @@ Section Server s1
   CreateDirectory "$INSTDIR\Plugins\Email"
   CreateDirectory "$INSTDIR\Plugins\Jabber"
   CreateDirectory "$INSTDIR\Plugins\Network Monitor"
+  CreateDirectory "$INSTDIR\Plugins\PowerShell"
   CreateDirectory "$INSTDIR\Plugins\Rest"
   CreateDirectory "$INSTDIR\Plugins\Script Processor"
   CreateDirectory "$INSTDIR\Plugins\Speech"
@@ -217,6 +208,17 @@ Section Server s1
   File "..\output\Plugins\Network Monitor\Network Monitor.osapd"
   File "..\output\Plugins\Network Monitor\OSAE.NetworkMonitor.dll"
   File "..\output\Plugins\Network Monitor\Screenshot.jpg"
+
+  SetOutPath "$INSTDIR\Plugins\PowerShell"
+  File "..\output\Plugins\PowerShell\PowerShell.osapd"
+  File "..\output\Plugins\PowerShell\Google.GData.AccessControl.DLL"
+  File "..\output\Plugins\PowerShell\Google.GData.Calendar.dll"
+  File "..\output\Plugins\PowerShell\Google.GData.Client.dll"
+  File "..\output\Plugins\PowerShell\Google.GData.Extensions.dll"
+  File "..\output\Plugins\PowerShell\NMALib.dll"
+  File "..\output\Plugins\PowerShell\OSAE.PowerShellProcessor.dll"
+  File "..\output\Plugins\PowerShell\Screenshot.jpg"
+  File "..\output\Plugins\PowerShell\System.Management.Automation.dll"
 
   SetOutPath "$INSTDIR\Plugins\Rest"
   File "..\output\Plugins\Rest\Rest.osapd"
@@ -254,11 +256,13 @@ Section Server s1
   CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\bootstrap"
   CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\Bin"
   CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\controls"
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\controls\usercontrols"
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\controls\usercontrols\MyStateButton"
+  CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\controls\usercontrols\WeatherControl"
   CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\mobile"
   CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\Images"
   CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\css"
   CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\js"
-  ;CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\App_WebReferences"
   
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\bootstrap"
   CreateDirectory "$INSTDIR\Plugins\Web Server\wwwroot\bootstrap\css"
@@ -276,6 +280,12 @@ Section Server s1
 
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\controls"
   File "..\output\Plugins\Web Server\wwwroot\controls\*.*"
+
+  SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\controls\usercontrols\MyStateButton"
+  File "..\output\Plugins\Web Server\wwwroot\controls\usercontrols\MyStateButton\*.*"
+
+  SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\controls\usercontrols\WeatherControl"
+  File "..\output\Plugins\Web Server\wwwroot\controls\usercontrols\WeatherControl\*.*"
   
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\Images"
   File "..\output\Plugins\Web Server\wwwroot\Images\*.*"
@@ -369,20 +379,29 @@ Section Client s2
   Delete "..\output\OSAE Manager.exe.config"
   
   File "..\output\ICSharpCode.SharpZipLib.dll"
+  File "..\output\NetworkCommsDotNetComplete.dll"
+  File "..\output\log4net.dll"
+  File "..\output\log4net.xml"
   File "..\output\MjpegProcessor.dll"
   File "..\output\OSAE.UI.Controls.dll"
   File "..\output\OSA.png"
-  File "MySql.Data.dll"
+  File "..\output\MySql.Data.dll"
   File "..\output\OSAE.Manager.exe"
   File "..\output\OSAE.Manager.exe.config"
   File "..\output\OSAE.api.dll"
   File "..\output\OSAE.api.dll.config"
   File "..\output\OSAE.Screens.exe"
+  File "..\output\OSAE.Screens.exe.config"
+  File "..\output\OSAE.VR.exe"
   File "..\output\ClientService.exe"
   File "..\output\ClientService.exe.config"
   File "..\output\PluginDescriptionEditor.exe"
+  File "..\output\PluginDescriptionEditor.exe.config"
+  File "..\output\UserControlDescriptionEditor.exe"
+  File "..\output\UserControlDescriptionEditor.exe.config"
   File "..\output\OSAE.VR.exe"
 
+  CreateDirectory "$INSTDIR\UserControls"
   CreateDirectory "$INSTDIR\Plugins"
   SetOutPath "$INSTDIR\Plugins"
   CreateDirectory "$INSTDIR\Plugins\Speech"
@@ -443,6 +462,74 @@ Section Client s2
     GoTo lblDone
     lblDone:
 SectionEnd
+
+
+Section UIOnly s3
+  SectionIn 3
+ 
+  SetRegView 64 
+    
+  SetOutPath "$INSTDIR"
+  
+  File "..\output\ICSharpCode.SharpZipLib.dll"
+  File "..\output\NetworkCommsDotNetComplete.dll"
+  File "..\output\log4net.dll"
+  File "..\output\log4net.xml"
+  File "..\output\MjpegProcessor.dll"
+  File "..\output\OSAE.UI.Controls.dll"
+  File "..\output\OSA.png"
+  File "..\output\MySql.Data.dll"
+  File "..\output\OSAE.api.dll"
+  File "..\output\OSAE.api.dll.config"
+  File "..\output\OSAE.Screens.exe"
+  File "..\output\OSAE.VR.exe"
+  File "..\output\ClientService.exe"
+  File "..\output\ClientService.exe.config"
+  File "..\output\PluginDescriptionEditor.exe"
+  File "..\output\OSAE.VR.exe"
+
+  CreateDirectory "$INSTDIR\UserControls"
+  CreateDirectory "$INSTDIR\UserControls\Weather Control"
+  SetOutPath "$INSTDIR\UserControls\Weather Control"
+  File "..\output\UserControls\Weather Control\install.sql"
+  File "..\output\UserControls\Weather Control\Screenshot.jpg"
+  File "..\output\UserControls\Weather Control\Weather.osaud"
+  File "..\output\UserControls\Weather Control\Weather_Control.dll"
+
+  CreateDirectory "$INSTDIR\UserControls\MyStateButton"
+  SetOutPath "$INSTDIR\UserControls\MyStateButton"
+  File "..\output\UserControls\MyStateButton\install.sql"
+  File "..\output\UserControls\MyStateButton\Screenshot.jpg"
+  File "..\output\UserControls\MyStateButton\MyStateButton.osaud"
+  File "..\output\UserControls\MyStateButton\MyStateButton.dll"
+
+  # Start Menu Shortcuts
+  SetShellVarContext all
+  CreateDirectory "$SMPROGRAMS\OSA"
+  createShortCut "$SMPROGRAMS\OSA\OSAE.Screens.lnk" "$INSTDIR\OSAE.Screens.exe"
+
+  ${If} ${AtLeastWinVista}
+    SetShellVarContext all
+    ShellLink::SetRunAsAdministrator "$INSTDIR\OSAE.Screens.exe"
+    ShellLink::SetRunAsAdministrator "$SMPROGRAMS\OSA\OSAE.Screens.lnk"
+    #Pop $0
+  ${EndIf}  
+  
+  WriteRegStr HKLM "SOFTWARE\OSAE\DBSETTINGS" "INSTALLDIR" "$INSTDIR"
+  WriteRegStr HKLM "SOFTWARE\OSAE\DBSETTINGS" "DBNAME" "osae"
+  WriteRegStr HKLM "SOFTWARE\OSAE\DBSETTINGS" "DBUSERNAME" "osae"
+  WriteRegStr HKLM "SOFTWARE\OSAE\DBSETTINGS" "DBPASSWORD" "osaePass"
+  
+  !insertmacro APP_ASSOCIATE "osapd" "OSA.osapd" "Plugin Description" "$INSTDIR\PluginDescriptionEditor.exe,0" "Open" "$INSTDIR\PluginDescriptionEditor.exe $\"%1$\""  
+  !insertmacro APP_ASSOCIATE "osapp" "OSA.osapp" "Plugin Package" "$INSTDIR\PluginInstaller.exe,0" "Open" "$INSTDIR\OSAE Manager.exe $\"%1$\"" 
+  !insertmacro UPDATEFILEASSOC    
+  
+  AccessControl::GrantOnFile \
+    "$INSTDIR" "(BU)" "GenericRead + GenericWrite"
+  
+  writeUninstaller $INSTDIR\uninstall.exe
+SectionEnd
+
 
 ;--------------------------------
 ;Uninstaller Section

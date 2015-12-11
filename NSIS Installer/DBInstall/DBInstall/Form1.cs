@@ -18,8 +18,8 @@ namespace DBInstall
     {
         string directory = "";
         string existing = "";
-        string current = "0.4.5";
-        string newVersion = "0.4.6";
+        string current = "0.4.6";
+        string newVersion = "0.4.7";
         string machine = "";
         MySqlConnection connection;
 
@@ -37,94 +37,103 @@ namespace DBInstall
 
             if (machine == "Server")
             {
+                // txbxLocation.Text =
+                if (File.Exists(Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.7\\bin\\mysql"))
+                    txbxLocation.Text = Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.7\\bin\\mysql";
+                else if (File.Exists(Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.6\\bin\\mysql"))
+                    txbxLocation.Text = Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.6\\bin\\mysql";
+                else if (File.Exists(Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\bin\\mysql"))
+                    txbxLocation.Text = Environment.GetEnvironmentVariable("ProgramFiles")  + "\\MySQL\\bin\\mysql";
+                else
+                    txbxLocation.Text = "Unknown, you must browse for it!";
+
                 string ConnectionString = string.Format("Uid={0};Password={1};Server={2};Port={3};", "osae", "osaePass", "localhost", "3306");
 
-                connection = new MySqlConnection(ConnectionString);
-                try
-                {
-                    connection.Open();
-                    // osae user found and connection succeeded.  Now Check for DB.
-                    addToLog("Connected to MySQL Server.");
-                    MySqlCommand command;
-                    MySqlDataAdapter adapter;
-                    DataSet dataset = new DataSet();
-                    command = new MySqlCommand("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'osae'", connection);
-                    adapter = new MySqlDataAdapter(command);
-                    adapter.Fill(dataset);
-                    connection.Close();
-                    int count = dataset.Tables[0].Rows.Count;
-
-                    if (count == 1)
+                    connection = new MySqlConnection(ConnectionString);
+                    try
                     {
-                        // DB found.  Need to upgrade.  First find out current version.
-                        addToLog("Found OSA database.  Checking to see if we need to upgrade.");
-                        dataset = new DataSet();
-                        ConnectionString = string.Format("Uid={0};Pwd={1};Server={2};Port={3};Database={4};allow user variables=true", "osae", "osaePass", "localhost", "3306", "osae");
-                        connection = new MySqlConnection(ConnectionString);
                         connection.Open();
-                        command = new MySqlCommand("select property_value from osae_object_property p inner join osae_object_type_property tp on p.object_type_property_id = tp.property_id inner join osae_object o on o.object_id = p.object_id where object_name = 'SYSTEM' and property_name = 'DB Version'", connection);
+                        // osae user found and connection succeeded.  Now Check for DB.
+                        addToLog("Connected to MySQL Server.");
+                        MySqlCommand command;
+                        MySqlDataAdapter adapter;
+                        DataSet dataset = new DataSet();
+                        command = new MySqlCommand("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'osae'", connection);
                         adapter = new MySqlDataAdapter(command);
                         adapter.Fill(dataset);
-                        if (dataset.Tables[0].Rows[0][0].ToString() == "")
-                            current = "0.4.4";
-                        else
-                            current = dataset.Tables[0].Rows[0][0].ToString();
-                        if (current == newVersion)
+                        connection.Close();
+                        int count = dataset.Tables[0].Rows.Count;
+
+                        if (count == 1)
                         {
+                            // DB found.  Need to upgrade.  First find out current version.
+                            addToLog("Found OSA database.  Checking to see if we need to upgrade.");
+                            dataset = new DataSet();
+                            ConnectionString = string.Format("Uid={0};Pwd={1};Server={2};Port={3};Database={4};allow user variables=true", "osae", "osaePass", "localhost", "3306", "osae");
+                            connection = new MySqlConnection(ConnectionString);
+                            connection.Open();
+                            command = new MySqlCommand("select property_value from osae_object_property p inner join osae_object_type_property tp on p.object_type_property_id = tp.property_id inner join osae_object o on o.object_id = p.object_id where object_name = 'SYSTEM' and property_name = 'DB Version'", connection);
+                            adapter = new MySqlDataAdapter(command);
+                            adapter.Fill(dataset);
+                            if (dataset.Tables[0].Rows[0][0].ToString() == "")
+                                current = "0.4.7";
+                            else
+                                current = dataset.Tables[0].Rows[0][0].ToString();
+                            if (current == newVersion)
+                            {
+                                this.Close();
+                            }
+                            else
+                            {
+                                lblFoundDB.Text = "Found version " + current + "\nClick button to upgrade to v" + newVersion;
+                                btnInstall.Text = "Upgrade";
+                            }
+
+                        }
+                        else
+                        {
+                            // DB not found.  Need to install.
+                            addToLog("No OSA database found.  We need to install it.");
+                            MySqlScript script = new MySqlScript(connection, File.ReadAllText(directory + "\\osae.sql"));
+                            script.Execute();
+                            connection.Close();
                             this.Close();
                         }
-                        else
-                        {
-                            lblFoundDB.Text = "Found version " + current + "\nClick button to upgrade to v" + newVersion;
-                            btnInstall.Text = "Upgrade";
-                        }
-
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        // DB not found.  Need to install.
-                        addToLog("No OSA database found.  We need to install it.");
-                        MySqlScript script = new MySqlScript(connection, File.ReadAllText(directory + "\\osae.sql"));
-                        script.Execute();
-                        connection.Close();
-                        this.Close();
-                    }
-                }
-                catch(Exception ex)
-                {
-                    // osae user not found.  Must be an existing mySql install without OSA installed.  Need to ask for root password.
-                    addToLog("Unable to connect with osae account: " + ex.Message);
+                        // osae user not found.  Must be an existing mySql install without OSA installed.  Need to ask for root password.
+                        addToLog("Unable to connect with osae account: " + ex.Message);
 
-                    ServiceController sc = new ServiceController();
-                    if(IsServiceInstalled("MySql56"))
-                        sc = new ServiceController("MySql56");
-                    else if (IsServiceInstalled("MySQL56"))
-                        sc = new ServiceController("MySQL56");
-                    else if (IsServiceInstalled("MySql"))
-                        sc = new ServiceController("MySql");
-                    else if (IsServiceInstalled("MySQL"))
-                        sc = new ServiceController("MySQL");
+                        ServiceController sc = new ServiceController();
+                        if (IsServiceInstalled("MySQL56"))
+                            sc = new ServiceController("MySQL56");
+                        else if (IsServiceInstalled("MySQL57"))
+                            sc = new ServiceController("MySQL57");
+                        else if (IsServiceInstalled("MySQL"))
+                            sc = new ServiceController("MySQL");
 
                     if (sc.Status != ServiceControllerStatus.Running)
-                    {
-                        addToLog("MySql service is not running!");
-                        lblFoundDB.Text = "The MySql service is not running.  \nPlease make sure it is running and run the \nOpen Source Automation installer again.";
-                        btnInstall.Text = "Close";
-                    }
-                    else
-                    {
-                        btnInstall.Text = "OK";
-                        lbl1.Visible = true;
-                        lbl2.Visible = true;
-                        label1.Visible = true;
-                        txbPassword.Visible = true;
-                        txbUsername.Visible = true;
-                        txbxLocation.Visible = true;
-                        btnOpenFile.Visible = true;
-                        lblFoundDB.Text = "Existing MySql Server found. \nPlease enter your root password and \nspecify location of mysql.exe. Usually \nC:\\Program Files\\MySql\\bin\\mysql";
+                        {
+                            addToLog("MySql service is not running!");
+                            lblFoundDB.Text = "The MySql service is not running.  \nPlease make sure it is running and run the \nOpen Source Automation installer again.";
+                            btnInstall.Text = "Close";
+                        }
+                        else
+                        {
+                            btnInstall.Text = "OK";
+                            lbl1.Visible = true;
+                            lbl2.Visible = true;
+                            label1.Visible = true;
+                            txbPassword.Visible = true;
+                            txbUsername.Visible = true;
+                            txbxLocation.Visible = true;
+                            btnOpenFile.Visible = true;
+                            lblFoundDB.Text = "Existing MySql Server found. \nPlease enter your root password and \nverify location of mysql.exe.";
+
+                        }
                     }
                 }
-            }
             else
             {
                 label1.Visible = false;
@@ -157,7 +166,7 @@ namespace DBInstall
             // try to find service name
             foreach (ServiceController service in services)
             {
-                if (service.ServiceName == serviceName)
+                if (service.ServiceName.ToLower() == serviceName.ToLower())
                     return true;
             }
             return false;
@@ -175,13 +184,13 @@ namespace DBInstall
                 else if (btnInstall.Text == "OK")
                 {
                     string mysqlDir = "", iniDir = "";
-                    if (txbxLocation.Text != "")
+                    if (txbxLocation.Text != "Unknown, you must browse for it!" && txbxLocation.Text != "")
                     {
                         mysqlDir = txbxLocation.Text;
                     }
                     else
                     {
-                        mysqlDir = ProgramFilesx86() + "\\MySql\\bin\\mysql";
+                        mysqlDir = Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.7\\bin\\mysql";
                     }
 
                     //iniDir = mysqlDir.Substring(0, mysqlDir.IndexOf("bin")-1);
@@ -196,7 +205,6 @@ namespace DBInstall
                     Process p = Process.Start(mysqlDir, args);
                     p.WaitForExit();
 
-
                     string ConnectionString = string.Format("Uid={0};Password={1};Server={2};Port={3}", txbUsername.Text, txbPassword.Text, "localhost", "3306");
                     connection = new MySqlConnection(ConnectionString);
                     MySqlCommand command;
@@ -209,6 +217,14 @@ namespace DBInstall
                     int count = dataset.Tables[0].Rows.Count;
 
                     args = " -u" + txbUsername.Text + " -p" + txbPassword.Text + " --execute \"GRANT ALL ON osae.* TO `osae`@`%`\";";
+                    p = Process.Start(mysqlDir, args);
+                    p.WaitForExit();
+
+                    args = " -u" + txbUsername.Text + " -p" + txbPassword.Text + " --execute \"UPDATE mysql.user SET Super_Priv=\'Y\' WHERE user=\'osae\'\";";
+                    p = Process.Start(mysqlDir, args);
+                    p.WaitForExit();
+
+                    args = " -u" + txbUsername.Text + " -p" + txbPassword.Text + " --execute \"FLUSH PRIVILEGES\";";
                     p = Process.Start(mysqlDir, args);
                     p.WaitForExit();
 
@@ -283,17 +299,6 @@ namespace DBInstall
 
         #region Methods
         
-        static string ProgramFilesx86()
-        {
-            if( 8 == IntPtr.Size 
-                || (!String.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"))))
-            {
-                return Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-            }
-
-            return Environment.GetEnvironmentVariable("ProgramFiles");
-        }
-
         private void upgrade()
         {
             addToLog("Upgrading...");
