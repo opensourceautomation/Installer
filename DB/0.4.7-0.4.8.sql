@@ -785,5 +785,8 @@ AS
 
 CALL osae_sp_object_type_property_add('PERSON','PIN','Password','','',0);
 CALL osae_sp_object_type_property_add('GUI CLIENT','Debug','Boolean','','FALSE',0);
-
+CALL osae_sp_object_type_add ('CONTROL USER SELECTOR','Control - User Selector','','CONTROL',0,1,0,1);
+CALL osae_sp_object_type_property_add('CONTROL USER SELECTOR','X','Integer','','',0);
+CALL osae_sp_object_type_property_add('CONTROL USER SELECTOR','Y','Integer','','',0);
+CALL osae_sp_object_type_property_add('CONTROL USER SELECTOR','ZOrder','Integer','','',0);
 
