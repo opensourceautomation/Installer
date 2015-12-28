@@ -768,7 +768,54 @@ DECLARE vDebugTrace VARCHAR(2000);
 END
 $$
 
-DELIMITER ;
+
+--
+-- Alter event "osae_ev_off_timer"
+--
+ALTER EVENT osae_ev_off_timer
+	DO 
+BEGIN
+  DECLARE vObjectName  VARCHAR(200);
+  DECLARE iLoopCount   INT DEFAULT 0;
+  DECLARE iMethodCount INT DEFAULT 0;
+  DECLARE iStateCount  INT DEFAULT 0;
+  DECLARE done         INT DEFAULT 0;
+  DECLARE cur1 CURSOR FOR SELECT object_name FROM osae_v_object_property WHERE state_name <> 'OFF' AND property_name = 'OFF TIMER' AND property_value IS NOT NULL AND property_value <> '' AND property_value <> '0' AND subtime(now(), sec_to_time(property_value)) > object_last_updated;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+  DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done = 1;
+  CALL osae_sp_object_property_set('SYSTEM', 'Time', curtime(), 'SYSTEM', 'osae_ev_off_timer');
+  CALL osae_sp_object_property_set('SYSTEM', 'Time AMPM', DATE_FORMAT(now(), '%h:%i %p'), 'SYSTEM', 'osae_ev_off_timer');
+  CALL osae_sp_system_process_methods();
+  CALL osae_sp_system_count_room_occupants();
+  CALL osae_sp_system_count_plugins();
+  #SELECT count(object_name) INTO iLoopCount FROM osae_v_object_property WHERE state_name <> 'OFF' AND property_name = 'OFF TIMER' AND property_value IS NOT NULL AND property_value <> '' AND subtime(now(), sec_to_time(property_value)) > object_last_updated;
+  OPEN cur1;
+
+Loop_Tag:
+  LOOP
+    FETCH cur1 INTO vObjectName;
+    IF done THEN
+      LEAVE Loop_Tag;
+    END IF;
+    SELECT count(method_id) INTO iMethodCount FROM osae_v_object_method WHERE upper(object_name) = upper(vObjectName) AND upper(method_name) = 'OFF';
+    IF iMethodCount > 0 THEN
+      CALL osae_sp_debug_log_add(concat('Turning ', vObjectName, ' Off'), 'osae_ev_off_timer');
+      CALL osae_sp_method_queue_add(vObjectName, 'OFF', '', '', 'SYSTEM', 'osae_ev_off_timer');
+    ELSE
+      SELECT count(state_id) INTO iStateCount FROM osae_v_object_state WHERE upper(object_name) = upper(vObjectName) AND upper(state_name) = 'OFF';
+      IF iStateCount > 0 THEN
+        CALL osae_sp_debug_log_add(concat('Turning ', vObjectName, ' Off'), 'osae_ev_off_timer');
+        CALL osae_sp_object_state_set(vObjectName, 'OFF', 'SYSTEM', 'osae_ev_off_timer');
+      END IF;
+    END IF;
+  END LOOP;
+  CLOSE cur1;
+
+  SELECT count(method_id) INTO iMethodCount FROM osae_v_object_method;
+END
+$$
+
+
 
 --
 -- Alter view "osae_v_object"
@@ -777,6 +824,10 @@ CREATE OR REPLACE
 VIEW osae_v_object
 AS
 	select `osae_object`.`object_id` AS `object_id`,`osae_object`.`object_name` AS `object_name`,`osae_object`.`object_alias` AS `object_alias`,`osae_object`.`object_description` AS `object_description`,`osae_object`.`object_value` AS `object_value`,`osae_object`.`address` AS `address`,`osae_object`.`last_updated` AS `last_updated`,`osae_object`.`last_state_change` AS `last_state_change`,`osae_object`.`min_trust_level` AS `min_trust_level`,`osae_object`.`enabled` AS `enabled`,`osae_object_type`.`object_type_id` AS `object_type_id`,`osae_object_type`.`object_type` AS `object_type`,`osae_object_type`.`object_type_description` AS `object_type_description`,`osae_object_type`.`plugin_object_id` AS `plugin_object_id`,`osae_object_type`.`system_hidden` AS `system_hidden`,`osae_object_type`.`object_type_owner` AS `object_type_owner`,`osae_object_type`.`base_type_id` AS `base_type_id`,`osae_object_type`.`container` AS `container`,`osae_object_type_state`.`state_id` AS `state_id`,coalesce(`osae_object_type_state`.`state_name`,'') AS `state_name`,coalesce(`osae_object_type_state`.`state_label`,'') AS `state_label`,`objects_2`.`object_name` AS `owned_by`,`object_types_2`.`object_type` AS `base_type`,`objects_1`.`object_name` AS `container_name`,`osae_object`.`container_id` AS `container_id`,timestampdiff(SECOND,`osae_object`.`last_state_change`,now()) AS `time_in_state` from (((((`osae_object` left join `osae_object_type` on((`osae_object`.`object_type_id` = `osae_object_type`.`object_type_id`))) left join `osae_object_type` `object_types_2` on((`osae_object_type`.`base_type_id` = `object_types_2`.`object_type_id`))) left join `osae_object` `objects_2` on((`osae_object_type`.`plugin_object_id` = `objects_2`.`object_id`))) left join `osae_object_type_state` on(((`osae_object_type`.`object_type_id` = `osae_object_type_state`.`object_type_id`) and (`osae_object_type_state`.`state_id` = `osae_object`.`state_id`)))) left join `osae_object` `objects_1` on((`objects_1`.`object_id` = `osae_object`.`container_id`)));
+$$
+
+DELIMITER ;
+
 
 --
 -- Enable foreign keys
@@ -791,3 +842,5 @@ CALL osae_sp_object_type_property_add('CONTROL USER SELECTOR','X','Integer','','
 CALL osae_sp_object_type_property_add('CONTROL USER SELECTOR','Y','Integer','','',0);
 CALL osae_sp_object_type_property_add('CONTROL USER SELECTOR','ZOrder','Integer','','',0);
 
+UPDATE osae_object_type_property SET property_default = '0' WHERE property_datatype = 'Integer' and (property_default = '' or property_default IS NULL);
+UPDATE osae_object_property SET property_value = '0' where (property_value IS NULL or property_value = '') and object_type_property_id IN (SELECT property_id FROM osae_object_type_property WHERE property_datatype = 'Integer');
