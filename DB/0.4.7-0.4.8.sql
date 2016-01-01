@@ -1,4 +1,5 @@
 
+
 --
 -- Disable foreign keys
 --
@@ -843,4 +844,6 @@ CALL osae_sp_object_type_property_add('CONTROL USER SELECTOR','Y','Integer','','
 CALL osae_sp_object_type_property_add('CONTROL USER SELECTOR','ZOrder','Integer','','',0);
 
 UPDATE osae_object_type_property SET property_default = '0' WHERE property_datatype = 'Integer' and (property_default = '' or property_default IS NULL);
+UPDATE osae_object_type_property SET property_default = '-1' WHERE property_datatype = 'Integer' and property_name = "Off Timer" and (property_default = '' or property_default = "0" or property_default IS NULL);
 UPDATE osae_object_property SET property_value = '0' where (property_value IS NULL or property_value = '') and object_type_property_id IN (SELECT property_id FROM osae_object_type_property WHERE property_datatype = 'Integer');
+UPDATE osae_object_property SET property_value = '-1' where (property_value IS NULL or property_value = '' or property_value = '0') and object_type_property_id IN (SELECT property_id FROM osae_object_type_property WHERE UPPER(property_name) = 'OFF TIMER');
