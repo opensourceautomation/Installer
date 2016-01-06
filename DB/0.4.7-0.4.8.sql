@@ -8,6 +8,7 @@
 USE osae;
 
 
+
 --
 -- Alter table "osae_images"
 --
@@ -213,6 +214,64 @@ END
 $$
 
 --
+-- Alter procedure "osae_sp_object_export"
+--
+DROP PROCEDURE osae_sp_object_export$$
+CREATE PROCEDURE osae_sp_object_export(IN objectName VARCHAR(255))
+BEGIN
+  DECLARE vObjectName VARCHAR(255);
+  DECLARE vDescription VARCHAR(200);
+  DECLARE vObjectType VARCHAR(200);
+  DECLARE vAddress VARCHAR(200);
+  DECLARE vContainer VARCHAR(200);
+  DECLARE vItemName VARCHAR(2000);
+  DECLARE vItemLabel VARCHAR(2000);
+  DECLARE vEnabled INT;
+  DECLARE vProcResults INT;
+  DECLARE vMinTrustLevel INT;
+
+  DECLARE vPropertyName VARCHAR(200);
+  DECLARE vPropertyValue VARCHAR(2000);
+
+  DECLARE vResults TEXT;
+  DECLARE v_finished BOOL; 
+
+  DECLARE property_cursor CURSOR FOR SELECT property_name,COALESCE(property_value,'') AS property_value FROM osae_v_object_property WHERE (UPPER(object_name)=UPPER(objectName) OR UPPER(object_name)=UPPER(objectName)) AND property_datatype != "List";
+  DECLARE property_list_cursor CURSOR FOR SELECT property_name,COALESCE(item_name,'') AS item_name,COALESCE(item_label,'') AS item_label FROM osae_v_object_property_array WHERE (UPPER(object_name)=UPPER(objectName) OR UPPER(object_name)=UPPER(objectName)) AND property_datatype = "List";
+
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_finished = TRUE;
+
+  #SET vObjectType = CONCAT(objectName,'2');
+  SELECT object_name,object_description,object_type,COALESCE(address,''),COALESCE(container_name,''),min_trust_level,enabled INTO vObjectName,vDescription,vObjectType,vAddress,vContainer,vMinTrustLevel,vEnabled FROM osae_v_object WHERE (UPPER(object_name)=UPPER(objectName) OR UPPER(object_name)=UPPER(objectName));
+  SET vResults = CONCAT('CALL osae_sp_object_add (\'', REPLACE(vObjectName,'\'','\\\''),'\',\'',REPLACE(vDescription,'\'','\\\''),'\',\'',REPLACE(vObjectType,'\'','\\\''),'\',\'',vAddress,'\',\'',REPLACE(vContainer,'\'','\\\''),'\',',vMinTrustLevel,',',vEnabled,',@results);','\r\n');
+
+  OPEN property_cursor;
+  get_properties: LOOP
+    SET v_finished = FALSE;
+    FETCH property_cursor INTO vPropertyName,vPropertyValue;
+    IF v_finished THEN 
+      LEAVE get_properties;
+    END IF;
+    SET vResults = CONCAT(vResults,'CALL osae_sp_object_property_set(\'',REPLACE(vObjectName,'\'','\\\''),'\',\'',REPLACE(vPropertyName,'\'','\\\''),'\',\'',REPLACE(vPropertyValue,'\'','\\\''),'\',\'SYSTEM\',\'Import\');','\r\n');
+  END LOOP get_properties;
+  CLOSE property_cursor;
+
+  OPEN property_list_cursor;
+  get_properties_list: LOOP
+    SET v_finished = FALSE;
+    FETCH property_list_cursor INTO vPropertyName,vItemName,vItemLabel;
+    IF v_finished THEN 
+      LEAVE get_properties_list;
+    END IF;
+    SET vResults = CONCAT(vResults,'CALL osae_sp_object_property_array_add(\'',REPLACE(vObjectName,'\'','\\\''),'\',\'',REPLACE(vPropertyName,'\'','\\\''),'\',\'',REPLACE(vItemName,'\'','\\\''),'\',\'',vItemLabel,'\');','\r\n');
+  END LOOP get_properties_list;
+  CLOSE property_list_cursor;
+
+ SELECT vResults; 
+END
+$$
+
+--
 -- Create procedure "osae_sp_object_export_all"
 --
 CREATE PROCEDURE osae_sp_object_export_all()
@@ -242,7 +301,7 @@ $$
 -- Alter procedure "osae_sp_object_property_set"
 --
 DROP PROCEDURE osae_sp_object_property_set$$
-CREATE PROCEDURE osae.osae_sp_object_property_set(IN pname varchar(200), IN pproperty varchar(200), IN pvalue varchar(4000), IN pfromobject varchar(200), IN pdebuginfo varchar(2000))
+CREATE PROCEDURE osae_sp_object_property_set(IN pname varchar(200), IN pproperty varchar(200), IN pvalue varchar(4000), IN pfromobject varchar(200), IN pdebuginfo varchar(2000))
 BEGIN
 DECLARE vObjectID INT DEFAULT 0;
 DECLARE vObjectCount INT DEFAULT 0;
@@ -276,7 +335,7 @@ END IF;
             SELECT property_value INTO vNewTrustLevel FROM osae_v_object_property WHERE UPPER(object_name)=UPPER(pfromobject) AND UPPER(property_name)='TRUST LEVEL';
             SELECT property_id,COALESCE(property_value,'') INTO vPropertyID, vPropertyValue FROM osae_v_object_property WHERE (UPPER(object_name)=UPPER(pname) OR UPPER(object_alias)=UPPER(pname)) AND UPPER(property_name)=UPPER(pproperty) AND (property_value IS NULL OR property_value != pvalue);
             #Insert Trust Level Rejection Code Here, maybe shppech command until converstaion tracking is in
-            IF vNewTrustLevel > vMinTrustLevel THEN
+            IF vNewTrustLevel >= vMinTrustLevel THEN
                 UPDATE osae_object_property SET property_value=pvalue,trust_level=vNewTrustLevel,source_name=pfromobject,interest_level=0 WHERE object_id=vObjectID AND object_type_property_id=vPropertyID;
                 #Updating a property is causing nesting because of the following line.   Maybe last updated needs to be a property.
                 #UPDATE osae_object SET last_updated=NOW() WHERE object_id=vObjectID;            
@@ -291,6 +350,113 @@ END IF;
             END IF;
         END IF;
     END IF; 
+END
+$$
+
+--
+-- Alter procedure "osae_sp_object_type_export"
+--
+DROP PROCEDURE osae_sp_object_type_export$$
+CREATE PROCEDURE osae_sp_object_type_export(IN pObjectType VARCHAR(255))
+BEGIN
+  DECLARE vObjectType VARCHAR(200);
+  DECLARE vResults TEXT;
+  DECLARE vDescription VARCHAR(200);
+  DECLARE vOwner VARCHAR(200);
+  DECLARE vBaseType VARCHAR(200);
+  DECLARE vTypeOwner INT;
+  DECLARE vSystemType INT;
+  DECLARE vContainer INT;
+  DECLARE vHideRedundant INT;
+  DECLARE v_finished INT; 
+  DECLARE vName VARCHAR(200);
+  DECLARE vLabel VARCHAR(200);
+  DECLARE vParam1Name VARCHAR(200);
+  DECLARE vParam1Default VARCHAR(200);
+  DECLARE vParam2Name VARCHAR(200);
+  DECLARE vParam2Default VARCHAR(200);
+  DECLARE vDataType VARCHAR(200);
+  DECLARE vDefault VARCHAR(200);
+  DECLARE vTrackHistory VARCHAR(200);
+  DECLARE vPropertyObjectType VARCHAR(200);
+  DECLARE vPropertyOption VARCHAR(200);
+
+  DECLARE state_cursor CURSOR FOR SELECT state_name,state_label FROM osae_v_object_type_state WHERE object_type=vObjectType;
+  DECLARE event_cursor CURSOR FOR SELECT event_name,event_label FROM osae_v_object_type_event WHERE object_type=vObjectType;
+  DECLARE method_cursor CURSOR FOR SELECT method_name,method_label,param_1_label,param_1_default,param_2_label,param_2_default FROM osae_v_object_type_method WHERE object_type=vObjectType;
+  DECLARE property_cursor CURSOR FOR SELECT property_name,property_datatype,property_default,property_object_type,track_history FROM osae_v_object_type_property WHERE object_type=vObjectType;
+  DECLARE property_option_cursor CURSOR FOR SELECT option_name FROM osae_v_object_type_property_option WHERE object_type=vObjectType and property_name=vname;
+
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_finished = TRUE;
+
+  #SET vObjectType = CONCAT(objectName,'2');
+
+  SELECT object_type,object_type_description,COALESCE(object_name,''),base_type,object_type_owner,system_hidden,container,hide_redundant_events INTO vObjectType,vDescription,vOwner,vBaseType,vTypeOwner,vSystemType,vContainer,vHideRedundant FROM osae_v_object_type WHERE object_type=pObjectType;
+  SET vResults = CONCAT('CALL osae_sp_object_type_add (\'', REPLACE(vObjectType,'\'','\\\''),'\',\'',REPLACE(vDescription,'\'','\\\''),'\',\'',vOwner,'\',\'',vBaseType,'\',',vTypeOwner,',', vSystemType,',',vContainer,',',vHideRedundant,');','\r\n');
+
+  OPEN state_cursor;
+    get_states: LOOP
+    SET v_finished = FALSE;
+      FETCH state_cursor INTO vName,vLabel;
+      IF v_finished THEN 
+        LEAVE get_states;
+      END IF;
+      SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_state_add(\'',REPLACE(vObjectType,'\'','\\\''),'\',\'',REPLACE(vName,'\'','\\\''),'\',\'',REPLACE(vLabel,'\'','\\\''),'\');','\r\n');
+    END LOOP get_states;
+  CLOSE state_cursor;
+
+
+  OPEN event_cursor;
+  get_events: LOOP
+    SET v_finished = FALSE;
+    FETCH event_cursor INTO vName,vLabel;
+    IF v_finished THEN 
+      LEAVE get_events;
+    END IF;
+    SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_event_add(\'',REPLACE(vObjectType,'\'','\\\''),'\',\'',REPLACE(vName,'\'','\\\''),'\',\'',REPLACE(vLabel,'\'','\\\''),'\');','\r\n');
+  END LOOP get_events;
+  CLOSE event_cursor;
+
+  OPEN method_cursor;
+  get_methods: LOOP
+    SET v_finished = FALSE;
+    FETCH method_cursor INTO vName,vLabel,vParam1Name,vParam1Default,vParam2Name,vParam2Default;
+    IF v_finished THEN 
+      LEAVE get_methods;
+    END IF;
+    SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_method_add(\'',REPLACE(vObjectType,'\'','\\\''),'\',\'',REPLACE(vName,'\'','\\\''),'\',\'',REPLACE(vLabel,'\'','\\\''),'\',\'',vParam1Name,'\',\'',vParam2Name,'\',\'',vParam1Default,'\',\'',vParam2Default,'\');','\r\n');
+  END LOOP get_methods;
+  CLOSE method_cursor;
+  SET v_finished = 0;
+
+  OPEN property_cursor;
+  get_properties: LOOP
+    SET v_finished = FALSE;
+    FETCH property_cursor INTO vName,vDataType,vDefault,vPropertyObjectType,vTrackHistory;
+    IF v_finished THEN 
+      LEAVE get_properties;
+    END IF;
+    SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_property_add(\'',REPLACE(vObjectType,'\'','\\\''),'\',\'',REPLACE(vName,'\'','\\\''),'\',\'',vDataType,'\',\'',vPropertyObjectType,'\',\'',vDefault,'\',',vTrackHistory,');','\r\n');
+  
+    OPEN property_option_cursor;
+    get_property_options: LOOP
+      SET v_finished = FALSE;
+      FETCH property_option_cursor INTO vPropertyOption;
+      IF v_finished THEN
+        SET v_finished := false;
+        LEAVE get_property_options;
+      END IF;
+      SET vResults = CONCAT(vResults,'CALL osae_sp_object_type_property_option_add(\'',REPLACE(vObjectType,'\'','\\\''),'\',\'',REPLACE(vName,'\'','\\\''),'\',\'',vPropertyOption,'\');','\r\n');
+ 
+    END LOOP get_property_options;
+    CLOSE property_option_cursor;
+  
+  
+  
+  END LOOP get_properties;
+  CLOSE property_cursor;
+
+  SELECT vResults;
 END
 $$
 
@@ -769,6 +935,17 @@ DECLARE vDebugTrace VARCHAR(2000);
 END
 $$
 
+DELIMITER ;
+
+--
+-- Alter view "osae_v_object"
+--
+CREATE OR REPLACE 
+VIEW osae_v_object
+AS
+	select `osae_object`.`object_id` AS `object_id`,`osae_object`.`object_name` AS `object_name`,`osae_object`.`object_alias` AS `object_alias`,`osae_object`.`object_description` AS `object_description`,`osae_object`.`object_value` AS `object_value`,`osae_object`.`address` AS `address`,`osae_object`.`last_updated` AS `last_updated`,`osae_object`.`last_state_change` AS `last_state_change`,`osae_object`.`min_trust_level` AS `min_trust_level`,`osae_object`.`enabled` AS `enabled`,`osae_object_type`.`object_type_id` AS `object_type_id`,`osae_object_type`.`object_type` AS `object_type`,`osae_object_type`.`object_type_description` AS `object_type_description`,`osae_object_type`.`plugin_object_id` AS `plugin_object_id`,`osae_object_type`.`system_hidden` AS `system_hidden`,`osae_object_type`.`object_type_owner` AS `object_type_owner`,`osae_object_type`.`base_type_id` AS `base_type_id`,`osae_object_type`.`container` AS `container`,`osae_object_type_state`.`state_id` AS `state_id`,coalesce(`osae_object_type_state`.`state_name`,'') AS `state_name`,coalesce(`osae_object_type_state`.`state_label`,'') AS `state_label`,`objects_2`.`object_name` AS `owned_by`,`object_types_2`.`object_type` AS `base_type`,`objects_1`.`object_name` AS `container_name`,`osae_object`.`container_id` AS `container_id`,timestampdiff(SECOND,`osae_object`.`last_state_change`,now()) AS `time_in_state` from (((((`osae_object` left join `osae_object_type` on((`osae_object`.`object_type_id` = `osae_object_type`.`object_type_id`))) left join `osae_object_type` `object_types_2` on((`osae_object_type`.`base_type_id` = `object_types_2`.`object_type_id`))) left join `osae_object` `objects_2` on((`osae_object_type`.`plugin_object_id` = `objects_2`.`object_id`))) left join `osae_object_type_state` on(((`osae_object_type`.`object_type_id` = `osae_object_type_state`.`object_type_id`) and (`osae_object_type_state`.`state_id` = `osae_object`.`state_id`)))) left join `osae_object` `objects_1` on((`objects_1`.`object_id` = `osae_object`.`container_id`)));
+
+DELIMITER $$
 
 --
 -- Alter event "osae_ev_off_timer"
@@ -781,7 +958,7 @@ BEGIN
   DECLARE iMethodCount INT DEFAULT 0;
   DECLARE iStateCount  INT DEFAULT 0;
   DECLARE done         INT DEFAULT 0;
-  DECLARE cur1 CURSOR FOR SELECT object_name FROM osae_v_object_property WHERE state_name <> 'OFF' AND property_name = 'OFF TIMER' AND property_value IS NOT NULL AND property_value <> '' AND property_value <> '0' AND subtime(now(), sec_to_time(property_value)) > object_last_updated;
+  DECLARE cur1 CURSOR FOR SELECT object_name FROM osae_v_object_property WHERE state_name <> 'OFF' AND property_name = 'OFF TIMER' AND property_value IS NOT NULL AND property_value <> '' AND property_value <> '-1' AND subtime(now(), sec_to_time(property_value)) > object_last_updated;
   DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
   DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done = 1;
   CALL osae_sp_object_property_set('SYSTEM', 'Time', curtime(), 'SYSTEM', 'osae_ev_off_timer');
@@ -816,24 +993,14 @@ Loop_Tag:
 END
 $$
 
-
-
---
--- Alter view "osae_v_object"
---
-CREATE OR REPLACE 
-VIEW osae_v_object
-AS
-	select `osae_object`.`object_id` AS `object_id`,`osae_object`.`object_name` AS `object_name`,`osae_object`.`object_alias` AS `object_alias`,`osae_object`.`object_description` AS `object_description`,`osae_object`.`object_value` AS `object_value`,`osae_object`.`address` AS `address`,`osae_object`.`last_updated` AS `last_updated`,`osae_object`.`last_state_change` AS `last_state_change`,`osae_object`.`min_trust_level` AS `min_trust_level`,`osae_object`.`enabled` AS `enabled`,`osae_object_type`.`object_type_id` AS `object_type_id`,`osae_object_type`.`object_type` AS `object_type`,`osae_object_type`.`object_type_description` AS `object_type_description`,`osae_object_type`.`plugin_object_id` AS `plugin_object_id`,`osae_object_type`.`system_hidden` AS `system_hidden`,`osae_object_type`.`object_type_owner` AS `object_type_owner`,`osae_object_type`.`base_type_id` AS `base_type_id`,`osae_object_type`.`container` AS `container`,`osae_object_type_state`.`state_id` AS `state_id`,coalesce(`osae_object_type_state`.`state_name`,'') AS `state_name`,coalesce(`osae_object_type_state`.`state_label`,'') AS `state_label`,`objects_2`.`object_name` AS `owned_by`,`object_types_2`.`object_type` AS `base_type`,`objects_1`.`object_name` AS `container_name`,`osae_object`.`container_id` AS `container_id`,timestampdiff(SECOND,`osae_object`.`last_state_change`,now()) AS `time_in_state` from (((((`osae_object` left join `osae_object_type` on((`osae_object`.`object_type_id` = `osae_object_type`.`object_type_id`))) left join `osae_object_type` `object_types_2` on((`osae_object_type`.`base_type_id` = `object_types_2`.`object_type_id`))) left join `osae_object` `objects_2` on((`osae_object_type`.`plugin_object_id` = `objects_2`.`object_id`))) left join `osae_object_type_state` on(((`osae_object_type`.`object_type_id` = `osae_object_type_state`.`object_type_id`) and (`osae_object_type_state`.`state_id` = `osae_object`.`state_id`)))) left join `osae_object` `objects_1` on((`objects_1`.`object_id` = `osae_object`.`container_id`)));
-$$
-
 DELIMITER ;
-
 
 --
 -- Enable foreign keys
 --
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+
+CALL osae_sp_object_property_set('SYSTEM','DB Version','047','SYSTEM','');
 
 CALL osae_sp_object_type_property_add('PERSON','PIN','Password','','',0);
 CALL osae_sp_object_type_property_add('GUI CLIENT','Current User','String','','',0);
@@ -842,6 +1009,16 @@ CALL osae_sp_object_type_add ('CONTROL USER SELECTOR','Control - User Selector',
 CALL osae_sp_object_type_property_add('CONTROL USER SELECTOR','X','Integer','','',0);
 CALL osae_sp_object_type_property_add('CONTROL USER SELECTOR','Y','Integer','','',0);
 CALL osae_sp_object_type_property_add('CONTROL USER SELECTOR','ZOrder','Integer','','',0);
+
+CALL osae_sp_object_type_property_delete('Font Color','CONTROL TIMER LABEL');
+CALL osae_sp_object_type_property_delete('Security Level','PERSON');
+
+CALL osae_sp_object_type_add ('CONTROL SCREEN OBJECTS','Control - Screen Objects','','CONTROL',0,1,0,1);
+CALL osae_sp_object_type_property_add('CONTROL SCREEN OBJECTS','X','Integer','','0',1);
+CALL osae_sp_object_type_property_add('CONTROL SCREEN OBJECTS','Y','Integer','','0',1);
+CALL osae_sp_object_type_property_add('CONTROL SCREEN OBJECTS','ZOrder','Integer','','0',1);
+
+CALL osae_sp_object_type_property_add('NETWORK MONITOR','Debug','Boolean','','FALSE',0);
 
 UPDATE osae_object_type_property SET property_default = '0' WHERE property_datatype = 'Integer' and (property_default = '' or property_default IS NULL);
 UPDATE osae_object_type_property SET property_default = '-1' WHERE property_datatype = 'Integer' and property_name = "Off Timer" and (property_default = '' or property_default = "0" or property_default IS NULL);
