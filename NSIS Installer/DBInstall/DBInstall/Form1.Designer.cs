@@ -14,9 +14,8 @@
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
-            {
                 components.Dispose();
-            }
+
             base.Dispose(disposing);
         }
 
@@ -39,7 +38,7 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.txbxLocation = new System.Windows.Forms.TextBox();
             this.btnOpenFile = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lblMySQL = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -115,15 +114,15 @@
             // 
             // txbxLocation
             // 
-            this.txbxLocation.Location = new System.Drawing.Point(78, 142);
+            this.txbxLocation.Location = new System.Drawing.Point(17, 169);
             this.txbxLocation.Name = "txbxLocation";
-            this.txbxLocation.Size = new System.Drawing.Size(142, 20);
+            this.txbxLocation.Size = new System.Drawing.Size(203, 20);
             this.txbxLocation.TabIndex = 12;
             this.txbxLocation.Visible = false;
             // 
             // btnOpenFile
             // 
-            this.btnOpenFile.Location = new System.Drawing.Point(226, 142);
+            this.btnOpenFile.Location = new System.Drawing.Point(226, 169);
             this.btnOpenFile.Name = "btnOpenFile";
             this.btnOpenFile.Size = new System.Drawing.Size(22, 19);
             this.btnOpenFile.TabIndex = 13;
@@ -132,22 +131,22 @@
             this.btnOpenFile.Visible = false;
             this.btnOpenFile.Click += new System.EventHandler(this.btnOpenFile_Click);
             // 
-            // label1
+            // lblMySQL
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(16, 145);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(56, 13);
-            this.label1.TabIndex = 14;
-            this.label1.Text = "mysql.exe:";
-            this.label1.Visible = false;
+            this.lblMySQL.AutoSize = true;
+            this.lblMySQL.Location = new System.Drawing.Point(16, 153);
+            this.lblMySQL.Name = "lblMySQL";
+            this.lblMySQL.Size = new System.Drawing.Size(86, 13);
+            this.lblMySQL.TabIndex = 14;
+            this.lblMySQL.Text = "MySQL Location";
+            this.lblMySQL.Visible = false;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(264, 267);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.lblMySQL);
             this.Controls.Add(this.btnOpenFile);
             this.Controls.Add(this.txbxLocation);
             this.Controls.Add(this.lblFoundDB);
@@ -180,7 +179,7 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.TextBox txbxLocation;
         private System.Windows.Forms.Button btnOpenFile;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblMySQL;
     }
 }
 

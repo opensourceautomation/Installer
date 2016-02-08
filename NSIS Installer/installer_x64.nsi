@@ -14,7 +14,7 @@
 
   ;Name and file
   Name "Open Source Automation"
-  OutFile "OSA Setup v0.4.7.exe"
+  OutFile "OSA Setup v0.4.8.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES64\OSA"
@@ -77,9 +77,9 @@ Section -Prerequisites
     DetailPrint "VC++ 2011 Redist. already installed"
   ${Else}
   DetailPrint $0
-    File "vcredist_x64.exe"
-    ExecWait "$INSTDIR\vcredist_x64.exe /q"
-    Delete "$INSTDIR\vcredist_x64.exe"
+    File "vc_redist.x64.exe"
+    ExecWait "$INSTDIR\vc_redist.x64.exe /q"
+    Delete "$INSTDIR\vc_redist.x64.exe"
     Goto endVC  
   ${EndIf}
   endVC:
@@ -121,6 +121,7 @@ Section Server s1
   SetOutPath "$INSTDIR"  
   File "..\DB\osae.sql"
   File "..\DB\0.4.6-0.4.7.sql"
+  File "..\DB\0.4.7-0.4.8.sql"
   File "MySql.Data.dll"
   File "DBInstall\DBInstall\bin\Debug\DBInstall.exe"
   ExecWait 'DBInstall.exe "$INSTDIR" "Server"'

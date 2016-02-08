@@ -18,8 +18,8 @@ namespace DBInstall
     {
         string directory = "";
         string existing = "";
-        string current = "0.4.6";
-        string newVersion = "0.4.7";
+        string current = "0.4.7";
+        string newVersion = "0.4.8";
         string machine = "";
         MySqlConnection connection;
 
@@ -37,15 +37,27 @@ namespace DBInstall
 
             if (machine == "Server")
             {
-                // txbxLocation.Text =
-                if (File.Exists(Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.7\\bin\\mysql"))
-                    txbxLocation.Text = Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.7\\bin\\mysql";
-                else if (File.Exists(Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.6\\bin\\mysql"))
-                    txbxLocation.Text = Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.6\\bin\\mysql";
-                else if (File.Exists(Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\bin\\mysql"))
-                    txbxLocation.Text = Environment.GetEnvironmentVariable("ProgramFiles")  + "\\MySQL\\bin\\mysql";
+                if (File.Exists(Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.7\\bin\\mysql.exe"))
+                {
+                    lblMySQL.Text = "MySQL Found at the following path:";
+                    txbxLocation.Text = Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.7\\bin\\mysql.exe";
+                }
+                else if (File.Exists(Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.6\\bin\\mysql.exe"))
+                {
+                    lblMySQL.Text = "MySQL Found at the following path:";
+                    txbxLocation.Text = Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.6\\bin\\mysql.exe";
+                }
+                else if (File.Exists(Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\bin\\mysql.exe"))
+                {
+                    lblMySQL.Text = "MySQL Found at the following path:";
+                    txbxLocation.Text = Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\bin\\mysql.exe";
+                }
                 else
-                    txbxLocation.Text = "Unknown, you must browse for it!";
+                {
+                    lblMySQL.Text = "MySQL NOT Found! You must Browse for it.";
+                    txbxLocation.Text = Environment.GetEnvironmentVariable("ProgramFiles");
+                    btnOpenFile.Visible = true;
+                }
 
                 string ConnectionString = string.Format("Uid={0};Password={1};Server={2};Port={3};", "osae", "osaePass", "localhost", "3306");
 
@@ -80,9 +92,7 @@ namespace DBInstall
                             else
                                 current = dataset.Tables[0].Rows[0][0].ToString();
                             if (current == newVersion)
-                            {
-                                this.Close();
-                            }
+                                Close();
                             else
                             {
                                 lblFoundDB.Text = "Found version " + current + "\nClick button to upgrade to v" + newVersion;
@@ -124,7 +134,7 @@ namespace DBInstall
                             btnInstall.Text = "OK";
                             lbl1.Visible = true;
                             lbl2.Visible = true;
-                            label1.Visible = true;
+                            lblMySQL.Visible = true;
                             txbPassword.Visible = true;
                             txbUsername.Visible = true;
                             txbxLocation.Visible = true;
@@ -136,7 +146,7 @@ namespace DBInstall
                 }
             else
             {
-                label1.Visible = false;
+                lblMySQL.Visible = false;
                 txbxLocation.Visible = false;
                 btnOpenFile.Visible = false;
                 lbl1.Visible = true;
@@ -167,7 +177,10 @@ namespace DBInstall
             foreach (ServiceController service in services)
             {
                 if (service.ServiceName.ToLower() == serviceName.ToLower())
+                {
+                    //service can we pull a path here?;
                     return true;
+                }
             }
             return false;
         }
@@ -179,19 +192,15 @@ namespace DBInstall
                 if (btnInstall.Text == "Upgrade")
                 {
                     upgrade();
-                    this.Close();
+                    Close();
                 }
                 else if (btnInstall.Text == "OK")
                 {
                     string mysqlDir = "", iniDir = "";
                     if (txbxLocation.Text != "Unknown, you must browse for it!" && txbxLocation.Text != "")
-                    {
                         mysqlDir = txbxLocation.Text;
-                    }
                     else
-                    {
                         mysqlDir = Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.7\\bin\\mysql";
-                    }
 
                     //iniDir = mysqlDir.Substring(0, mysqlDir.IndexOf("bin")-1);
                     //if (File.Exists(iniDir + "my.ini"))
@@ -244,17 +253,12 @@ namespace DBInstall
                                 current = "0.1.0";
                             else
                                 current = dataset.Tables[0].Rows[0][0].ToString();
-                            if (current != newVersion)
-                            {
-                                upgrade();
-                            }
+                            if (current != newVersion) upgrade();
                             connection.Close();
-                            this.Close();
+                            Close();
                         }
                         catch
-                        {
-                            MessageBox.Show("Connection error.  Please check password.");
-                        }
+                        { MessageBox.Show("Connection error.  Please check password."); }
                     }
                     else
                     {
@@ -267,13 +271,12 @@ namespace DBInstall
 
                         connection.Close();
 
-
                         MessageBox.Show("Database installed successfully.");
-                        this.Close();
+                        Close();
                     }
                 }
                 else
-                    this.Close();
+                    Close();
             }
             else if (btnInstall.Text == "OK")
             {
@@ -281,7 +284,7 @@ namespace DBInstall
                 myRegistry.SubKey = "SOFTWARE\\OSAE\\DBSETTINGS";
                 myRegistry.Write("DBCONNECTION", txbUsername.Text);
                 myRegistry.Write("DBPORT", txbPassword.Text);
-                this.Close();
+                Close();
             }
             
         }
@@ -291,10 +294,7 @@ namespace DBInstall
             // Show the dialog and get result.
             DialogResult result = openFileDialog1.ShowDialog();
             if (result == DialogResult.OK) // Test result.
-            {
                 txbxLocation.Text = openFileDialog1.FileName;
-            }
-            
         }
 
         #region Methods
@@ -323,7 +323,7 @@ namespace DBInstall
                             if (Int32.Parse(nums[2]) >= bug)
                             {
                                 scripts.Add(s.Substring(directory.Length + 1));
-                               addToLog("Found upgrade script: " + s.Substring(directory.Length + 1));
+                                addToLog("Found upgrade script: " + s.Substring(directory.Length + 1));
                             }
                         }
                     }
@@ -359,9 +359,6 @@ namespace DBInstall
         }
 
         #endregion
-
-
-
     }
 
 
