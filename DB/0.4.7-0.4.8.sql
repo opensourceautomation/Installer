@@ -1037,6 +1037,11 @@ CALL osae_sp_object_type_property_add('CONTROL USER SELECTOR','X','Integer','','
 CALL osae_sp_object_type_property_add('CONTROL USER SELECTOR','Y','Integer','','',0);
 CALL osae_sp_object_type_property_add('CONTROL USER SELECTOR','ZOrder','Integer','','',0);
 
+CALL osae_sp_object_type_add ('CONTROL SCREEN OBJECTS','Control - Screen Objects','','CONTROL',0,1,0,1);
+CALL osae_sp_object_type_property_add('CONTROL SCREEN OBJECTS','X','Integer','','0',1);
+CALL osae_sp_object_type_property_add('CONTROL SCREEN OBJECTS','Y','Integer','','0',1);
+CALL osae_sp_object_type_property_add('CONTROL SCREEN OBJECTS','ZOrder','Integer','','0',1);
+
 CALL osae_sp_object_type_add ('BLUETOOTH','Bluetooth Plugin','Bluetooth','PLUGIN',1,0,0,1);
 CALL osae_sp_object_type_state_add('BLUETOOTH','ON','Running');
 CALL osae_sp_object_type_state_add('BLUETOOTH','OFF','Stopped');
