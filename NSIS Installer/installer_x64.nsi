@@ -242,6 +242,7 @@ Section Server s1
   File "..\output\Plugins\WUnderground\Screenshot.jpg"
 
   SetOutPath "$INSTDIR\Plugins\Web Server"
+  File "..\output\Plugins\Web Server\OSAE.WebServer.dll"
   File "..\output\Plugins\Web Server\Web Server.osapd"
   File "..\output\Plugins\Web Server\Screenshot.jpg"
 
