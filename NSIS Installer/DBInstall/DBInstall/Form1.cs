@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
@@ -34,22 +30,23 @@ namespace DBInstall
         {
             System.IO.FileInfo file = new System.IO.FileInfo("install_log.log");
             file.Directory.Create();
+            btnOpenFile.Visible = false;
 
             if (machine == "Server")
             {
                 if (File.Exists(Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.7\\bin\\mysql.exe"))
                 {
-                    lblMySQL.Text = "MySQL Found at the following path:";
+                    lblMySQL.Text = "MySQL Found at:";
                     txbxLocation.Text = Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.7\\bin\\mysql.exe";
                 }
                 else if (File.Exists(Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.6\\bin\\mysql.exe"))
                 {
-                    lblMySQL.Text = "MySQL Found at the following path:";
+                    lblMySQL.Text = "MySQL Found at:";
                     txbxLocation.Text = Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\MySQL Server 5.6\\bin\\mysql.exe";
                 }
                 else if (File.Exists(Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\bin\\mysql.exe"))
                 {
-                    lblMySQL.Text = "MySQL Found at the following path:";
+                    lblMySQL.Text = "MySQL Found at:";
                     txbxLocation.Text = Environment.GetEnvironmentVariable("ProgramFiles") + "\\MySQL\\bin\\mysql.exe";
                 }
                 else
@@ -87,10 +84,9 @@ namespace DBInstall
                             command = new MySqlCommand("select property_value from osae_object_property p inner join osae_object_type_property tp on p.object_type_property_id = tp.property_id inner join osae_object o on o.object_id = p.object_id where object_name = 'SYSTEM' and property_name = 'DB Version'", connection);
                             adapter = new MySqlDataAdapter(command);
                             adapter.Fill(dataset);
-                            if (dataset.Tables[0].Rows[0][0].ToString() == "")
-                                current = "0.4.7";
-                            else
-                                current = dataset.Tables[0].Rows[0][0].ToString();
+                            if (dataset.Tables[0].Rows[0][0].ToString() == "") current = "0.4.7";
+                            else current = dataset.Tables[0].Rows[0][0].ToString();
+
                             if (current == newVersion)
                                 Close();
                             else
@@ -107,7 +103,7 @@ namespace DBInstall
                             MySqlScript script = new MySqlScript(connection, File.ReadAllText(directory + "\\osae.sql"));
                             script.Execute();
                             connection.Close();
-                            this.Close();
+                            Close();
                         }
                     }
                     catch (Exception ex)
@@ -116,12 +112,9 @@ namespace DBInstall
                         addToLog("Unable to connect with osae account: " + ex.Message);
 
                         ServiceController sc = new ServiceController();
-                        if (IsServiceInstalled("MySQL56"))
-                            sc = new ServiceController("MySQL56");
-                        else if (IsServiceInstalled("MySQL57"))
-                            sc = new ServiceController("MySQL57");
-                        else if (IsServiceInstalled("MySQL"))
-                            sc = new ServiceController("MySQL");
+                        if (IsServiceInstalled("MySQL56")) sc = new ServiceController("MySQL56");
+                        else if (IsServiceInstalled("MySQL57")) sc = new ServiceController("MySQL57");
+                        else if (IsServiceInstalled("MySQL")) sc = new ServiceController("MySQL");
 
                     if (sc.Status != ServiceControllerStatus.Running)
                         {
@@ -140,7 +133,6 @@ namespace DBInstall
                             txbxLocation.Visible = true;
                             btnOpenFile.Visible = true;
                             lblFoundDB.Text = "Existing MySql Server found. \nPlease enter your root password and \nverify location of mysql.exe.";
-
                         }
                     }
                 }
@@ -249,10 +241,9 @@ namespace DBInstall
                             command = new MySqlCommand("select property_value from osae_object_property p inner join osae_object_type_property tp on p.object_type_property_id = tp.property_id inner join osae_object o on o.object_id = p.object_id where object_name = 'SYSTEM' and property_name = 'DB Version'", connection);
                             adapter = new MySqlDataAdapter(command);
                             adapter.Fill(dataset);
-                            if (dataset.Tables[0].Rows[0][0].ToString() == "")
-                                current = "0.1.0";
-                            else
-                                current = dataset.Tables[0].Rows[0][0].ToString();
+                            if (dataset.Tables[0].Rows[0][0].ToString() == "") current = "0.4.7";
+                            else current = dataset.Tables[0].Rows[0][0].ToString();
+
                             if (current != newVersion) upgrade();
                             connection.Close();
                             Close();
@@ -262,7 +253,6 @@ namespace DBInstall
                     }
                     else
                     {
-
                         MySqlScript script = new MySqlScript(connection, File.ReadAllText(directory + "\\osae.sql"));
                         script.Execute();
 
@@ -286,15 +276,13 @@ namespace DBInstall
                 myRegistry.Write("DBPORT", txbPassword.Text);
                 Close();
             }
-            
         }
 
         private void btnOpenFile_Click(object sender, EventArgs e)
         {
             // Show the dialog and get result.
             DialogResult result = openFileDialog1.ShowDialog();
-            if (result == DialogResult.OK) // Test result.
-                txbxLocation.Text = openFileDialog1.FileName;
+            if (result == DialogResult.OK) txbxLocation.Text = openFileDialog1.FileName;
         }
 
         #region Methods
@@ -393,15 +381,11 @@ namespace DBInstall
         /// </summary>
         public string Read(string KeyName)
         {
-            // Opening the registry key
-            RegistryKey rk = baseRegistryKey;
-            // Open a subKey as read-only
-            RegistryKey sk1 = rk.OpenSubKey(subKey);
+            RegistryKey rk = baseRegistryKey;  // Opening the registry key
+            RegistryKey sk1 = rk.OpenSubKey(subKey);  // Open a subKey as read-only
             // If the RegistrySubKey doesn't exist -> (null)
             if (sk1 == null)
-            {
                 return null;
-            }
             else
             {
                 try
@@ -412,9 +396,7 @@ namespace DBInstall
                 }
                 catch (Exception e)
                 {
-                    // AAAAAAAAAAARGH, an error!
                     //AddToLog("Registery Read error: " + e.Message);
-
                     return null;
                 }
             }
