@@ -167,12 +167,12 @@ Section Server s1
   File "..\output\UserControls\Weather Control\Weather.osaud"
   File "..\output\UserControls\Weather Control\Weather_Control.dll"
 
-  CreateDirectory "$INSTDIR\UserControls\MyStateButton"
-  SetOutPath "$INSTDIR\UserControls\MyStateButton"
-  File "..\output\UserControls\MyStateButton\install.sql"
-  File "..\output\UserControls\MyStateButton\Screenshot.jpg"
-  File "..\output\UserControls\MyStateButton\MyStateButton.osaud"
-  File "..\output\UserControls\MyStateButton\MyStateButton.dll"
+  CreateDirectory "$INSTDIR\UserControls\StateButton"
+  SetOutPath "$INSTDIR\UserControls\StateButton"
+  File "..\output\UserControls\StateButton\install.sql"
+  File "..\output\UserControls\StateButton\Screenshot.jpg"
+  File "..\output\UserControls\StateButton\StateButton.osaud"
+  File "..\output\UserControls\StateButton\StateButton.dll"
 
   CreateDirectory "$INSTDIR\Plugins"
   SetOutPath "$INSTDIR\Plugins"
@@ -283,8 +283,8 @@ Section Server s1
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\controls"
   File "..\output\Plugins\Web Server\wwwroot\controls\*.*"
 
-  SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\controls\usercontrols\MyStateButton"
-  File "..\output\Plugins\Web Server\wwwroot\controls\usercontrols\MyStateButton\*.*"
+  SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\controls\usercontrols\StateButton"
+  File "..\output\Plugins\Web Server\wwwroot\controls\usercontrols\StateButton\*.*"
 
   SetOutPath "$INSTDIR\Plugins\Web Server\wwwroot\controls\usercontrols\WeatherControl"
   File "..\output\Plugins\Web Server\wwwroot\controls\usercontrols\WeatherControl\*.*"
